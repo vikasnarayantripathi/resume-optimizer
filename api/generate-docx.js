@@ -26,3 +26,4 @@ export default async function handler(req, res) {
   res.setHeader('Content-Length', buffer.length);
   res.send(buffer);
 }
+// updated
