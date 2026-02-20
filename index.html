@@ -268,15 +268,15 @@
     document.getElementById('loading').style.display = 'block';
     animateSteps();
     try {
-      const formData = new FormData();
-      formData.append('jobDescription', jobDesc);
-      formData.append('licenseKey', licenseKey);
-      if (file) {
-        formData.append('resumeFile', file);
-      } else {
-        formData.append('resumeText', resumeText);
-      }
-      const res = await fetch('/api/optimize', { method: 'POST', body: formData });
+    const res = await fetch('/api/optimize', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    jobDescription: jobDesc,
+    resumeText: currentTab === 'paste' ? resumeText : 'Please paste your resume text using the Paste Text tab',
+    licenseKey: licenseKey
+  })
+});
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         throw new Error(err.error || 'Server error. Please try again.');

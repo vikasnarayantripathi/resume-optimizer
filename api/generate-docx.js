@@ -1,99 +1,28 @@
-import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
-
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).end();
-
-  const { optimizedText, licenseKey } = req.body;
-
+  const { optimizedText, licenseKey } = req.body || {};
   if (!optimizedText || !licenseKey) {
     return res.status(400).json({ error: 'Missing data.' });
   }
-
   const lines = optimizedText.split('\n');
-  const docChildren = [];
-
+  let rtf = '{\\rtf1\\ansi\\deff0{\\fonttbl{\\f0 Calibri;}}\\f0\\fs22 ';
   for (const rawLine of lines) {
     const line = rawLine.trim();
-    if (!line) {
-      docChildren.push(new Paragraph({ text: '' }));
-      continue;
-    }
-    const isHeader = (
-      (line === line.toUpperCase() && line.length > 2 && line.length < 40 && !/^\d/.test(line)) ||
-      (line.endsWith(':') && line.length < 40)
-    );
+    if (!line) { rtf += '\\par '; continue; }
+    const safe = line.replace(/\\/g,'\\\\').replace(/\{/g,'\\{').replace(/\}/g,'\\}');
+    const isHeader = (line === line.toUpperCase() && line.length > 2 && line.length < 40 && !/^\d/.test(line)) || (line.endsWith(':') && line.length < 40);
     if (isHeader) {
-      docChildren.push(new Paragraph({
-        text: line.replace(/:$/, ''),
-        heading: HeadingLevel.HEADING_2,
-        spacing: { before: 240, after: 80 }
-      }));
-    } else if (line.startsWith('•') || line.startsWith('-') || line.startsWith('*')) {
-      docChildren.push(new Paragraph({
-        bullet: { level: 0 },
-        children: [new TextRun({ text: line.replace(/^[•\-*]\s*/, ''), size: 22 })]
-      }));
+      rtf += `\\par\\b ${safe}\\b0\\par `;
+    } else if (/^[*\-•]/.test(line)) {
+      rtf += `\\par\\li360 - ${safe.replace(/^[*\-•]\s*/,'')}\\li0 `;
     } else {
-      docChildren.push(new Paragraph({
-        children: [new TextRun({ text: line, size: 22 })]
-      }));
+      rtf += `\\par ${safe} `;
     }
   }
-
-  const doc = new Document({
-    styles: {
-      default: {
-        document: {
-          run: { font: 'Calibri', size: 22 }
-        }
-      }
-    },
-    sections: [{
-      properties: {
-        page: {
-          margin: { top: 720, right: 720, bottom: 720, left: 720 }
-        }
-
-
-cat > api/generate-docx.js << 'EOF'
-import { Document, Packer, Paragraph, TextRun, HeadingLevel } from 'docx';
-
-export default async function handler(req, res) {
-  if (req.method !== 'POST') return res.status(405).end();
-
-  const { optimizedText, licenseKey } = req.body;
-
-  if (!optimizedText || !licenseKey) {
-    return res.status(400).json({ error: 'Missing data.' });
-  }
-
-  const lines = optimizedText.split('\n');
-  const docChildren = [];
-
-  for (const rawLine of lines) {
-    const line = rawLine.trim();
-    if (!line) {
-      docChildren.push(new Paragraph({ text: '' }));
-      continue;
-    }
-    const isHeader = (
-      (line === line.toUpperCase() && line.length > 2 && line.length < 40 && !/^\d/.test(line)) ||
-      (line.endsWith(':') && line.length < 40)
-    );
-    if (isHeader) {
-      docChildren.push(new Paragraph({
-        text: line.replace(/:$/, ''),
-        heading: HeadingLevel.HEADING_2,
-        spacing: { before: 240, after: 80 }
-      }));
-    } else if (line.startsWith('•') || line.startsWith('-') || line.startsWith('*')) {
-      docChildren.push(new Paragraph({
-        bullet: { level: 0 },
-        children: [new TextRun({ text: line.replace(/^[•\-*]\s*/, ''), size: 22 })]
-      }));
-    } else {
-      docChildren.push(new Paragraph({
-        children: [new TextRun({ text: line, size: 22 })]
-      }));
-    }
-  }
+  rtf += '}';
+  const buffer = Buffer.from(rtf, 'utf8');
+  res.setHeader('Content-Type', 'application/msword');
+  res.setHeader('Content-Disposition', 'attachment; filename="optimized-resume.doc"');
+  res.setHeader('Content-Length', buffer.length);
+  res.send(buffer);
+}
