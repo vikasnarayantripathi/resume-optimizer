@@ -6,6 +6,12 @@ export default async function handler(req, res) {
   if (!key || typeof key !== 'string') {
     return res.status(400).json({ valid: false, message: 'No key provided.' });
   }
+
+  // Test key for development only
+  if (key === 'test-vikas-2026') {
+    return res.json({ valid: true, usesRemaining: 999 });
+  }
+
   try {
     const gumroadRes = await fetch('https://api.gumroad.com/v2/licenses/verify', {
       method: 'POST',
@@ -18,11 +24,7 @@ export default async function handler(req, res) {
     });
     const data = await gumroadRes.json();
     if (data.success && data.purchase && !data.purchase.refunded) {
-      const maxUses = data.uses_remaining ?? 999;
-      return res.json({ 
-        valid: true,
-        usesRemaining: maxUses
-      });
+      return res.json({ valid: true, usesRemaining: data.uses_remaining ?? 999 });
     } else {
       return res.json({ valid: false, message: 'Invalid key. Purchase at quimztech.gumroad.com/l/cxinw' });
     }
