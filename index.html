@@ -1,0 +1,368 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ResumeMatch AI — Optimize Your Resume for Any Job</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f0f4f8; color: #1a202c; }
+  header { background: #2d3748; color: white; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
+  header h1 { font-size: 1.25rem; font-weight: 700; }
+  header span { font-size: 0.85rem; color: #a0aec0; }
+  .hero { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-align: center; padding: 48px 24px; }
+  .hero h2 { font-size: 2rem; font-weight: 800; margin-bottom: 12px; }
+  .hero p { font-size: 1.1rem; opacity: 0.9; max-width: 560px; margin: 0 auto; }
+  .container { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
+  #payment-gate { background: white; border-radius: 12px; padding: 40px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.08); max-width: 480px; margin: 0 auto 32px; }
+  #payment-gate h3 { font-size: 1.4rem; margin-bottom: 8px; }
+  #payment-gate p { color: #718096; margin-bottom: 24px; }
+  .price-box { background: #f7fafc; border: 2px solid #667eea; border-radius: 8px; padding: 20px; margin-bottom: 24px; }
+  .price { font-size: 2.5rem; font-weight: 800; color: #667eea; }
+  .price sub { font-size: 1rem; font-weight: 400; }
+  .price-note { font-size: 0.85rem; color: #718096; margin-top: 4px; }
+  .btn-buy { display: block; width: 100%; background: #667eea; color: white; border: none; border-radius: 8px; padding: 16px; font-size: 1.1rem; font-weight: 700; cursor: pointer; text-decoration: none; margin-bottom: 16px; transition: background 0.2s; }
+  .btn-buy:hover { background: #5a67d8; }
+  .key-section { border-top: 1px solid #e2e8f0; padding-top: 16px; }
+  .key-section p { font-size: 0.85rem; color: #718096; margin-bottom: 8px; }
+  .key-input-row { display: flex; gap: 8px; }
+  #license-key { flex: 1; border: 1px solid #cbd5e0; border-radius: 6px; padding: 10px 12px; font-size: 0.95rem; }
+  #validate-btn { background: #48bb78; color: white; border: none; border-radius: 6px; padding: 10px 16px; cursor: pointer; font-weight: 600; }
+  #key-error { color: #e53e3e; font-size: 0.85rem; margin-top: 6px; display: none; }
+  #main-tool { display: none; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } }
+  .card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  .card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 16px; color: #2d3748; display: flex; align-items: center; gap: 8px; }
+  .badge { font-size: 0.7rem; background: #ebf4ff; color: #3182ce; padding: 2px 8px; border-radius: 12px; font-weight: 600; }
+  textarea { width: 100%; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; font-size: 0.9rem; resize: vertical; font-family: inherit; }
+  textarea:focus { outline: none; border-color: #667eea; box-shadow: 0 0 0 3px rgba(102,126,234,0.15); }
+  .tab-row { display: flex; gap: 4px; margin-bottom: 12px; }
+  .tab { background: #f7fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 6px 14px; cursor: pointer; font-size: 0.85rem; font-weight: 600; color: #718096; }
+  .tab.active { background: #667eea; color: white; border-color: #667eea; }
+  .upload-zone { border: 2px dashed #cbd5e0; border-radius: 8px; padding: 32px; text-align: center; cursor: pointer; }
+  .upload-zone:hover { border-color: #667eea; background: #f0f4ff; }
+  .upload-zone p { color: #718096; font-size: 0.9rem; }
+  .upload-zone strong { color: #667eea; }
+  #file-input { display: none; }
+  #file-name { font-size: 0.85rem; color: #48bb78; margin-top: 8px; font-weight: 600; display: none; }
+  .btn-optimize { width: 100%; background: linear-gradient(135deg, #667eea, #764ba2); color: white; border: none; border-radius: 10px; padding: 18px; font-size: 1.15rem; font-weight: 800; cursor: pointer; margin-top: 24px; }
+  .btn-optimize:disabled { opacity: 0.5; cursor: not-allowed; }
+  #results { display: none; margin-top: 32px; }
+  .scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+  .score-card { background: white; border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  .score-card .label { font-size: 0.8rem; color: #718096; font-weight: 600; text-transform: uppercase; }
+  .score-card .number { font-size: 2.5rem; font-weight: 800; margin: 4px 0; }
+  .score-card .sublabel { font-size: 0.8rem; color: #718096; }
+  .score-good { color: #38a169; }
+  .score-mid { color: #d69e2e; }
+  .score-bad { color: #e53e3e; }
+  .comparison { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px; }
+  @media (max-width: 768px) { .comparison { grid-template-columns: 1fr; } }
+  .resume-panel { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+  .resume-panel h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 16px; padding-bottom: 10px; border-bottom: 2px solid #e2e8f0; }
+  .panel-before h4 { border-color: #fc8181; color: #c53030; }
+  .panel-after h4 { border-color: #68d391; color: #276749; }
+  .resume-text { font-size: 0.82rem; line-height: 1.7; color: #4a5568; white-space: pre-wrap; max-height: 500px; overflow-y: auto; }
+  .keywords-section { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); margin-bottom: 24px; }
+  .keywords-section h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 12px; }
+  .keyword-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip { padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+  .chip-found { background: #c6f6d5; color: #276749; }
+  .chip-missing { background: #fed7d7; color: #c53030; }
+  .btn-download { display: block; width: 100%; background: #38a169; color: white; border: none; border-radius: 10px; padding: 16px; font-size: 1.1rem; font-weight: 700; cursor: pointer; text-align: center; }
+  .btn-download:hover { background: #2f855a; }
+  #loading { display: none; text-align: center; padding: 48px; }
+  .spinner { width: 48px; height: 48px; border: 4px solid #e2e8f0; border-top-color: #667eea; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 16px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  #loading p { color: #718096; font-size: 0.95rem; }
+  #loading .steps { margin-top: 16px; display: flex; flex-direction: column; gap: 6px; }
+  #loading .step { font-size: 0.85rem; color: #a0aec0; }
+  #loading .step.active { color: #667eea; font-weight: 600; }
+  .error-msg { background: #fff5f5; border: 1px solid #fc8181; color: #c53030; border-radius: 8px; padding: 12px 16px; margin-top: 12px; font-size: 0.9rem; display: none; }
+</style>
+</head>
+<body>
+<header>
+  <h1>⚡ ResumeMatch AI</h1>
+  <span>ATS-Optimized in 60 Seconds</span>
+</header>
+<div class="hero">
+  <h2>Get Past the ATS. Land the Interview.</h2>
+  <p>Paste a job description, upload your resume — get a tailored, ATS-optimized version with one click.</p>
+</div>
+<div class="container">
+  <div id="payment-gate">
+    <h3>🎯 One Resume. One Job. One Click.</h3>
+    <p>Each optimization is tailored specifically to the job description you provide.</p>
+    <div class="price-box">
+      <div class="price">$12<sub>.99</sub></div>
+      <div class="price-note">One-time payment · Instant download · Money-back guarantee</div>
+    </div>
+    <a href="https://YOUR_GUMROAD_LINK_HERE" target="_blank" class="btn-buy" id="buy-btn">
+      💳 Buy Now — Get Instant Access
+    </a>
+    <div class="key-section">
+      <p>Already purchased? Enter your license key:</p>
+      <div class="key-input-row">
+        <input type="text" id="license-key" placeholder="XXXX-XXXX-XXXX-XXXX" />
+        <button id="validate-btn">Unlock →</button>
+      </div>
+      <div id="key-error">Invalid or already used key. Please try again.</div>
+    </div>
+  </div>
+  <div id="main-tool">
+    <div class="grid-2">
+      <div class="card">
+        <h3>📋 Job Description <span class="badge">Step 1</span></h3>
+        <textarea id="job-desc" rows="14" placeholder="Paste the full job description here..."></textarea>
+      </div>
+      <div class="card">
+        <h3>📄 Your Resume <span class="badge">Step 2</span></h3>
+        <div class="tab-row">
+          <button class="tab active" onclick="switchTab('upload', event)">Upload File</button>
+          <button class="tab" onclick="switchTab('paste', event)">Paste Text</button>
+        </div>
+        <div id="tab-upload">
+          <div class="upload-zone" id="upload-zone" onclick="document.getElementById('file-input').click()">
+            <p>📎 Drop your resume here or <strong>click to browse</strong></p>
+            <p style="margin-top:6px; font-size:0.8rem;">Supports PDF and DOCX</p>
+            <div id="file-name"></div>
+          </div>
+          <input type="file" id="file-input" accept=".pdf,.docx" />
+        </div>
+        <div id="tab-paste" style="display:none;">
+          <textarea id="resume-text" rows="12" placeholder="Paste your resume text here..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="error-msg" id="error-msg"></div>
+    <button class="btn-optimize" id="optimize-btn" onclick="runOptimize()">
+      ⚡ Optimize My Resume Now
+    </button>
+  </div>
+  <div id="loading">
+    <div class="spinner"></div>
+    <p>Analyzing your resume against the job requirements...</p>
+    <div class="steps">
+      <div class="step active" id="step1">📖 Parsing resume & job description</div>
+      <div class="step" id="step2">🔍 Identifying keyword gaps</div>
+      <div class="step" id="step3">✍️ Rewriting & optimizing bullets</div>
+      <div class="step" id="step4">📊 Calculating ATS score</div>
+      <div class="step" id="step5">📝 Generating DOCX file</div>
+    </div>
+  </div>
+  <div id="results">
+    <div class="scores">
+      <div class="score-card">
+        <div class="label">Before Score</div>
+        <div class="number score-bad" id="score-before">—</div>
+        <div class="sublabel">ATS Match</div>
+      </div>
+      <div class="score-card">
+        <div class="label">After Score</div>
+        <div class="number score-good" id="score-after">—</div>
+        <div class="sublabel">ATS Match</div>
+      </div>
+      <div class="score-card">
+        <div class="label">Keywords Added</div>
+        <div class="number score-mid" id="keywords-added">—</div>
+        <div class="sublabel">New Matches</div>
+      </div>
+    </div>
+    <div class="keywords-section">
+      <h4>🔑 Keyword Analysis</h4>
+      <div class="keyword-chips" id="keyword-chips"></div>
+    </div>
+    <div class="comparison">
+      <div class="resume-panel panel-before">
+        <h4>❌ Before — Original Resume</h4>
+        <div class="resume-text" id="original-text"></div>
+      </div>
+      <div class="resume-panel panel-after">
+        <h4>✅ After — Optimized Resume</h4>
+        <div class="resume-text" id="optimized-text"></div>
+      </div>
+    </div>
+    <button class="btn-download" onclick="downloadDocx()">
+      ⬇️ Download Optimized Resume (.docx)
+    </button>
+  </div>
+</div>
+<script>
+  let currentTab = 'upload';
+  let licenseKey = '';
+  let resultData = null;
+
+  function switchTab(tab, event) {
+    currentTab = tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('tab-upload').style.display = tab === 'upload' ? 'block' : 'none';
+    document.getElementById('tab-paste').style.display  = tab === 'paste'  ? 'block' : 'none';
+  }
+
+  const zone = document.getElementById('upload-zone');
+  const fileInput = document.getElementById('file-input');
+  zone.addEventListener('dragover', e => { e.preventDefault(); zone.style.borderColor = '#667eea'; });
+  zone.addEventListener('dragleave', () => zone.style.borderColor = '#cbd5e0');
+  zone.addEventListener('drop', e => {
+    e.preventDefault();
+    zone.style.borderColor = '#cbd5e0';
+    if (e.dataTransfer.files.length) setFile(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', () => { if (fileInput.files.length) setFile(fileInput.files[0]); });
+
+  function setFile(f) {
+    const el = document.getElementById('file-name');
+    el.textContent = '✓ ' + f.name;
+    el.style.display = 'block';
+  }
+
+  document.getElementById('validate-btn').addEventListener('click', async () => {
+    const key = document.getElementById('license-key').value.trim();
+    if (!key) return;
+    const btn = document.getElementById('validate-btn');
+    btn.textContent = 'Checking...';
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/validate-key', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key })
+      });
+      const data = await res.json();
+      if (data.valid) {
+        licenseKey = key;
+        document.getElementById('payment-gate').style.display = 'none';
+        document.getElementById('main-tool').style.display = 'block';
+      } else {
+        document.getElementById('key-error').style.display = 'block';
+        document.getElementById('key-error').textContent = data.message || 'Invalid key.';
+      }
+    } catch {
+      document.getElementById('key-error').style.display = 'block';
+      document.getElementById('key-error').textContent = 'Network error. Please try again.';
+    }
+    btn.textContent = 'Unlock →';
+    btn.disabled = false;
+  });
+
+  async function runOptimize() {
+    const jobDesc = document.getElementById('job-desc').value.trim();
+    const errorEl = document.getElementById('error-msg');
+    errorEl.style.display = 'none';
+    if (!jobDesc) { showError('Please paste a job description.'); return; }
+    let resumeText = '';
+    let file = null;
+    if (currentTab === 'paste') {
+      resumeText = document.getElementById('resume-text').value.trim();
+      if (!resumeText) { showError('Please paste your resume text.'); return; }
+    } else {
+      file = fileInput.files[0];
+      if (!file) { showError('Please upload a resume file.'); return; }
+    }
+    document.getElementById('main-tool').style.display = 'none';
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    animateSteps();
+    try {
+      const formData = new FormData();
+      formData.append('jobDescription', jobDesc);
+      formData.append('licenseKey', licenseKey);
+      if (file) {
+        formData.append('resumeFile', file);
+      } else {
+        formData.append('resumeText', resumeText);
+      }
+      const res = await fetch('/api/optimize', { method: 'POST', body: formData });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Server error. Please try again.');
+      }
+      const data = await res.json();
+      resultData = data;
+      showResults(data);
+    } catch (e) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('main-tool').style.display = 'block';
+      showError(e.message);
+    }
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  let stepInterval;
+  function animateSteps() {
+    const steps = ['step1','step2','step3','step4','step5'];
+    let i = 0;
+    steps.forEach(s => document.getElementById(s).classList.remove('active'));
+    document.getElementById(steps[0]).classList.add('active');
+    stepInterval = setInterval(() => {
+      if (i < steps.length - 1) {
+        document.getElementById(steps[i]).classList.remove('active');
+        i++;
+        document.getElementById(steps[i]).classList.add('active');
+      }
+    }, 3000);
+  }
+
+  function showResults(data) {
+    clearInterval(stepInterval);
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('score-before').textContent = data.scoreBefore + '/100';
+    document.getElementById('score-after').textContent  = data.scoreAfter  + '/100';
+    document.getElementById('keywords-added').textContent = data.keywordsAdded;
+    const chipsEl = document.getElementById('keyword-chips');
+    chipsEl.innerHTML = '';
+    (data.keywordsFound || []).forEach(k => {
+      const c = document.createElement('span');
+      c.className = 'chip chip-found';
+      c.textContent = '✓ ' + k;
+      chipsEl.appendChild(c);
+    });
+    (data.keywordsMissing || []).forEach(k => {
+      const c = document.createElement('span');
+      c.className = 'chip chip-missing';
+      c.textContent = '✗ ' + k;
+      chipsEl.appendChild(c);
+    });
+    document.getElementById('original-text').textContent  = data.originalText;
+    document.getElementById('optimized-text').textContent = data.optimizedText;
+    window.scrollTo({ top: document.getElementById('results').offsetTop - 20, behavior: 'smooth' });
+  }
+
+  async function downloadDocx() {
+    if (!resultData) return;
+    const btn = document.querySelector('.btn-download');
+    btn.textContent = '⏳ Generating DOCX...';
+    btn.disabled = true;
+    try {
+      const res = await fetch('/api/generate-docx', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ optimizedText: resultData.optimizedText, licenseKey })
+      });
+      if (!res.ok) throw new Error('Download failed');
+      const blob = await res.blob();
+      const url  = URL.createObjectURL(blob);
+      const a    = document.createElement('a');
+      a.href     = url;
+      a.download = 'optimized-resume.docx';
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert('Download failed: ' + e.message);
+    }
+    btn.textContent = '⬇️ Download Optimized Resume (.docx)';
+    btn.disabled = false;
+  }
+</script>
+</body>
+</html>
