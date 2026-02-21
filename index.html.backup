@@ -101,7 +101,7 @@
       <div class="price">$10<sub>.99</sub></div>
       <div class="price-note">One-time payment · Instant download · Money-back guarantee</div>
     </div>
-    <a href="https://quimztech.gumroad.com/l/cxinw" target="_blank" class="btn-buy" id="buy-btn">
+    <a href="https://quimztech.gumroad.com/l/cxinw" target="_blank" class="btn-buy">
       💳 Buy Now — Get Instant Access
     </a>
     <div class="key-section">
@@ -151,7 +151,7 @@
       <div class="step" id="step2">🔍 Identifying keyword gaps</div>
       <div class="step" id="step3">✍️ Rewriting & optimizing bullets</div>
       <div class="step" id="step4">📊 Calculating ATS score</div>
-      <div class="step" id="step5">📝 Generating DOCX file</div>
+      <div class="step" id="step5">📝 Generating PDF file</div>
     </div>
   </div>
   <div id="results">
@@ -186,12 +186,10 @@
         <div class="resume-text" id="optimized-text"></div>
       </div>
     </div>
-    <!-- DOWNLOAD BUTTON -->
-    <button class="btn-download" id="download-btn" onclick="downloadDocx()">
-      ⬇️ Download Optimized Resume (.docx)
+    <button class="btn-download" id="download-btn" onclick="downloadPdf()">
+      ⬇️ Download Optimized Resume (PDF)
     </button>
-    <!-- RESTART BUTTON — always visible in results -->
-    <button class="btn-restart" id="restart-btn" onclick="location.reload()">
+    <button class="btn-restart" onclick="location.reload()">
       🔄 Optimize Another Resume — Get a new key at quimztech.gumroad.com/l/cxinw
     </button>
   </div>
@@ -232,11 +230,13 @@
     const btn = document.getElementById('validate-btn');
     btn.textContent = 'Checking...';
     btn.disabled = true;
+    const errEl = document.getElementById('key-error');
+    errEl.style.display = 'none';
     try {
       const res = await fetch('/api/validate-key', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key })
+        body: JSON.stringify({ key })
       });
       const data = await res.json();
       if (data.valid) {
@@ -244,12 +244,12 @@
         document.getElementById('payment-gate').style.display = 'none';
         document.getElementById('main-tool').style.display = 'block';
       } else {
-        document.getElementById('key-error').style.display = 'block';
-        document.getElementById('key-error').textContent = data.message || 'Invalid key.';
+        errEl.style.display = 'block';
+        errEl.textContent = data.message || 'Invalid key.';
       }
     } catch {
-      document.getElementById('key-error').style.display = 'block';
-      document.getElementById('key-error').textContent = 'Network error. Please try again.';
+      errEl.style.display = 'block';
+      errEl.textContent = 'Network error. Please try again.';
     }
     btn.textContent = 'Unlock →';
     btn.disabled = false;
@@ -269,25 +269,25 @@
     errorEl.style.display = 'none';
     if (!jobDesc) { showError('Please paste a job description.'); return; }
     let resumeText = '';
-    let file = null;
+    let file = fileInput.files[0];
     if (currentTab === 'paste') {
       resumeText = document.getElementById('resume-text').value.trim();
       if (!resumeText) { showError('Please paste your resume text.'); return; }
     } else {
-      file = fileInput.files[0];
       if (!file) { showError('Please upload a resume file.'); return; }
+      resumeText = await readFileAsText(file);
     }
     document.getElementById('main-tool').style.display = 'none';
     document.getElementById('results').style.display = 'none';
     document.getElementById('loading').style.display = 'block';
     animateSteps();
+    try {
       const res = await fetch('/api/optimize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        const finalResumeText = currentTab === 'upload' && file ? await readFileAsText(file) : resumeText;
-      body: JSON.stringify({
+        body: JSON.stringify({
           jobDescription: jobDesc,
-          resumeText: finalResumeText,
+          resumeText: resumeText,
           licenseKey: licenseKey
         })
       });
@@ -352,17 +352,16 @@
     window.scrollTo({ top: document.getElementById('results').offsetTop - 20, behavior: 'smooth' });
   }
 
-  async function downloadDocx() {
+  async function downloadPdf() {
     if (!resultData) return;
     const btn = document.getElementById('download-btn');
-    btn.textContent = '⏳ Generating DOCX...';
+    btn.textContent = '⏳ Generating PDF...';
     btn.disabled = true;
     try {
       const res = await fetch('/api/generate-docx', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        const finalResumeText = currentTab === 'upload' && file ? await readFileAsText(file) : resumeText;
-      body: JSON.stringify({ optimizedText: resultData.optimizedText, licenseKey })
+        body: JSON.stringify({ optimizedText: resultData.optimizedText, licenseKey })
       });
       if (!res.ok) throw new Error('Download failed');
       const blob = await res.blob();
@@ -373,11 +372,10 @@
       a.download = nameLine + '-optimized.pdf';
       a.click();
       URL.revokeObjectURL(url);
-      // Show the restart button after successful download
       btn.textContent = '✅ Downloaded!';
     } catch (e) {
       alert('Download failed: ' + e.message);
-      btn.textContent = '⬇️ Download Optimized Resume (.docx)';
+      btn.textContent = '⬇️ Download Optimized Resume (PDF)';
       btn.disabled = false;
     }
   }
