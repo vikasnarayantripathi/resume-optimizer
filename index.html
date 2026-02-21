@@ -236,7 +236,8 @@
       const res = await fetch('/api/validate-key', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key })
+        const finalResumeText = currentTab === 'upload' && file ? await readFileAsText(file) : resumeText;
+      body: JSON.stringify({ key })
       });
       const data = await res.json();
       if (data.valid) {
@@ -254,6 +255,14 @@
     btn.textContent = 'Unlock →';
     btn.disabled = false;
   });
+
+  async function readFileAsText(file) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => resolve(e.target.result);
+      reader.readAsText(file);
+    });
+  }
 
   async function runOptimize() {
     const jobDesc = document.getElementById('job-desc').value.trim();
@@ -277,9 +286,10 @@
       const res = await fetch('/api/optimize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        const finalResumeText = currentTab === 'upload' && file ? await readFileAsText(file) : resumeText;
+      body: JSON.stringify({
           jobDescription: jobDesc,
-          resumeText: currentTab === 'paste' ? resumeText : 'Please paste your resume text using the Paste Text tab',
+          resumeText: finalResumeText,
           licenseKey: licenseKey
         })
       });
@@ -353,7 +363,8 @@
       const res = await fetch('/api/generate-docx', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ optimizedText: resultData.optimizedText, licenseKey })
+        const finalResumeText = currentTab === 'upload' && file ? await readFileAsText(file) : resumeText;
+      body: JSON.stringify({ optimizedText: resultData.optimizedText, licenseKey })
       });
       if (!res.ok) throw new Error('Download failed');
       const blob = await res.blob();
