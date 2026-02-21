@@ -2,6 +2,10 @@
   "version": 2,
   "routes": [
     { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/blog", "dest": "/blog/index.html" },
+    { "src": "/blog/(.*)", "dest": "/blog/$1" },
+    { "src": "/blog.html", "dest": "/blog/index.html" },
+    { "src": "/blog-post.html", "dest": "/blog/index.html" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
