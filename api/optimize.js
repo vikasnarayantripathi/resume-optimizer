@@ -7,7 +7,7 @@ export const config = {
 
 function buildPrompt(jobDescription, resumeText) {
   return [
-    "You are an expert resume writer and ATS optimization specialist.",
+    "You are an expert resume writer and ATS optimization specialist. You MUST respond with ONLY a valid JSON object. No intro text, no explanation, no markdown, just the raw JSON object starting with { and ending with }.",
     "",
     "Analyze this resume against the job description and produce an optimized version.",
     "",

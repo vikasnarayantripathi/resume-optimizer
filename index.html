@@ -361,7 +361,7 @@
       const a    = document.createElement('a');
       a.href     = url;
       const nameLine = (resultData.originalText.split('\n')[0] || 'resume').trim().toLowerCase().replace(/[^a-z0-9]/g, '-');
-      a.download = nameLine + '-optimized.rtf';
+      a.download = nameLine + '-optimized.pdf';
       a.click();
       URL.revokeObjectURL(url);
       // Show the restart button after successful download
