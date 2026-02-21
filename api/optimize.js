@@ -1,7 +1,8 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export const config = {
-  api: { bodyParser: true }
+  api: { bodyParser: true },
+  maxDuration: 30
 };
 
 function buildPrompt(jobDescription, resumeText) {
@@ -54,44 +55,37 @@ export default async function handler(req, res) {
     }
 
     if (!licenseKey) {
-  return res.status(401).json({ error: "No license key provided." });
-}
-// Allow test key for development
-if (licenseKey === "test-vikas-2026") {
-  // skip Gumroad validation
-} else {
-  // paste the Gumroad validation block here
-}
-// Validate license key with Gumroad
-try {
-  const gumroadRes = await fetch("https://api.gumroad.com/v2/licenses/verify", {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({
-      product_permalink: "cxinw",
-      license_key: licenseKey,
-      increment_uses_count: "false"
-    })
-  });
-  const gumroadData = await gumroadRes.json();
-  
-  if (!gumroadData.success) {
-    return res.status(403).json({ error: "Invalid or already used license key." });
-  }
-} catch (err) {
-  return res.status(500).json({ error: "Could not validate license key. Try again." });
-}
+      return res.status(401).json({ error: "No license key provided." });
+    }
 
-    const jobTrunc = jobDescription.trim().slice(0, 4000);
+    // Allow test key for development
+    if (licenseKey !== "test-vikas-2026") {
+      // Validate real keys against Gumroad
+      const gumroadRes = await fetch("https://api.gumroad.com/v2/licenses/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: new URLSearchParams({
+          product_permalink: "cxinw",
+          license_key: licenseKey,
+          increment_uses_count: "false"
+        })
+      });
+      const gumroadData = await gumroadRes.json();
+      if (!gumroadData.success) {
+        return res.status(403).json({ error: "Invalid or already used license key." });
+      }
+    }
+
+    const jobTrunc    = jobDescription.trim().slice(0, 4000);
     const resumeTrunc = resumeText.trim().slice(0, 6000);
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
     const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 
-    const result = await model.generateContent(buildPrompt(jobTrunc, resumeTrunc));
-    const raw = result.response.text().trim();
+    const result  = await model.generateContent(buildPrompt(jobTrunc, resumeTrunc));
+    const raw     = result.response.text().trim();
     const jsonStr = raw.replace(/^```json\s*/i, "").replace(/\s*```$/i, "").trim();
-    const parsed = JSON.parse(jsonStr);
+    const parsed  = JSON.parse(jsonStr);
 
     const required = ["scoreBefore", "scoreAfter", "keywordsFound", "keywordsMissing", "keywordsAdded", "optimizedText"];
     for (const field of required) {
@@ -112,7 +106,7 @@ try {
 
   } catch (err) {
     console.error("Optimize error:", err);
-    return res.status(500).json({ 
+    return res.status(500).json({
       error: "Optimization failed: " + err.message
     });
   }
