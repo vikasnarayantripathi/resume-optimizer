@@ -34,7 +34,9 @@ function buildPrompt(jobDescription, resumeText) {
     "4. Do NOT fabricate jobs, degrees, or skills",
     "5. Keep the same resume structure and sections",
     "6. Make the summary strongly mirror the job language",
-    "7. Only enhance, never invent"
+    "7. Only enhance, never invent",
+    "8. Use ONLY the actual content from the original resume — never use placeholder text like [Your Name] or [Company Name]",
+"9. If information is present in the original resume, use it exactly as provided", 
   ].join("\n");
 }
 
@@ -101,7 +103,11 @@ export default async function handler(req, res) {
       keywordsMissing: parsed.keywordsMissing,
       keywordsAdded:   parsed.keywordsAdded,
       originalText:    resumeTrunc,
-      optimizedText:   parsed.optimizedText
+      optimizedText: parsed.optimizedText
+  .replace(/#{1,3}\s/g, '')
+  .replace(/\*\*/g, '')
+  .replace(/\*/g, '')
+  .trim()
     });
 
   } catch (err) {
