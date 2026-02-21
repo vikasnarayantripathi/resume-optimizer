@@ -20,7 +20,7 @@ export default async function handler(req, res) {
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
-        product_permalink: "cxinw",
+        product_id: "6F0E4C97-B72A4E69-A11BF6C4-AF6517E7",
         license_key: key,
         increment_uses_count: "false"
       })
