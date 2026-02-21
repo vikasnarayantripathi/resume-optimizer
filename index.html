@@ -236,7 +236,6 @@
       const res = await fetch('/api/validate-key', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        const finalResumeText = currentTab === 'upload' && file ? await readFileAsText(file) : resumeText;
       body: JSON.stringify({ key })
       });
       const data = await res.json();
@@ -282,7 +281,6 @@
     document.getElementById('results').style.display = 'none';
     document.getElementById('loading').style.display = 'block';
     animateSteps();
-    try {
       const res = await fetch('/api/optimize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
