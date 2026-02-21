@@ -24,7 +24,7 @@ function buildPrompt(jobDescription, resumeText) {
     '  "keywordsFound": ["keyword1", "keyword2"],',
     '  "keywordsMissing": ["keyword1", "keyword2"],',
     '  "keywordsAdded": <integer>,',
-    '  "optimizedText": "<full optimized resume>"',
+    '  "optimizedText": "<full optimized resume as plain text, no markdown>"',
     "}",
     "",
     "Rules:",
@@ -35,8 +35,10 @@ function buildPrompt(jobDescription, resumeText) {
     "5. Keep the same resume structure and sections",
     "6. Make the summary strongly mirror the job language",
     "7. Only enhance, never invent",
-    "8. Use ONLY the actual content from the original resume — never use placeholder text like [Your Name] or [Company Name]",
-"9. If information is present in the original resume, use it exactly as provided", 
+    "8. Use ONLY actual content from the original resume — never use placeholders like [Your Name] or [Company Name]",
+    "9. Write optimizedText as plain text only — no ## headers, no ** bold, no markdown of any kind",
+    "10. Use ALL CAPS for section headers like EXPERIENCE, EDUCATION, SKILLS",
+    "11. Use a hyphen - at the start of bullet points"
   ].join("\n");
 }
 
@@ -62,12 +64,11 @@ export default async function handler(req, res) {
 
     // Allow test key for development
     if (licenseKey !== "test-vikas-2026") {
-      // Validate real keys against Gumroad
       const gumroadRes = await fetch("https://api.gumroad.com/v2/licenses/verify", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
         body: new URLSearchParams({
-          product_permalink: "cxinw",
+          product_id: "6F0E4C97-B72A4E69-A11BF6C4-AF6517E7",
           license_key: licenseKey,
           increment_uses_count: "false"
         })
@@ -96,6 +97,13 @@ export default async function handler(req, res) {
       }
     }
 
+    // Strip any markdown that slipped through
+    const cleanText = parsed.optimizedText
+      .replace(/#{1,3}\s/g, '')
+      .replace(/\*\*/g, '')
+      .replace(/\*/g, '')
+      .trim();
+
     return res.json({
       scoreBefore:     parsed.scoreBefore,
       scoreAfter:      parsed.scoreAfter,
@@ -103,11 +111,7 @@ export default async function handler(req, res) {
       keywordsMissing: parsed.keywordsMissing,
       keywordsAdded:   parsed.keywordsAdded,
       originalText:    resumeTrunc,
-      optimizedText: parsed.optimizedText
-  .replace(/#{1,3}\s/g, '')
-  .replace(/\*\*/g, '')
-  .replace(/\*/g, '')
-  .trim()
+      optimizedText:   cleanText
     });
 
   } catch (err) {
