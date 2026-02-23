@@ -12,17 +12,11 @@ textarea,input{width:100%;padding:10px;border-radius:6px;border:1px solid #ccc}
 button{padding:14px;border-radius:8px;border:none;font-weight:bold;background:#667eea;color:white;width:100%}
 button:hover{background:#5563d6}
 .score{font-size:30px;font-weight:bold}
-.resumeBox{
-white-space:pre-wrap;
-font-family:Georgia,serif;
-line-height:1.7;
-font-size:15px;
-}
-.divider{
-border-top:1px dashed #ccc;
-margin:18px 0;
-}
+.resumeBox{white-space:pre-wrap;font-family:Georgia,serif;line-height:1.7;font-size:15px}
+.divider{border-top:1px dashed #ccc;margin:18px 0}
 .locked{background:#fafafa;padding:18px;text-align:center;color:#666;border-radius:8px}
+.tab{padding:8px 14px;border:1px solid #ccc;border-radius:6px;background:#eee;cursor:pointer;margin-right:6px}
+.tab.active{background:#667eea;color:white;border-color:#667eea}
 </style>
 
 </head>
@@ -39,8 +33,25 @@ margin:18px 0;
 </div>
 
 <div class="card">
-<h3>Resume</h3>
-<textarea id="resume" rows="9"></textarea>
+
+<h3>Your Resume</h3>
+
+<div>
+<button class="tab active" id="tabPaste" onclick="switchMode('paste')">Paste</button>
+<button class="tab" id="tabUpload" onclick="switchMode('upload')">Upload</button>
+</div>
+
+<div id="pasteBox">
+<textarea id="resume" rows="9" placeholder="Paste resume text here..."></textarea>
+</div>
+
+<div id="uploadBox" style="display:none">
+<input type="file" id="file">
+<p style="font-size:13px;color:#666;margin-top:6px">
+Supports PDF, DOCX, TXT
+</p>
+</div>
+
 </div>
 
 <div class="card">
@@ -89,20 +100,72 @@ margin:18px 0;
 
 <script>
 
+let mode="paste";
+
+function switchMode(m){
+
+mode=m;
+
+document.getElementById("tabPaste").classList.toggle("active",m==="paste");
+document.getElementById("tabUpload").classList.toggle("active",m==="upload");
+
+document.getElementById("pasteBox").style.display=m==="paste"?"block":"none";
+document.getElementById("uploadBox").style.display=m==="upload"?"block":"none";
+
+}
+
+async function readFile(file){
+
+return new Promise((resolve,reject)=>{
+
+const reader=new FileReader();
+
+reader.onload=e=>resolve(e.target.result);
+reader.onerror=reject;
+
+reader.readAsText(file);
+
+});
+
+}
+
 async function run(){
 
 const job=document.getElementById("job").value.trim();
-const resume=document.getElementById("resume").value.trim();
 const key=document.getElementById("key").value.trim();
 
-if(!job||!resume){alert("Paste job + resume");return;}
+if(!job){ alert("Paste job description"); return; }
+
+let resumeText="";
+
+if(mode==="paste"){
+
+resumeText=document.getElementById("resume").value.trim();
+
+if(!resumeText){
+alert("Paste resume text");
+return;
+}
+
+}else{
+
+const file=document.getElementById("file").files[0];
+
+if(!file){
+alert("Upload resume file");
+return;
+}
+
+resumeText=await readFile(file);
+
+}
 
 const res=await fetch("/api/optimize",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
 jobDescription:job,
-resumeText:resume,
+resumeText:resumeText,
 licenseKey:key||""
 })
 });
@@ -110,6 +173,7 @@ licenseKey:key||""
 const data=await res.json();
 
 document.getElementById("results").style.display="block";
+
 document.getElementById("score").innerText="ATS Score: "+data.scoreBefore+"/100";
 
 document.getElementById("imp").innerHTML=
