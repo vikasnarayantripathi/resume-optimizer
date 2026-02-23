@@ -5,12 +5,12 @@ export const config = {
   maxDuration: 30
 };
 
-function buildPrompt(jobDescription, resumeText, isPro){
+function buildPrompt(job,resume,isPro){
 
 return `
-You are a professional ATS resume analyzer.
+You are a PROFESSIONAL ATS resume writer.
 
-Return ONLY valid JSON.
+Return ONLY JSON.
 
 FORMAT:
 
@@ -26,43 +26,56 @@ FORMAT:
  "recruiterNotes": ["note"]
 }
 
-IMPORTANT SCORING RULES:
-- Compare job description vs resume strictly
-- Score must reflect % of required keywords present
-- Never give 100 unless resume perfectly matches
-- Most resumes should score 40–75
-- Round to integer
+CRITICAL:
 
-KEYWORD RULES:
-- Extract real skills/tools/technologies from job description
-- Mark only exact or clear semantic matches as found
-- Missing keywords must be realistic
+RESUME FORMAT MUST BE CLEAN AND ATTRACTIVE:
 
-RESUME FORMATTING RULES:
-- optimizedText MUST be multi-line formatted resume
-- Use section headers like:
+Candidate Name
+Email | Phone | Location
+--------------------------------
 
 SUMMARY
+Short professional summary
+
+--------------------------------
 SKILLS
+- Skill
+- Skill
+
+--------------------------------
 EXPERIENCE
+Company — Role — Dates
+- Achievement
+- Achievement
+
+--------------------------------
 EDUCATION
+Degree — Institute — Year
 
-- Use line breaks between sections
-- Use "- " bullet points
-- NEVER output one paragraph
+RULES:
+- Keep real candidate info from resume
+- NEVER invent fake data
+- ALWAYS include name/contact if present
+- Use separators like:
+--------------------------------
+- Multi-line formatting only
+- Never output one paragraph
 
-JOB DESCRIPTION:
-${jobDescription}
+SCORING:
+- realistic ATS scoring
+- most resumes 45–75
+- only perfect resumes 90+
+
+JOB:
+${job}
 
 RESUME:
-${resumeText}
+${resume}
 
 ${isPro
-? "USER HAS PRO ACCESS → fill ALL fields including optimizedText, scoreAfter, coverLetter, recruiterNotes."
-: "USER IS FREE → fill ONLY scoreBefore, strengthLevel, quickImpression, keywordsFound, keywordsMissingTop. Leave others empty."
+? "USER HAS PRO ACCESS → fill ALL fields fully"
+: "USER FREE → fill only scoreBefore, quickImpression, keywords, strengthLevel"
 }
-
-Do NOT add explanations.
 `;
 }
 
@@ -76,9 +89,9 @@ try{
 
 const job=req.body.jobDescription||"";
 const resume=req.body.resumeText||"";
-let license=(req.body.licenseKey||"").trim().toLowerCase();
+const license=(req.body.licenseKey||"").trim().toLowerCase();
 
-if(job.length<10) return res.status(400).json({error:"Missing job description"});
+if(job.length<10) return res.status(400).json({error:"Missing job"});
 if(resume.length<10) return res.status(400).json({error:"Missing resume"});
 
 const isPro=license==="test-vikas-2026";
@@ -87,11 +100,7 @@ const genAI=new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const model=genAI.getGenerativeModel({
 model:"gemini-2.5-flash-lite",
-generationConfig:{
-temperature:0.1,
-topP:0.8,
-topK:20
-}
+generationConfig:{ temperature:0.1, topP:0.8, topK:20 }
 });
 
 const result=await model.generateContent(
@@ -102,27 +111,23 @@ const raw=result.response.text().trim();
 const jsonStr=raw.replace(/^```json/i,'').replace(/```$/,'').trim();
 
 let parsed;
-try{
-parsed=JSON.parse(jsonStr);
-}catch(e){
-console.error("JSON ERROR:",raw);
-return res.status(500).json({error:"AI JSON parse failed"});
+try{ parsed=JSON.parse(jsonStr); }
+catch{
+console.error(raw);
+return res.status(500).json({error:"AI JSON error"});
 }
-
-const scoreBefore=parsed.scoreBefore?Math.round(parsed.scoreBefore):null;
-const scoreAfter=parsed.scoreAfter?Math.round(parsed.scoreAfter):null;
 
 return res.json({
 
 isPro,
 
-scoreBefore,
+scoreBefore:Math.round(parsed.scoreBefore||0),
 strengthLevel:parsed.strengthLevel||null,
 quickImpression:parsed.quickImpression||[],
 keywordsFound:parsed.keywordsFound||[],
 keywordsMissingTop:parsed.keywordsMissingTop||[],
 
-scoreAfter:isPro?scoreAfter:null,
+scoreAfter:isPro?Math.round(parsed.scoreAfter||0):null,
 optimizedText:isPro?parsed.optimizedText:null,
 coverLetter:isPro?parsed.coverLetter:null,
 recruiterNotes:isPro?parsed.recruiterNotes:null,
@@ -131,13 +136,10 @@ originalText:resume
 
 });
 
-}catch(err){
+}catch(e){
 
-console.error("SERVER ERROR:",err);
-
-return res.status(500).json({
-error:"Server error: "+err.message
-});
+console.error(e);
+return res.status(500).json({error:e.message});
 
 }
 }

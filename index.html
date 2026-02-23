@@ -1,79 +1,86 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ATSCheckPro — Resume Optimizer</title>
+<title>ATSCheckPro</title>
 
 <style>
-body { font-family: Arial, sans-serif; background:#f0f4f8; margin:0; }
-.container { max-width:900px; margin:auto; padding:30px; }
-.card { background:white; padding:20px; border-radius:10px; margin-bottom:20px; }
-textarea,input { width:100%; padding:10px; border-radius:6px; border:1px solid #ccc; }
-button { padding:14px 18px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; }
-.btn { background:#667eea; color:white; width:100%; margin-top:15px; }
-.btn:hover { background:#5a67d8; }
-.locked { background:#f9fafb; padding:20px; text-align:center; color:#666; border-radius:8px; }
-.score { font-size:28px; font-weight:bold; }
-.chip { display:inline-block; padding:5px 10px; margin:4px; border-radius:15px; font-size:13px; }
-.missing { background:#fed7d7; }
+body{font-family:Arial;background:#f4f6fb;margin:0}
+.container{max-width:900px;margin:auto;padding:30px}
+.card{background:white;padding:22px;border-radius:10px;margin-bottom:20px;box-shadow:0 3px 12px rgba(0,0,0,.05)}
+textarea,input{width:100%;padding:10px;border-radius:6px;border:1px solid #ccc}
+button{padding:14px;border-radius:8px;border:none;font-weight:bold;background:#667eea;color:white;width:100%}
+button:hover{background:#5563d6}
+.score{font-size:30px;font-weight:bold}
+.resumeBox{
+white-space:pre-wrap;
+font-family:Georgia,serif;
+line-height:1.7;
+font-size:15px;
+}
+.divider{
+border-top:1px dashed #ccc;
+margin:18px 0;
+}
+.locked{background:#fafafa;padding:18px;text-align:center;color:#666;border-radius:8px}
 </style>
+
 </head>
 
 <body>
 
 <div class="container">
 
-<h2>⚡ ATSCheckPro — Free Resume Analysis</h2>
-<p>Paste job description + resume → get ATS feedback instantly.</p>
+<h2>⚡ ATSCheckPro</h2>
 
 <div class="card">
 <h3>Job Description</h3>
-<textarea id="job" rows="8"></textarea>
+<textarea id="job" rows="7"></textarea>
 </div>
 
 <div class="card">
-<h3>Your Resume</h3>
-<textarea id="resume" rows="10"></textarea>
+<h3>Resume</h3>
+<textarea id="resume" rows="9"></textarea>
 </div>
 
 <div class="card">
-<h3>License Key (optional for PRO)</h3>
+<h3>License Key (optional)</h3>
 <input id="key">
 </div>
 
-<button class="btn" onclick="run()">⚡ Analyze Resume</button>
+<button onclick="run()">Analyze</button>
 
 <div id="results" style="display:none">
 
 <div class="card">
-<h3>ATS Score</h3>
 <div class="score" id="score"></div>
 </div>
 
 <div class="card">
 <h3>Recruiter Impression</h3>
-<div id="impression"></div>
+<div id="imp"></div>
 </div>
 
 <div class="card">
 <h3>Missing Keywords</h3>
-<div id="keywords"></div>
+<div id="kw"></div>
 </div>
 
 <div class="card">
 <h3>Optimized Resume</h3>
-<div id="optimized"></div>
+<div class="divider"></div>
+<div id="resumeOut" class="resumeBox"></div>
 </div>
 
 <div class="card">
 <h3>Cover Letter</h3>
-<div id="cover"></div>
+<div class="divider"></div>
+<div id="coverOut" class="resumeBox"></div>
 </div>
 
 <div class="card">
 <h3>Recruiter Notes</h3>
-<div id="notes"></div>
+<div id="notesOut"></div>
 </div>
 
 </div>
@@ -84,68 +91,45 @@ button { padding:14px 18px; border:none; border-radius:8px; cursor:pointer; font
 
 async function run(){
 
-const job = document.getElementById("job").value.trim();
-const resume = document.getElementById("resume").value.trim();
-const key = document.getElementById("key").value.trim();
+const job=document.getElementById("job").value.trim();
+const resume=document.getElementById("resume").value.trim();
+const key=document.getElementById("key").value.trim();
 
-if(!job || !resume){
-alert("Please paste job + resume");
-return;
-}
+if(!job||!resume){alert("Paste job + resume");return;}
 
-try{
-
-const res = await fetch("/api/optimize",{
+const res=await fetch("/api/optimize",{
 method:"POST",
-headers:{ "Content-Type":"application/json" },
+headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
 jobDescription:job,
 resumeText:resume,
-licenseKey:key || ""
+licenseKey:key||""
 })
 });
 
-if(!res.ok){
-const err = await res.json().catch(()=>({}));
-throw new Error(err.error || "Server error");
-}
-
-const data = await res.json();
+const data=await res.json();
 
 document.getElementById("results").style.display="block";
+document.getElementById("score").innerText="ATS Score: "+data.scoreBefore+"/100";
 
-document.getElementById("score").innerText=data.scoreBefore+"/100";
-
-document.getElementById("impression").innerHTML=
+document.getElementById("imp").innerHTML=
 (data.quickImpression||[]).map(x=>"• "+x).join("<br>");
 
-document.getElementById("keywords").innerHTML=
-(data.keywordsMissingTop||[]).map(x=>`<span class="chip missing">${x}</span>`).join("");
+document.getElementById("kw").innerHTML=
+(data.keywordsMissingTop||[]).map(x=>"• "+x).join("<br>");
 
-if(data.isPro && data.optimizedText){
+if(data.isPro){
 
-document.getElementById("optimized").innerText=data.optimizedText;
-document.getElementById("cover").innerText=data.coverLetter || "";
-document.getElementById("notes").innerHTML=
+document.getElementById("resumeOut").innerText=data.optimizedText||"";
+document.getElementById("coverOut").innerText=data.coverLetter||"";
+document.getElementById("notesOut").innerHTML=
 (data.recruiterNotes||[]).map(n=>"• "+n).join("<br>");
 
 }else{
 
-document.getElementById("optimized").innerHTML=
-`<div class="locked">🔒 Optimized resume ready.<br>Enter license key and run again to unlock.</div>`;
-
-document.getElementById("cover").innerHTML=
-`<div class="locked">🔒 Cover letter available in PRO</div>`;
-
-document.getElementById("notes").innerHTML=
-`<div class="locked">🔒 Recruiter insights available in PRO</div>`;
-
-}
-
-}catch(e){
-
-console.error(e);
-alert("Error: "+e.message);
+document.getElementById("resumeOut").innerHTML="<div class='locked'>🔒 Unlock PRO to view formatted resume</div>";
+document.getElementById("coverOut").innerHTML="<div class='locked'>🔒 Unlock PRO to view cover letter</div>";
+document.getElementById("notesOut").innerHTML="<div class='locked'>🔒 Unlock PRO</div>";
 
 }
 
