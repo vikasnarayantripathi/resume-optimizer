@@ -16,7 +16,6 @@ button { padding:14px 18px; border:none; border-radius:8px; cursor:pointer; font
 .locked { background:#f9fafb; padding:20px; text-align:center; color:#666; border-radius:8px; }
 .score { font-size:28px; font-weight:bold; }
 .chip { display:inline-block; padding:5px 10px; margin:4px; border-radius:15px; font-size:13px; }
-.found { background:#c6f6d5; }
 .missing { background:#fed7d7; }
 </style>
 </head>
@@ -75,6 +74,8 @@ button { padding:14px 18px; border:none; border-radius:8px; cursor:pointer; font
 
 async function run(){
 
+console.log("Analyze clicked");
+
 const job = document.getElementById("job").value.trim();
 const resume = document.getElementById("resume").value.trim();
 const key = document.getElementById("key").value.trim();
@@ -84,19 +85,29 @@ alert("Please paste job + resume");
 return;
 }
 
+try{
+
 const res = await fetch("/api/optimize",{
 method:"POST",
 headers:{ "Content-Type":"application/json" },
 body:JSON.stringify({
 jobDescription:job,
 resumeText:resume,
-licenseKey:key
+licenseKey:key || ""
 })
 });
 
-const data = await res.json();
-document.getElementById("results").style.display="block";
+console.log("status:",res.status);
 
+if(!res.ok){
+const err = await res.json().catch(()=>({}));
+throw new Error(err.error || "API failed");
+}
+
+const data = await res.json();
+console.log(data);
+
+document.getElementById("results").style.display="block";
 document.getElementById("score").innerText=data.scoreBefore+"/100";
 
 document.getElementById("impression").innerHTML=
@@ -116,6 +127,13 @@ document.getElementById("optimized").innerHTML=
 🔒 Optimized resume ready.<br>
 Enter license key and run again to unlock.
 </div>`;
+
+}
+
+}catch(e){
+
+console.error(e);
+alert("Error: "+e.message);
 
 }
 
