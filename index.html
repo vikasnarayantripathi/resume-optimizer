@@ -5,102 +5,18 @@
 <title>ATSCheckPro</title>
 
 <style>
-
-body{
-font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
-background:#eef2f7;
-margin:0;
-}
-
-.container{
-max-width:900px;
-margin:auto;
-padding:30px;
-}
-
-.card{
-background:white;
-padding:26px;
-border-radius:12px;
-margin-bottom:22px;
-box-shadow:0 8px 22px rgba(0,0,0,.06);
-}
-
-textarea,input{
-width:100%;
-padding:12px;
-border-radius:8px;
-border:1px solid #d4d8e2;
-font-size:14px;
-}
-
-button{
-padding:15px;
-border-radius:10px;
-border:none;
-font-weight:700;
-background:linear-gradient(135deg,#667eea,#5a63d8);
-color:white;
-width:100%;
-font-size:15px;
-cursor:pointer;
-}
+body{font-family:system-ui;background:#eef2f7;margin:0}
+.container{max-width:900px;margin:auto;padding:30px}
+.card{background:white;padding:26px;border-radius:12px;margin-bottom:22px;box-shadow:0 8px 22px rgba(0,0,0,.06)}
+textarea,input{width:100%;padding:12px;border-radius:8px;border:1px solid #d4d8e2;font-size:14px}
+button{padding:14px;border-radius:10px;border:none;font-weight:700;background:#667eea;color:white;width:100%;margin-top:10px;cursor:pointer}
 button:hover{opacity:.95}
-
-.score{
-font-size:32px;
-font-weight:800;
-text-align:center;
-color:#2f3a56;
-}
-
-.resume{
-font-family: "Times New Roman", Georgia, serif;
-font-size:15px;
-line-height:1.75;
-color:#222;
-white-space:pre-wrap;
-}
-
-.name{
-font-size:26px;
-font-weight:800;
-text-align:center;
-letter-spacing:.5px;
-margin-bottom:6px;
-}
-
-.contact{
-text-align:center;
-color:#666;
-font-size:14px;
-margin-bottom:16px;
-}
-
-.section{
-margin-top:18px;
-}
-
-.section-title{
-font-weight:700;
-font-size:15px;
-color:#333;
-margin-bottom:6px;
-}
-
-.rule{
-border-top:1px solid #dcdfe7;
-margin:8px 0 12px;
-}
-
-.lock{
-background:#fafafa;
-padding:20px;
-border-radius:10px;
-text-align:center;
-color:#666;
-}
-
+.score{font-size:32px;font-weight:800;text-align:center;color:#2f3a56}
+.resume{font-family:Georgia,serif;font-size:15px;line-height:1.7;white-space:pre-wrap}
+.name{font-size:26px;font-weight:800;text-align:center;margin-bottom:6px}
+.contact{text-align:center;color:#666;font-size:14px;margin-bottom:16px}
+.rule{border-top:1px solid #dcdfe7;margin:10px 0}
+.lock{background:#fafafa;padding:20px;border-radius:10px;text-align:center;color:#666}
 </style>
 </head>
 
@@ -146,16 +62,18 @@ color:#666;
 <div class="card">
 <h3>Optimized Resume</h3>
 <div id="resumeOut" class="resume"></div>
+<button onclick="downloadResume()">Download Optimized Resume PDF</button>
 </div>
 
 <div class="card">
 <h3>Cover Letter</h3>
 <div id="coverOut" class="resume"></div>
+<button onclick="downloadCover()">Download Cover Letter PDF</button>
 </div>
 
 <div class="card">
-<h3>Recruiter Notes</h3>
-<div id="notesOut"></div>
+<h3>Optimization Report</h3>
+<button onclick="downloadReport()">Download Optimization Report PDF</button>
 </div>
 
 </div>
@@ -182,7 +100,6 @@ return `
 <div class="rule"></div>
 <div>${body.replace(/--------------------------------/g,'<div class="rule"></div>')}</div>
 `;
-
 }
 
 async function run(){
@@ -207,6 +124,7 @@ licenseKey:key||""
 });
 
 const data=await res.json();
+window.lastData=data;
 
 document.getElementById("results").style.display="block";
 
@@ -226,22 +144,87 @@ renderResume(data.optimizedText);
 
 document.getElementById("coverOut").innerText=data.coverLetter||"";
 
-document.getElementById("notesOut").innerHTML=
-(data.recruiterNotes||[]).map(n=>"• "+n).join("<br>");
-
 }else{
 
 document.getElementById("resumeOut").innerHTML=
-"<div class='lock'>🔒 Unlock PRO to view professional resume</div>";
+"<div class='lock'>🔒 Unlock PRO to download resume</div>";
 
 document.getElementById("coverOut").innerHTML=
-"<div class='lock'>🔒 Unlock PRO to view cover letter</div>";
-
-document.getElementById("notesOut").innerHTML=
-"<div class='lock'>🔒 Unlock PRO</div>";
+"<div class='lock'>🔒 Unlock PRO to download cover letter</div>";
 
 }
 
+}
+
+async function download(type,body){
+
+const res=await fetch("/api/download",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify(body)
+});
+
+if(!res.ok){
+alert("Download failed — ensure PRO key used");
+return;
+}
+
+const blob=await res.blob();
+const url=URL.createObjectURL(blob);
+
+const a=document.createElement("a");
+a.href=url;
+a.download=type+".pdf";
+a.click();
+
+URL.revokeObjectURL(url);
+}
+
+function downloadResume(){
+
+if(!window.lastData?.optimizedText){
+alert("Run PRO analysis first");
+return;
+}
+
+download("resume",{
+type:"resume",
+optimizedText:window.lastData.optimizedText,
+licenseKey:document.getElementById("key").value.trim()
+});
+}
+
+function downloadCover(){
+
+if(!window.lastData?.coverLetter){
+alert("Run PRO analysis first");
+return;
+}
+
+download("cover",{
+type:"cover",
+coverLetter:window.lastData.coverLetter,
+licenseKey:document.getElementById("key").value.trim()
+});
+}
+
+function downloadReport(){
+
+if(!window.lastData){
+alert("Run analysis first");
+return;
+}
+
+download("report",{
+type:"report",
+report:{
+score:window.lastData.scoreBefore,
+impression:window.lastData.quickImpression,
+keywords:window.lastData.keywordsMissingTop,
+notes:window.lastData.recruiterNotes
+},
+licenseKey:document.getElementById("key").value.trim()
+});
 }
 
 </script>
