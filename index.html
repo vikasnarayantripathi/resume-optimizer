@@ -12,13 +12,34 @@ textarea,input{width:100%;padding:10px;border-radius:6px;border:1px solid #ccc}
 button{padding:14px;border-radius:8px;border:none;font-weight:bold;background:#667eea;color:white;width:100%}
 button:hover{background:#5563d6}
 .score{font-size:30px;font-weight:bold}
-.resumeBox{white-space:pre-wrap;font-family:Georgia,serif;line-height:1.7;font-size:15px}
-.divider{border-top:1px dashed #ccc;margin:18px 0}
-.locked{background:#fafafa;padding:18px;text-align:center;color:#666;border-radius:8px}
-.tab{padding:8px 14px;border:1px solid #ccc;border-radius:6px;background:#eee;cursor:pointer;margin-right:6px}
-.tab.active{background:#667eea;color:white;border-color:#667eea}
-</style>
 
+.resumeBox{
+font-family:Georgia,serif;
+line-height:1.7;
+font-size:15px;
+white-space:pre-wrap;
+}
+
+.name{
+font-size:22px;
+font-weight:bold;
+text-align:center;
+margin-bottom:4px;
+}
+
+.contact{
+text-align:center;
+color:#555;
+margin-bottom:12px;
+}
+
+.divider{
+border-top:1px dashed #ccc;
+margin:12px 0;
+}
+
+.locked{background:#fafafa;padding:18px;text-align:center;color:#666;border-radius:8px}
+</style>
 </head>
 
 <body>
@@ -33,25 +54,8 @@ button:hover{background:#5563d6}
 </div>
 
 <div class="card">
-
-<h3>Your Resume</h3>
-
-<div>
-<button class="tab active" id="tabPaste" onclick="switchMode('paste')">Paste</button>
-<button class="tab" id="tabUpload" onclick="switchMode('upload')">Upload</button>
-</div>
-
-<div id="pasteBox">
-<textarea id="resume" rows="9" placeholder="Paste resume text here..."></textarea>
-</div>
-
-<div id="uploadBox" style="display:none">
-<input type="file" id="file">
-<p style="font-size:13px;color:#666;margin-top:6px">
-Supports PDF, DOCX, TXT
-</p>
-</div>
-
+<h3>Resume</h3>
+<textarea id="resume" rows="9"></textarea>
 </div>
 
 <div class="card">
@@ -100,64 +104,34 @@ Supports PDF, DOCX, TXT
 
 <script>
 
-let mode="paste";
+function formatResume(text){
 
-function switchMode(m){
+if(!text) return "";
 
-mode=m;
+let lines=text.split("\n").filter(l=>l.trim()!="");
 
-document.getElementById("tabPaste").classList.toggle("active",m==="paste");
-document.getElementById("tabUpload").classList.toggle("active",m==="upload");
+if(lines.length<2) return text;
 
-document.getElementById("pasteBox").style.display=m==="paste"?"block":"none";
-document.getElementById("uploadBox").style.display=m==="upload"?"block":"none";
+let name=lines[0];
+let contact=lines[1];
+let rest=lines.slice(2).join("\n");
 
-}
-
-async function readFile(file){
-
-return new Promise((resolve,reject)=>{
-
-const reader=new FileReader();
-
-reader.onload=e=>resolve(e.target.result);
-reader.onerror=reject;
-
-reader.readAsText(file);
-
-});
-
+return `
+<div class="name">${name}</div>
+<div class="contact">${contact}</div>
+<div>${rest}</div>
+`;
 }
 
 async function run(){
 
 const job=document.getElementById("job").value.trim();
+const resume=document.getElementById("resume").value.trim();
 const key=document.getElementById("key").value.trim();
 
-if(!job){ alert("Paste job description"); return; }
-
-let resumeText="";
-
-if(mode==="paste"){
-
-resumeText=document.getElementById("resume").value.trim();
-
-if(!resumeText){
-alert("Paste resume text");
+if(!job||!resume){
+alert("Paste job + resume");
 return;
-}
-
-}else{
-
-const file=document.getElementById("file").files[0];
-
-if(!file){
-alert("Upload resume file");
-return;
-}
-
-resumeText=await readFile(file);
-
 }
 
 const res=await fetch("/api/optimize",{
@@ -165,7 +139,7 @@ method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
 jobDescription:job,
-resumeText:resumeText,
+resumeText:resume,
 licenseKey:key||""
 })
 });
@@ -174,7 +148,8 @@ const data=await res.json();
 
 document.getElementById("results").style.display="block";
 
-document.getElementById("score").innerText="ATS Score: "+data.scoreBefore+"/100";
+document.getElementById("score").innerText=
+"ATS Match Score: "+data.scoreBefore+"/100";
 
 document.getElementById("imp").innerHTML=
 (data.quickImpression||[]).map(x=>"• "+x).join("<br>");
@@ -184,7 +159,7 @@ document.getElementById("kw").innerHTML=
 
 if(data.isPro){
 
-document.getElementById("resumeOut").innerText=data.optimizedText||"";
+document.getElementById("resumeOut").innerHTML=formatResume(data.optimizedText);
 document.getElementById("coverOut").innerText=data.coverLetter||"";
 document.getElementById("notesOut").innerHTML=
 (data.recruiterNotes||[]).map(n=>"• "+n).join("<br>");

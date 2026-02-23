@@ -13,7 +13,6 @@ You are a PROFESSIONAL ATS resume writer.
 Return ONLY JSON.
 
 FORMAT:
-
 {
  "scoreBefore": number,
  "strengthLevel": "Strong | Moderate | Weak",
@@ -21,50 +20,44 @@ FORMAT:
  "keywordsFound": ["kw"],
  "keywordsMissingTop": ["kw"],
  "scoreAfter": number,
- "optimizedText": "formatted resume",
+ "optimizedText": "resume",
  "coverLetter": "text",
  "recruiterNotes": ["note"]
 }
 
-CRITICAL:
+RESUME STYLE RULES:
 
-RESUME FORMAT MUST BE CLEAN AND ATTRACTIVE:
-
-Candidate Name
+1. First line MUST be candidate FULL NAME in caps
+2. Second line MUST be:
 Email | Phone | Location
---------------------------------
 
+3. Use sections with separators:
+
+--------------------------------
 SUMMARY
-Short professional summary
+--------------------------------
 
 --------------------------------
 SKILLS
-- Skill
-- Skill
+--------------------------------
 
 --------------------------------
 EXPERIENCE
-Company — Role — Dates
-- Achievement
-- Achievement
+--------------------------------
 
 --------------------------------
 EDUCATION
-Degree — Institute — Year
-
-RULES:
-- Keep real candidate info from resume
-- NEVER invent fake data
-- ALWAYS include name/contact if present
-- Use separators like:
 --------------------------------
-- Multi-line formatting only
-- Never output one paragraph
+
+4. Bullet points start with "- "
+5. Keep spacing between sections
+6. Never output single paragraph
+7. Keep original candidate info
 
 SCORING:
 - realistic ATS scoring
-- most resumes 45–75
-- only perfect resumes 90+
+- typical resumes 45–75
+- only perfect resumes above 85
 
 JOB:
 ${job}
@@ -73,8 +66,8 @@ RESUME:
 ${resume}
 
 ${isPro
-? "USER HAS PRO ACCESS → fill ALL fields fully"
-: "USER FREE → fill only scoreBefore, quickImpression, keywords, strengthLevel"
+? "USER PRO → fill ALL fields"
+: "USER FREE → fill only scoreBefore, keywords, strengthLevel, quickImpression"
 }
 `;
 }
@@ -137,9 +130,7 @@ originalText:resume
 });
 
 }catch(e){
-
 console.error(e);
 return res.status(500).json({error:e.message});
-
 }
 }
