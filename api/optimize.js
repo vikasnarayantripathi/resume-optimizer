@@ -34,7 +34,14 @@ ${resumeText}
 
 ${isPro
 ? "USER HAS PRO ACCESS. Fill ALL fields completely including optimizedText, scoreAfter, coverLetter, recruiterNotes."
-: "USER IS FREE. Fill ONLY scoreBefore, strengthLevel, quickImpression, keywordsFound, keywordsMissingTop. Leave optimizedText empty and scoreAfter null."}
+: "USER IS FREE. Fill ONLY scoreBefore, strengthLevel, quickImpression, keywordsFound, keywordsMissingTop. Leave optimizedText empty and scoreAfter null."
+}
+
+Scoring rules:
+- Base score on keyword match percentage.
+- Same resume and job must always produce very similar score.
+- Round scoreBefore and scoreAfter to nearest integer.
+- Do not randomize scores.
 
 Rules:
 - Never invent fake experience
@@ -64,16 +71,23 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: "Missing resume text" });
     }
 
-    // ---------- FORCE SIMPLE PRO LOGIC ----------
+    // -------- PRO ACCESS --------
 
     const isPro = licenseKey === "test-vikas-2026";
-
     console.log("License:", licenseKey, "isPro:", isPro);
 
-    // ---------- CALL GEMINI ----------
+    // -------- GEMINI --------
 
     const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
+
+    const model = genAI.getGenerativeModel({
+      model: "gemini-2.5-flash-lite",
+      generationConfig: {
+        temperature: 0.1,
+        topP: 0.8,
+        topK: 20
+      }
+    });
 
     const result = await model.generateContent(
       buildPrompt(jobDescription.slice(0,4000), resumeText.slice(0,6000), isPro)
@@ -91,17 +105,22 @@ export default async function handler(req, res) {
       return res.status(500).json({ error:"AI JSON parse failed" });
     }
 
+    // -------- ROUND SCORES --------
+
+    const scoreBefore = parsed.scoreBefore ? Math.round(parsed.scoreBefore) : null;
+    const scoreAfter  = parsed.scoreAfter  ? Math.round(parsed.scoreAfter)  : null;
+
     return res.json({
 
       isPro,
 
-      scoreBefore: parsed.scoreBefore || null,
+      scoreBefore,
       strengthLevel: parsed.strengthLevel || null,
       quickImpression: parsed.quickImpression || [],
       keywordsFound: parsed.keywordsFound || [],
       keywordsMissingTop: parsed.keywordsMissingTop || [],
 
-      scoreAfter: isPro ? parsed.scoreAfter : null,
+      scoreAfter: isPro ? scoreAfter : null,
       optimizedText: isPro ? parsed.optimizedText : null,
       coverLetter: isPro ? parsed.coverLetter : null,
       recruiterNotes: isPro ? parsed.recruiterNotes : null,
