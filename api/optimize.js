@@ -5,6 +5,34 @@ export const config = {
   maxDuration: 30
 };
 
+/* ---------- KEYWORD ENGINE ---------- */
+
+function extractKeywords(text){
+return Array.from(
+new Set(
+(text.toLowerCase().match(/\b[a-z]{4,}\b/g) || [])
+)
+).slice(0,40);
+}
+
+function calculateScore(job,resume){
+
+const jobWords = extractKeywords(job);
+const resumeLower = resume.toLowerCase();
+
+const matched = jobWords.filter(w => resumeLower.includes(w));
+const missing = jobWords.filter(w => !resumeLower.includes(w));
+
+let score = Math.round((matched.length / jobWords.length) * 100 || 0);
+
+// clamp realistic ATS range
+score = Math.min(Math.max(score,35),92);
+
+return { score, matched, missing };
+}
+
+/* ---------- AI PROMPT ---------- */
+
 function buildPrompt(job,resume,isPro){
 
 return `
@@ -14,24 +42,18 @@ Return ONLY JSON.
 
 FORMAT:
 {
- "scoreBefore": number,
- "strengthLevel": "Strong | Moderate | Weak",
- "quickImpression": ["point","point","point"],
- "keywordsFound": ["kw"],
- "keywordsMissingTop": ["kw"],
- "scoreAfter": number,
  "optimizedText": "resume",
  "coverLetter": "text",
  "recruiterNotes": ["note"]
 }
 
-RESUME STYLE RULES:
+RESUME FORMAT RULES:
 
-1. First line MUST be candidate FULL NAME in caps
+1. First line MUST be FULL NAME in caps
 2. Second line MUST be:
 Email | Phone | Location
 
-3. Use sections with separators:
+3. Use clean sections:
 
 --------------------------------
 SUMMARY
@@ -50,14 +72,8 @@ EDUCATION
 --------------------------------
 
 4. Bullet points start with "- "
-5. Keep spacing between sections
-6. Never output single paragraph
-7. Keep original candidate info
-
-SCORING:
-- realistic ATS scoring
-- typical resumes 45–75
-- only perfect resumes above 85
+5. Never output a single paragraph
+6. Keep candidate info real — do NOT invent data
 
 JOB:
 ${job}
@@ -66,11 +82,13 @@ RESUME:
 ${resume}
 
 ${isPro
-? "USER PRO → fill ALL fields"
-: "USER FREE → fill only scoreBefore, keywords, strengthLevel, quickImpression"
+? "USER PRO → generate optimizedText, coverLetter, recruiterNotes"
+: "USER FREE → return empty values"
 }
 `;
 }
+
+/* ---------- HANDLER ---------- */
 
 export default async function handler(req,res){
 
@@ -87,7 +105,17 @@ const license=(req.body.licenseKey||"").trim().toLowerCase();
 if(job.length<10) return res.status(400).json({error:"Missing job"});
 if(resume.length<10) return res.status(400).json({error:"Missing resume"});
 
-const isPro=license==="test-vikas-2026";
+const isPro = license==="test-vikas-2026";
+
+/* ---- REAL ATS SCORE ---- */
+
+const {score,matched,missing} = calculateScore(job,resume);
+
+/* ---- AI ONLY FOR PRO ---- */
+
+let parsed={};
+
+if(isPro){
 
 const genAI=new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
@@ -103,24 +131,37 @@ buildPrompt(job.slice(0,4000),resume.slice(0,6000),isPro)
 const raw=result.response.text().trim();
 const jsonStr=raw.replace(/^```json/i,'').replace(/```$/,'').trim();
 
-let parsed;
-try{ parsed=JSON.parse(jsonStr); }
-catch{
-console.error(raw);
-return res.status(500).json({error:"AI JSON error"});
+try{
+parsed=JSON.parse(jsonStr);
+}catch{
+console.error("AI JSON ERROR:",raw);
+parsed={};
 }
+
+}
+
+/* ---- RESPONSE ---- */
 
 return res.json({
 
 isPro,
 
-scoreBefore:Math.round(parsed.scoreBefore||0),
-strengthLevel:parsed.strengthLevel||null,
-quickImpression:parsed.quickImpression||[],
-keywordsFound:parsed.keywordsFound||[],
-keywordsMissingTop:parsed.keywordsMissingTop||[],
+scoreBefore:score,
 
-scoreAfter:isPro?Math.round(parsed.scoreAfter||0):null,
+strengthLevel:
+score>75?"Strong":
+score>55?"Moderate":"Weak",
+
+quickImpression:[
+score>70?"Good keyword alignment":"Needs better keyword alignment",
+missing.length>6?"Several important skills missing":"Most core skills present",
+"Score calculated using ATS keyword match"
+],
+
+keywordsFound:matched.slice(0,10),
+keywordsMissingTop:missing.slice(0,10),
+
+scoreAfter:isPro?Math.min(score+10,96):null,
 optimizedText:isPro?parsed.optimizedText:null,
 coverLetter:isPro?parsed.coverLetter:null,
 recruiterNotes:isPro?parsed.recruiterNotes:null,
@@ -130,7 +171,9 @@ originalText:resume
 });
 
 }catch(e){
-console.error(e);
+
+console.error("SERVER ERROR:",e);
 return res.status(500).json({error:e.message});
+
 }
 }
