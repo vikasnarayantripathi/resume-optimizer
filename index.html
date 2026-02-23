@@ -5,40 +5,102 @@
 <title>ATSCheckPro</title>
 
 <style>
-body{font-family:Arial;background:#f4f6fb;margin:0}
-.container{max-width:900px;margin:auto;padding:30px}
-.card{background:white;padding:22px;border-radius:10px;margin-bottom:20px;box-shadow:0 3px 12px rgba(0,0,0,.05)}
-textarea,input{width:100%;padding:10px;border-radius:6px;border:1px solid #ccc}
-button{padding:14px;border-radius:8px;border:none;font-weight:bold;background:#667eea;color:white;width:100%}
-button:hover{background:#5563d6}
-.score{font-size:30px;font-weight:bold}
 
-.resumeBox{
-font-family:Georgia,serif;
-line-height:1.7;
+body{
+font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;
+background:#eef2f7;
+margin:0;
+}
+
+.container{
+max-width:900px;
+margin:auto;
+padding:30px;
+}
+
+.card{
+background:white;
+padding:26px;
+border-radius:12px;
+margin-bottom:22px;
+box-shadow:0 8px 22px rgba(0,0,0,.06);
+}
+
+textarea,input{
+width:100%;
+padding:12px;
+border-radius:8px;
+border:1px solid #d4d8e2;
+font-size:14px;
+}
+
+button{
+padding:15px;
+border-radius:10px;
+border:none;
+font-weight:700;
+background:linear-gradient(135deg,#667eea,#5a63d8);
+color:white;
+width:100%;
 font-size:15px;
+cursor:pointer;
+}
+button:hover{opacity:.95}
+
+.score{
+font-size:32px;
+font-weight:800;
+text-align:center;
+color:#2f3a56;
+}
+
+.resume{
+font-family: "Times New Roman", Georgia, serif;
+font-size:15px;
+line-height:1.75;
+color:#222;
 white-space:pre-wrap;
 }
 
 .name{
-font-size:22px;
-font-weight:bold;
+font-size:26px;
+font-weight:800;
 text-align:center;
-margin-bottom:4px;
+letter-spacing:.5px;
+margin-bottom:6px;
 }
 
 .contact{
 text-align:center;
-color:#555;
-margin-bottom:12px;
+color:#666;
+font-size:14px;
+margin-bottom:16px;
 }
 
-.divider{
-border-top:1px dashed #ccc;
-margin:12px 0;
+.section{
+margin-top:18px;
 }
 
-.locked{background:#fafafa;padding:18px;text-align:center;color:#666;border-radius:8px}
+.section-title{
+font-weight:700;
+font-size:15px;
+color:#333;
+margin-bottom:6px;
+}
+
+.rule{
+border-top:1px solid #dcdfe7;
+margin:8px 0 12px;
+}
+
+.lock{
+background:#fafafa;
+padding:20px;
+border-radius:10px;
+text-align:center;
+color:#666;
+}
+
 </style>
 </head>
 
@@ -63,12 +125,12 @@ margin:12px 0;
 <input id="key">
 </div>
 
-<button onclick="run()">Analyze</button>
+<button onclick="run()">Analyze Resume</button>
 
 <div id="results" style="display:none">
 
 <div class="card">
-<div class="score" id="score"></div>
+<div id="score" class="score"></div>
 </div>
 
 <div class="card">
@@ -83,14 +145,12 @@ margin:12px 0;
 
 <div class="card">
 <h3>Optimized Resume</h3>
-<div class="divider"></div>
-<div id="resumeOut" class="resumeBox"></div>
+<div id="resumeOut" class="resume"></div>
 </div>
 
 <div class="card">
 <h3>Cover Letter</h3>
-<div class="divider"></div>
-<div id="coverOut" class="resumeBox"></div>
+<div id="coverOut" class="resume"></div>
 </div>
 
 <div class="card">
@@ -104,23 +164,25 @@ margin:12px 0;
 
 <script>
 
-function formatResume(text){
+function renderResume(text){
 
 if(!text) return "";
 
-let lines=text.split("\n").filter(l=>l.trim()!="");
+const lines=text.split("\n").filter(l=>l.trim()!="");
 
 if(lines.length<2) return text;
 
 let name=lines[0];
 let contact=lines[1];
-let rest=lines.slice(2).join("\n");
+let body=lines.slice(2).join("\n");
 
 return `
 <div class="name">${name}</div>
 <div class="contact">${contact}</div>
-<div>${rest}</div>
+<div class="rule"></div>
+<div>${body.replace(/--------------------------------/g,'<div class="rule"></div>')}</div>
 `;
+
 }
 
 async function run(){
@@ -130,7 +192,7 @@ const resume=document.getElementById("resume").value.trim();
 const key=document.getElementById("key").value.trim();
 
 if(!job||!resume){
-alert("Paste job + resume");
+alert("Paste job + resume first");
 return;
 }
 
@@ -159,16 +221,24 @@ document.getElementById("kw").innerHTML=
 
 if(data.isPro){
 
-document.getElementById("resumeOut").innerHTML=formatResume(data.optimizedText);
+document.getElementById("resumeOut").innerHTML=
+renderResume(data.optimizedText);
+
 document.getElementById("coverOut").innerText=data.coverLetter||"";
+
 document.getElementById("notesOut").innerHTML=
 (data.recruiterNotes||[]).map(n=>"• "+n).join("<br>");
 
 }else{
 
-document.getElementById("resumeOut").innerHTML="<div class='locked'>🔒 Unlock PRO to view formatted resume</div>";
-document.getElementById("coverOut").innerHTML="<div class='locked'>🔒 Unlock PRO to view cover letter</div>";
-document.getElementById("notesOut").innerHTML="<div class='locked'>🔒 Unlock PRO</div>";
+document.getElementById("resumeOut").innerHTML=
+"<div class='lock'>🔒 Unlock PRO to view professional resume</div>";
+
+document.getElementById("coverOut").innerHTML=
+"<div class='lock'>🔒 Unlock PRO to view cover letter</div>";
+
+document.getElementById("notesOut").innerHTML=
+"<div class='lock'>🔒 Unlock PRO</div>";
 
 }
 
