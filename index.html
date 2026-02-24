@@ -7,41 +7,139 @@
 <style>
 body{font-family:system-ui;background:#eef2f7;margin:0}
 
-.wrapper{display:grid;grid-template-columns:1fr 1.2fr;gap:20px;padding:20px;height:100vh;box-sizing:border-box}
+.wrapper{
+display:grid;
+grid-template-columns:1fr 1.2fr;
+gap:20px;
+padding:20px;
+height:100vh;
+box-sizing:border-box;
+}
 
-.panel{background:white;border-radius:14px;padding:20px;box-shadow:0 8px 24px rgba(0,0,0,.06);overflow:auto}
+.panel{
+background:white;
+border-radius:14px;
+padding:20px;
+box-shadow:0 8px 24px rgba(0,0,0,.06);
+overflow:auto;
+}
 
-textarea,input{width:100%;padding:10px;border-radius:8px;border:1px solid #d4d8e2;margin-top:6px}
+textarea,input{
+width:100%;
+padding:10px;
+border-radius:8px;
+border:1px solid #d4d8e2;
+margin-top:6px;
+}
 
-button{padding:12px;border-radius:10px;border:none;font-weight:700;background:linear-gradient(135deg,#667eea,#5a63d8);color:white;width:100%;margin-top:12px;cursor:pointer}
+button{
+padding:12px;
+border-radius:10px;
+border:none;
+font-weight:700;
+background:linear-gradient(135deg,#667eea,#5a63d8);
+color:white;
+width:100%;
+margin-top:12px;
+cursor:pointer;
+}
 
-/* score */
+/* SCORE */
+
 .scoreWrap{display:flex;align-items:center;gap:18px;margin-bottom:10px}
-.circle{width:78px;height:78px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;background:conic-gradient(#2ecc71 0deg,#e5e7ef 0deg)}
-.scoreText{font-size:30px;font-weight:900;background:linear-gradient(90deg,#667eea,#764ba2);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
 
-/* tabs */
+.circle{
+width:78px;height:78px;border-radius:50%;
+display:flex;align-items:center;justify-content:center;
+font-size:22px;font-weight:900;color:white;
+background:conic-gradient(#2ecc71 0deg,#e5e7ef 0deg);
+}
+
+.scoreText{
+font-size:30px;font-weight:900;
+background:linear-gradient(90deg,#667eea,#764ba2);
+-webkit-background-clip:text;
+-webkit-text-fill-color:transparent;
+}
+
+/* TABS */
+
 .tabs{display:flex;gap:10px;margin:14px 0}
-.tab{padding:8px 14px;border-radius:10px;background:#eef1fa;cursor:pointer;font-weight:700}
-.tab.active{background:linear-gradient(135deg,#667eea,#5a63d8);color:white;box-shadow:0 6px 14px rgba(102,126,234,.35)}
+.tab{
+padding:8px 14px;border-radius:10px;
+background:#eef1fa;cursor:pointer;font-weight:700
+}
+.tab.active{
+background:linear-gradient(135deg,#667eea,#5a63d8);
+color:white;box-shadow:0 6px 14px rgba(102,126,234,.35)
+}
 
-/* resume header */
-.resumeHeader{display:flex;align-items:center;gap:16px;margin-bottom:10px}
-.photo{width:85px;height:85px;border-radius:50%;object-fit:cover;border:2px solid #ddd;flex-shrink:0}
+/* RESUME HEADER */
+
+.resumeHeader{
+display:flex;
+align-items:center;
+gap:16px;
+margin-bottom:10px;
+}
+
+.photo{
+width:85px;height:85px;border-radius:50%;
+object-fit:cover;border:2px solid #ddd;
+flex-shrink:0;
+}
+
 .name{font-size:22px;font-weight:900}
 .contact{color:#666;font-size:14px}
+
 .rule{border-top:1px solid #e2e5ee;margin:10px 0}
-.resume{font-family:Georgia,serif;white-space:pre-wrap;line-height:1.7}
 
-/* report */
-.reportBox{background:#f7f8fc;padding:14px;border-radius:10px;margin-bottom:10px}
-.bar{height:12px;background:#e3e7f1;border-radius:20px;overflow:hidden;margin-top:6px}
-.barFill{height:100%;background:linear-gradient(90deg,#ff5a5a,#ffcc00,#2ecc71)}
+.resume{
+font-family:Georgia,serif;
+white-space:pre-wrap;
+line-height:1.7;
+}
 
-/* chips */
-.chip{display:inline-block;padding:5px 10px;margin:3px;border-radius:14px;font-size:12px;font-weight:700}
+/* REPORT */
+
+.reportBox{
+background:#f7f8fc;
+padding:14px;
+border-radius:10px;
+margin-bottom:10px
+}
+
+.bar{
+height:12px;
+background:#e3e7f1;
+border-radius:20px;
+overflow:hidden;
+margin-top:6px
+}
+
+.barFill{
+height:100%;
+background:linear-gradient(90deg,#ff5a5a,#ffcc00,#2ecc71);
+}
+
+/* CHIPS */
+
+.chip{
+display:inline-block;
+padding:5px 10px;
+margin:3px;
+border-radius:14px;
+font-size:12px;
+font-weight:700
+}
 .found{background:#d4f6df;color:#0b7a39}
 .missing{background:#ffe0e0;color:#b30000}
+
+.sectionTitle{
+margin-top:12px;
+font-weight:800;
+font-size:16px;
+}
 
 </style>
 </head>
@@ -50,6 +148,7 @@ button{padding:12px;border-radius:10px;border:none;font-weight:700;background:li
 
 <div class="wrapper">
 
+<!-- INPUT PANEL -->
 <div class="panel">
 
 <h3>Job Description</h3>
@@ -68,6 +167,7 @@ button{padding:12px;border-radius:10px;border:none;font-weight:700;background:li
 
 </div>
 
+<!-- RESULT PANEL -->
 <div class="panel">
 
 <div id="results" style="display:none">
@@ -95,14 +195,13 @@ button{padding:12px;border-radius:10px;border:none;font-weight:700;background:li
 </div>
 
 </div>
+
 </div>
 
 <script>
 
 let photoBase64="";
 let lastData=null;
-
-/* photo */
 
 photoInput.onchange=e=>{
 const f=e.target.files[0];
@@ -112,8 +211,6 @@ r.onload=()=>photoBase64=r.result;
 r.readAsDataURL(f);
 };
 
-/* tabs */
-
 function showTab(id,el){
 document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
 el.classList.add("active");
@@ -121,11 +218,9 @@ el.classList.add("active");
 document.getElementById(id).style.display="block";
 }
 
-/* render resume */
-
 function renderResume(text){
 
-const lines=text.split("\n").filter(l=>l.trim());
+const lines=(text||"").split("\n").filter(l=>l.trim());
 const name=lines[0]||"";
 const contact=lines[1]||"";
 const body=lines.slice(2).join("\n");
@@ -138,13 +233,22 @@ ${photoBase64?`<img src="${photoBase64}" class="photo">`:""}
 <div class="contact">${contact}</div>
 </div>
 </div>
+
 <div class="rule"></div>
-<div class="resume">${body.replace(/--------------------------------/g,'<div class="rule"></div>')}</div>
+
+<div class="resume">
+${body.replace(/--------------------------------/g,'<div class="rule"></div>')}
+</div>
+
 <button onclick="downloadResume()">Download Resume</button>
 `;
 }
 
-/* analyze */
+function scoreLabel(score){
+if(score>=75)return["Strong match","#2ecc71"];
+if(score>=60)return["Moderate match","#ffcc00"];
+return["Needs improvement","#ff5a5a"];
+}
 
 async function run(){
 
@@ -163,20 +267,34 @@ lastData=data;
 
 results.style.display="block";
 
-/* score */
+/* SCORE */
 
 const s=data.scoreBefore||0;
 score.innerText=s+"/100";
 circle.innerText=s;
 circle.style.background=`conic-gradient(#2ecc71 ${s*3.6}deg,#e5e7ef 0deg)`;
 
-/* chips */
+const [label,color]=scoreLabel(s);
+scoreLabel.innerText=label;
+scoreLabel.style.color=color;
 
-chips.innerHTML="";
-(data.keywordsFound||[]).forEach(k=>chips.innerHTML+=`<span class="chip found">${k}</span>`);
-(data.keywordsMissingTop||[]).forEach(k=>chips.innerHTML+=`<span class="chip missing">${k}</span>`);
+/* KEYWORDS SECTION */
 
-/* content */
+chips.innerHTML=`
+<div class="sectionTitle">🔑 Keyword Match Analysis</div>
+
+<div style="margin-top:6px">
+<b>Matched:</b>
+${(data.keywordsFound||[]).map(k=>`<span class="chip found">${k}</span>`).join("")}
+</div>
+
+<div style="margin-top:6px">
+<b>Missing:</b>
+${(data.keywordsMissingTop||[]).map(k=>`<span class="chip missing">${k}</span>`).join("")}
+</div>
+`;
+
+/* CONTENT */
 
 if(data.isPro){
 
@@ -217,14 +335,10 @@ resumeTab.innerHTML="🔒 Unlock PRO";
 
 }
 
-/* filename */
-
 function candidateName(){
 let n=(lastData?.optimizedText||"").split("\n")[0]||"resume";
 return n.replace(/[^a-z0-9]/gi,"-");
 }
-
-/* download */
 
 async function download(body,name){
 
@@ -240,10 +354,12 @@ if(!r.ok){alert("Download failed");return;}
 
 const blob=await r.blob();
 const url=URL.createObjectURL(blob);
+
 const a=document.createElement("a");
 a.href=url;
 a.download=name+".pdf";
 a.click();
+
 URL.revokeObjectURL(url);
 }
 
