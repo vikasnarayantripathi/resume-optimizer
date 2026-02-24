@@ -5,121 +5,175 @@
 <title>ATSCheckPro</title>
 
 <style>
+
 body{font-family:system-ui;background:#eef2f7;margin:0}
-.container{max-width:900px;margin:auto;padding:30px}
-.card{background:white;padding:26px;border-radius:14px;margin-bottom:22px;box-shadow:0 8px 24px rgba(0,0,0,.06)}
-textarea,input{width:100%;padding:12px;border-radius:8px;border:1px solid #d4d8e2;font-size:14px}
-button{padding:14px;border-radius:10px;border:none;font-weight:700;background:linear-gradient(135deg,#667eea,#5a63d8);color:white;width:100%;cursor:pointer;margin-top:10px}
-button:hover{opacity:.95}
 
-/* header layout */
-.resumeHeader{text-align:center;margin-bottom:10px}
-
-.photoPreview{
-width:90px;height:90px;border-radius:50%;
-object-fit:cover;display:block;margin:0 auto 8px auto;
-border:2px solid #ddd
+/* layout */
+.wrapper{
+display:grid;
+grid-template-columns: 1fr 1.2fr;
+gap:20px;
+padding:20px;
+height:100vh;
+box-sizing:border-box;
 }
 
-.name{font-size:26px;font-weight:800;margin-top:4px}
-.contact{color:#666;margin-bottom:8px}
+.panel{
+background:white;
+border-radius:14px;
+padding:20px;
+box-shadow:0 8px 24px rgba(0,0,0,.06);
+overflow:auto;
+}
 
-.rule{border-top:1px solid #dcdfe7;margin:10px 0}
+/* inputs */
+textarea,input{
+width:100%;
+padding:10px;
+border-radius:8px;
+border:1px solid #d4d8e2;
+margin-top:6px;
+}
 
-.resume{font-family:Georgia,serif;line-height:1.7;white-space:pre-wrap}
+button{
+padding:12px;
+border-radius:10px;
+border:none;
+font-weight:700;
+background:linear-gradient(135deg,#667eea,#5a63d8);
+color:white;
+width:100%;
+margin-top:12px;
+cursor:pointer;
+}
+
+/* resume header */
+
+.resumeHeader{
+display:flex;
+align-items:center;
+gap:15px;
+margin-bottom:10px;
+}
+
+.photo{
+width:80px;
+height:80px;
+border-radius:50%;
+object-fit:cover;
+border:2px solid #ddd;
+flex-shrink:0;
+}
+
+.name{font-size:22px;font-weight:800}
+.contact{color:#666;font-size:14px}
+
+.rule{border-top:1px solid #e2e5ee;margin:10px 0}
+
+.resume{
+font-family:Georgia,serif;
+white-space:pre-wrap;
+line-height:1.7;
+}
+
+/* tabs */
+
+.tabs{display:flex;gap:8px;margin-bottom:10px}
+.tab{
+padding:6px 12px;
+border-radius:8px;
+background:#eef1fa;
+cursor:pointer;
+font-weight:600;
+}
+.tab.active{background:#667eea;color:white}
 
 /* meter */
-.meter{height:18px;background:#e3e7f1;border-radius:20px;overflow:hidden;margin-top:10px}
+.meter{height:14px;background:#e3e7f1;border-radius:20px;overflow:hidden;margin-top:6px}
 .meter-fill{height:100%;background:linear-gradient(90deg,#ff5a5a,#ffcc00,#2ecc71);width:0%}
 
 /* chips */
-.chip{display:inline-block;padding:6px 12px;margin:4px;border-radius:18px;font-size:13px;font-weight:600}
+.chip{display:inline-block;padding:4px 10px;margin:3px;border-radius:14px;font-size:12px;font-weight:600}
 .found{background:#d4f6df;color:#0b7a39}
 .missing{background:#ffe0e0;color:#b30000}
+
 </style>
 </head>
 
 <body>
-<div class="container">
 
-<h2>⚡ ATSCheckPro</h2>
+<div class="wrapper">
 
-<div class="card">
+<!-- LEFT INPUT -->
+<div class="panel">
+
 <h3>Job Description</h3>
 <textarea id="job" rows="6"></textarea>
-</div>
 
-<div class="card">
 <h3>Resume</h3>
-<textarea id="resume" rows="8"></textarea>
+<textarea id="resume" rows="7"></textarea>
 
-<h4 style="margin-top:16px">Candidate Photo (optional)</h4>
+<h4>Candidate Photo</h4>
 <input type="file" id="photoInput" accept="image/*">
-<img id="photoPreview" class="photoPreview" style="display:none">
-</div>
 
-<div class="card">
-<h3>License Key</h3>
+<h4>License Key</h4>
 <input id="key">
-</div>
 
 <button onclick="run()">Analyze Resume</button>
 
+</div>
+
+<!-- RIGHT RESULTS -->
+<div class="panel">
+
 <div id="results" style="display:none">
 
-<div class="card">
-<div id="score" style="font-size:32px;font-weight:800;text-align:center"></div>
+<h3 id="score"></h3>
 <div class="meter"><div id="meterFill" class="meter-fill"></div></div>
-</div>
 
-<div class="card">
-<h3>Keywords</h3>
 <div id="chips"></div>
+
+<div class="tabs">
+<div class="tab active" onclick="showTab('resumeTab',this)">Resume</div>
+<div class="tab" onclick="showTab('coverTab',this)">Cover Letter</div>
+<div class="tab" onclick="showTab('reportTab',this)">Report</div>
 </div>
 
-<div class="card">
-<h3>Optimized Resume</h3>
-<div id="resumeOut" class="resume"></div>
-<button onclick="downloadResume()">Download Resume PDF</button>
-</div>
+<div id="resumeTab" class="tabContent"></div>
+<div id="coverTab" class="tabContent" style="display:none"></div>
+<div id="reportTab" class="tabContent" style="display:none"></div>
 
-<div class="card">
-<h3>Cover Letter</h3>
-<div id="coverOut" class="resume"></div>
-<button onclick="downloadCover()">Download Cover Letter PDF</button>
-</div>
-
-<div class="card">
-<button onclick="downloadReport()">Download Optimization Report</button>
 </div>
 
 </div>
+
 </div>
 
 <script>
 
 let photoBase64="";
 
-/* photo upload */
-
-document.getElementById("photoInput").addEventListener("change",e=>{
-const file=e.target.files[0];
-if(!file) return;
-
-const reader=new FileReader();
-reader.onload=()=>{
-photoBase64=reader.result;
-photoPreview.src=photoBase64;
-photoPreview.style.display="block";
-};
-reader.readAsDataURL(file);
+photoInput.addEventListener("change",e=>{
+const f=e.target.files[0];
+if(!f)return;
+const r=new FileReader();
+r.onload=()=>photoBase64=r.result;
+r.readAsDataURL(f);
 });
+
+/* tabs */
+
+function showTab(id,el){
+document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+el.classList.add("active");
+
+document.querySelectorAll(".tabContent").forEach(c=>c.style.display="none");
+document.getElementById(id).style.display="block";
+}
 
 /* render resume */
 
 function renderResume(text){
-
-if(!text) return "";
 
 const lines=text.split("\n").filter(l=>l.trim());
 
@@ -129,39 +183,40 @@ const body=lines.slice(2).join("\n");
 
 return `
 <div class="resumeHeader">
-${photoBase64?`<img src="${photoBase64}" class="photoPreview">`:""}
+${photoBase64?`<img src="${photoBase64}" class="photo">`:""}
+<div>
 <div class="name">${name}</div>
 <div class="contact">${contact}</div>
+</div>
 </div>
 
 <div class="rule"></div>
 
-<div>
+<div class="resume">
 ${body.replace(/--------------------------------/g,'<div class="rule"></div>')}
 </div>
+
+<button onclick="downloadResume()">Download Resume</button>
 `;
 }
 
-/* analyze */
+/* run */
 
 async function run(){
 
-const job=jobEl.value.trim();
-const resume=resumeEl.value.trim();
-const key=keyEl.value.trim();
+const jobVal=job.value.trim();
+const resumeVal=resume.value.trim();
+const keyVal=key.value.trim();
 
-if(!job||!resume){
-alert("Paste job + resume");
-return;
-}
+if(!jobVal||!resumeVal)return alert("Paste job + resume");
 
 const res=await fetch("/api/optimize",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify({
-jobDescription:job,
-resumeText:resume,
-licenseKey:key
+jobDescription:jobVal,
+resumeText:resumeVal,
+licenseKey:keyVal
 })
 });
 
@@ -170,7 +225,7 @@ window.lastData=data;
 
 results.style.display="block";
 
-score.innerText=data.scoreBefore+"/100";
+score.innerText="ATS Score: "+data.scoreBefore+"/100";
 meterFill.style.width=data.scoreBefore+"%";
 
 chips.innerHTML="";
@@ -178,82 +233,62 @@ chips.innerHTML="";
 (data.keywordsMissingTop||[]).forEach(k=>chips.innerHTML+=`<span class="chip missing">${k}</span>`);
 
 if(data.isPro){
-resumeOut.innerHTML=renderResume(data.optimizedText);
-coverOut.innerText=data.coverLetter||"";
+resumeTab.innerHTML=renderResume(data.optimizedText);
+coverTab.innerHTML=`<div class="resume">${data.coverLetter||""}</div><button onclick="downloadCover()">Download Cover</button>`;
+reportTab.innerHTML=`<button onclick="downloadReport()">Download Report</button>`;
 }else{
-resumeOut.innerHTML="🔒 Unlock PRO";
-coverOut.innerHTML="🔒 Unlock PRO";
-}
+resumeTab.innerHTML="🔒 Unlock PRO";
+coverTab.innerHTML="";
+reportTab.innerHTML="";
 }
 
-/* smart filename */
+}
+
+/* filename */
 
 function candidateName(){
-const txt=window.lastData?.optimizedText||"";
-let name=(txt.split("\n")[0]||"resume").trim();
-return name.replace(/[^a-z0-9]/gi,"-").replace(/-+/g,"-");
+let n=(lastData?.optimizedText||"").split("\n")[0]||"resume";
+return n.replace(/[^a-z0-9]/gi,"-").replace(/-+/g,"-");
 }
 
-/* download helper */
+/* downloads */
 
-async function download(body,fileName){
+async function download(body,name){
 
-const res=await fetch("/api/download",{
+const r=await fetch("/api/download",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
 body:JSON.stringify(body)
 });
 
-if(!res.ok){
-alert("Download failed — use PRO key");
-return;
-}
-
-const blob=await res.blob();
+const blob=await r.blob();
 const url=URL.createObjectURL(blob);
-
 const a=document.createElement("a");
 a.href=url;
-a.download=fileName+".pdf";
+a.download=name+".pdf";
 a.click();
-
 URL.revokeObjectURL(url);
 }
 
-/* download actions */
-
 function downloadResume(){
-if(!lastData?.optimizedText)return alert("Run PRO first");
-
-download(
-{
+download({
 type:"resume",
 optimizedText:lastData.optimizedText,
 photo:photoBase64,
-licenseKey:keyEl.value.trim()
-},
-candidateName()+"-Resume"
-);
+licenseKey:key.value.trim()
+},candidateName()+"-Resume");
 }
 
 function downloadCover(){
-if(!lastData?.coverLetter)return alert("Run PRO first");
-
-download(
-{
+download({
 type:"cover",
 coverLetter:lastData.coverLetter,
-licenseKey:keyEl.value.trim()
-},
-candidateName()+"-CoverLetter"
-);
+licenseKey:key.value.trim()
+},candidateName()+"-Cover");
 }
 
 function downloadReport(){
-if(!lastData)return alert("Run analysis first");
-
-download(
-{
+download({
 type:"report",
 report:{
 score:lastData.scoreBefore,
@@ -261,25 +296,11 @@ impression:lastData.quickImpression,
 keywords:lastData.keywordsMissingTop,
 notes:lastData.recruiterNotes
 },
-licenseKey:keyEl.value.trim()
-},
-candidateName()+"-ATSReport"
-);
+licenseKey:key.value.trim()
+},candidateName()+"-ATSReport");
 }
 
-/* refs */
-
-const jobEl=document.getElementById("job");
-const resumeEl=document.getElementById("resume");
-const keyEl=document.getElementById("key");
-const results=document.getElementById("results");
-const score=document.getElementById("score");
-const meterFill=document.getElementById("meterFill");
-const chips=document.getElementById("chips");
-const resumeOut=document.getElementById("resumeOut");
-const coverOut=document.getElementById("coverOut");
-const photoPreview=document.getElementById("photoPreview");
-
 </script>
+
 </body>
 </html>
