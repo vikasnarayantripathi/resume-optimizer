@@ -1,321 +1,570 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>ATSCheckPro</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ATSCheckPro — ATS Resume Optimizer</title>
+<meta name="description" content="Optimize your resume for ATS systems. Get past the filters and land more interviews.">
 <style>
-body{font-family:system-ui;background:#eef2f7;margin:0}
-.wrapper{display:grid;grid-template-columns:1fr 1.2fr;gap:20px;padding:20px;height:100vh;box-sizing:border-box}
-.panel{background:white;border-radius:14px;padding:20px;box-shadow:0 8px 24px rgba(0,0,0,.06);overflow:auto}
-textarea,input{width:100%;padding:10px;border-radius:8px;border:1px solid #d4d8e2;margin-top:6px}
-button{padding:12px;border-radius:10px;border:none;font-weight:700;background:linear-gradient(135deg,#667eea,#5a63d8);color:white;width:100%;margin-top:12px;cursor:pointer}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Inter',system-ui,sans-serif;background:#0f1117;color:#e2e8f0;min-height:100vh}
 
-.scoreWrap{display:flex;align-items:center;gap:18px;margin-bottom:10px}
-.circle{width:78px;height:78px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:900;color:white;background:conic-gradient(#2ecc71 0deg,#e5e7ef 0deg)}
-.scoreText{font-size:30px;font-weight:900;background:linear-gradient(90deg,#667eea,#764ba2);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+/* HEADER */
+header{background:#0f1117;border-bottom:1px solid #1e2535;padding:14px 28px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-size:1.25rem;font-weight:900;color:white;letter-spacing:-0.5px}
+.logo span{background:linear-gradient(90deg,#667eea,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.header-right{display:flex;align-items:center;gap:12px}
+.badge{background:#1e2535;color:#a5b4fc;border:1px solid #667eea44;border-radius:20px;padding:4px 12px;font-size:0.75rem;font-weight:600}
+.btn-buy-header{background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:8px;padding:8px 16px;font-size:0.82rem;font-weight:700;cursor:pointer;text-decoration:none}
 
-.tabs{display:flex;gap:10px;margin:14px 0}
-.tab{padding:8px 14px;border-radius:10px;background:#eef1fa;cursor:pointer;font-weight:700}
-.tab.active{background:linear-gradient(135deg,#667eea,#5a63d8);color:white;box-shadow:0 6px 14px rgba(102,126,234,.35)}
+/* HERO */
+.hero{background:linear-gradient(135deg,#0f1117 0%,#1a1f2e 100%);text-align:center;padding:52px 24px 40px;border-bottom:1px solid #1e2535}
+.hero-tag{display:inline-block;background:#667eea22;color:#a5b4fc;border:1px solid #667eea44;border-radius:20px;padding:5px 14px;font-size:0.78rem;font-weight:600;letter-spacing:0.5px;margin-bottom:16px}
+.hero h1{font-size:2.6rem;font-weight:900;line-height:1.15;margin-bottom:12px;color:white;letter-spacing:-1px}
+.hero h1 span{background:linear-gradient(90deg,#667eea,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{color:#718096;font-size:1rem;max-width:480px;margin:0 auto 28px;line-height:1.6}
+.hero-stats{display:flex;gap:0;justify-content:center;flex-wrap:wrap;background:#1a1f2e;border:1px solid #2d3748;border-radius:14px;padding:18px 32px;display:inline-flex;gap:32px}
+.stat .num{font-size:1.5rem;font-weight:900;color:#667eea}
+.stat .lbl{font-size:0.72rem;color:#718096;margin-top:2px}
 
-.resumeHeader{display:flex;align-items:center;gap:16px;margin-bottom:10px}
-.photo{width:85px;height:85px;border-radius:50%;object-fit:cover;border:2px solid #ddd;flex-shrink:0}
-.name{font-size:22px;font-weight:900}
-.contact{color:#666;font-size:14px}
-.rule{border-top:1px solid #e2e5ee;margin:10px 0}
-.resume{font-family:Georgia,serif;white-space:pre-wrap;line-height:1.7}
+/* MAIN LAYOUT */
+.main{display:grid;grid-template-columns:1fr 1.2fr;gap:0;min-height:calc(100vh - 180px)}
+@media(max-width:900px){.main{grid-template-columns:1fr}}
 
-.reportBox{background:#f7f8fc;padding:14px;border-radius:10px;margin-bottom:10px}
-.bar{height:12px;background:#e3e7f1;border-radius:20px;overflow:hidden;margin-top:6px}
-.barFill{height:100%;background:linear-gradient(90deg,#ff5a5a,#ffcc00,#2ecc71)}
+/* LEFT PANEL - INPUT */
+.panel-left{background:#141820;border-right:1px solid #1e2535;padding:28px;overflow-y:auto}
+.panel-right{background:#0f1117;padding:28px;overflow-y:auto}
 
-.chip{display:inline-block;padding:5px 10px;margin:3px;border-radius:14px;font-size:12px;font-weight:700}
-.found{background:#d4f6df;color:#0b7a39}
-.missing{background:#ffe0e0;color:#b30000}
-.sectionTitle{margin-top:12px;font-weight:800;font-size:16px}
-</style>
-</head>
+.section-label{font-size:0.72rem;font-weight:700;color:#667eea;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px}
+.input-group{margin-bottom:18px}
+textarea{width:100%;background:#1a1f2e;border:1.5px solid #2d3748;border-radius:10px;padding:12px 14px;font-size:0.88rem;font-family:'Inter',sans-serif;resize:vertical;outline:none;line-height:1.6;color:#e2e8f0;transition:border-color 0.2s}
+textarea:focus{border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,0.1)}
+textarea::placeholder{color:#4a5568}
 
-<body>
+.file-upload{background:#1a1f2e;border:1.5px dashed #2d3748;border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:all 0.2s;margin-top:6px}
+.file-upload:hover{border-color:#667eea;background:#1e2535}
+.file-upload p{font-size:0.82rem;color:#718096}
+.file-upload strong{color:#667eea}
+input[type=file]{display:none}
+#file-name{font-size:0.8rem;color:#48bb78;margin-top:6px;font-weight:600}
 
-<div class="wrapper">
+.btn-analyze{width:100%;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:10px;padding:15px;font-size:1rem;font-weight:800;cursor:pointer;margin-top:6px;box-shadow:0 4px 20px rgba(102,126,234,0.3);transition:opacity 0.2s;letter-spacing:-0.3px}
+.btn-analyze:hover{opacity:0.92}
+.btn-analyze:disabled{opacity:0.5;cursor:not-allowed}
 
-<!-- INPUT PANEL -->
-<div class="panel">
+.error-box{background:#2d0f0f;border:1px solid #e53e3e44;color:#fc8181;border-radius:8px;padding:10px 14px;font-size:0.85rem;margin-top:10px;display:none}
 
-<h3>Job Description</h3>
-<textarea id="job" rows="6"></textarea>
+/* KEY INPUT */
+.key-section{background:#1a1f2e;border:1px solid #2d3748;border-radius:10px;padding:16px;margin-bottom:18px}
+.key-section p{font-size:0.8rem;color:#718096;margin-bottom:10px}
+.key-row{display:flex;gap:8px}
+.key-row input{flex:1;background:#0f1117;border:1.5px solid #2d3748;border-radius:8px;padding:9px 12px;font-size:0.88rem;font-family:'Inter',sans-serif;color:#e2e8f0;outline:none}
+.key-row input:focus{border-color:#667eea}
+.key-row input::placeholder{color:#4a5568}
+.btn-unlock{background:#48bb78;color:white;border:none;border-radius:8px;padding:9px 14px;font-weight:700;cursor:pointer;font-size:0.85rem;white-space:nowrap}
+#key-error{color:#fc8181;font-size:0.8rem;margin-top:6px;display:none}
+#key-success{color:#48bb78;font-size:0.8rem;margin-top:6px;display:none}
 
-<h3>Resume</h3>
-<textarea id="resume" rows="7"></textarea>
+/* RIGHT PANEL - RESULTS */
+.empty-state{text-align:center;padding:80px 24px;color:#4a5568}
+.empty-state .icon{font-size:3rem;margin-bottom:16px}
+.empty-state h3{font-size:1.1rem;font-weight:700;color:#718096;margin-bottom:8px}
+.empty-state p{font-size:0.88rem;line-height:1.6}
 
-<h4>Candidate Photo</h4>
-<input type="file" id="photoInput" accept="image/*">
+#loading{display:none;text-align:center;padding:60px 24px}
+.spinner{width:44px;height:44px;border:3px solid #1e2535;border-top-color:#667eea;border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 16px}
+@keyframes spin{to{transform:rotate(360deg)}}
+#loading p{color:#718096;font-size:0.9rem}
+.loading-steps{margin-top:20px;display:flex;flex-direction:column;gap:8px}
+.loading-step{font-size:0.82rem;color:#4a5568;transition:color 0.3s}
+.loading-step.active{color:#667eea;font-weight:600}
 
-<h4>License Key</h4>
-<input id="key">
-
-<button id="analyzeBtn">Analyze Resume</button>
-
-</div>
-
-<!-- RESULT PANEL -->
-<div class="panel">
-
-<div id="results" style="display:none">
-
-<div class="scoreWrap">
-<div id="circle" class="circle">0</div>
-<div>
-<div id="score" class="scoreText"></div>
-<div id="scoreLabel"></div>
-</div>
-</div>
-
-<div id="chips"></div>
-
-<div class="tabs">
-<div class="tab active" data-tab="resumeTab">Resume</div>
-<div class="tab" data-tab="coverTab">Cover Letter</div>
-<div class="tab" data-tab="reportTab">Report</div>
-</div>
-
-<div id="resumeTab"></div>
-<div id="coverTab" style="display:none"></div>
-<div id="reportTab" style="display:none"></div>
-
-</div>
-
-</div>
-
-</div>
-
-<script>
-
-let photoBase64="";
-let lastData=null;
-
-/* PHOTO */
-document.getElementById("photoInput").addEventListener("change",e=>{
-const f=e.target.files[0];
-if(!f)return;
-const r=new FileReader();
-r.onload=()=>photoBase64=r.result;
-r.readAsDataURL(f);
-});
-
-/* TAB SWITCH */
-document.querySelectorAll(".tab").forEach(tab=>{
-tab.addEventListener("click",()=>{
-document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-tab.classList.add("active");
-
-["resumeTab","coverTab","reportTab"].forEach(id=>{
-document.getElementById(id).style.display="none";
-});
-
-document.getElementById(tab.dataset.tab).style.display="block";
-});
-});
-
-/* RENDER RESUME */
-
-function renderResume(text){
-
-const lines=(text||"").split("\n").filter(l=>l.trim());
-const name=lines[0]||"";
-const contact=lines[1]||"";
-const body=lines.slice(2).join("\n");
-
-return `
-<div class="resumeHeader">
-${photoBase64?`<img src="${photoBase64}" class="photo">`:""}
-<div>
-<div class="name">${name}</div>
-<div class="contact">${contact}</div>
-</div>
-</div>
-
-<div class="rule"></div>
-
-<div class="resume">
-${body.replace(/--------------------------------/g,'<div class="rule"></div>')}
-</div>
-
-<button id="downloadResumeBtn">Download Resume</button>
-`;
-}
-
-/* SCORE LABEL */
-
-function getScoreLabel(score){
-if(score>=75)return["Strong match","#2ecc71"];
-if(score>=60)return["Moderate match","#ffcc00"];
-return["Needs improvement","#ff5a5a"];
-}
-
-/* ANALYZE */
-
-document.getElementById("analyzeBtn").addEventListener("click",run);
-
-async function run(){
-
-const response=await fetch("/api/optimize",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-jobDescription:job.value.trim(),
-resumeText:resume.value.trim(),
-licenseKey:key.value.trim()
-})
-});
-
-if(!response.ok){
-alert("Server error");
-return;
-}
-
-const data=await response.json();
-lastData=data;
-
-results.style.display="block";
-
-/* SCORE */
-
-const s=data.scoreBefore||0;
-score.innerText=s+"/100";
-circle.innerText=s;
-circle.style.background=`conic-gradient(#2ecc71 ${s*3.6}deg,#e5e7ef 0deg)`;
-
-const [label,color]=getScoreLabel(s);
-document.getElementById("scoreLabel").innerText=label;
-document.getElementById("scoreLabel").style.color=color;
+/* SCORE CARD */
+.score-card{background:linear-gradient(135deg,#1a1f2e,#1e2535);border:1px solid #2d3748;border-radius:14px;padding:20px;margin-bottom:16px}
+.score-top{display:flex;align-items:center;gap:16px;margin-bottom:14px}
+.score-circle{width:76px;height:76px;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-weight:900;color:white;flex-shrink:0;box-shadow:0 4px 20px rgba(0,0,0,0.3)}
+.score-circle .snum{font-size:1.6rem;line-height:1}
+.score-circle .spct{font-size:0.62rem;opacity:0.8}
+.score-details h3{font-size:1rem;font-weight:800;color:white;margin-bottom:4px}
+.score-details p{font-size:0.8rem;color:#718096}
+.score-after-box{margin-left:auto;background:#0f3d1f;border:1px solid #276749;border-radius:10px;padding:10px 14px;text-align:center}
+.score-after-box .anum{font-size:1.3rem;font-weight:900;color:#48bb78}
+.score-after-box .albl{font-size:0.68rem;color:#68d391;margin-top:2px}
 
 /* KEYWORDS */
+.kw-card{background:#1a1f2e;border:1px solid #2d3748;border-radius:12px;padding:16px;margin-bottom:16px}
+.kw-title{font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:4px 10px;border-radius:10px;font-size:0.75rem;font-weight:700}
+.chip-found{background:#0f3d1f;color:#68d391;border:1px solid #276749}
+.chip-missing{background:#3d0f0f;color:#fc8181;border:1px solid #c53030}
 
-chips.innerHTML=`
-<div class="sectionTitle">🔑 Keyword Match Analysis</div>
+/* PRO LOCKED */
+.pro-locked{background:#1a1f2e;border:1px solid #667eea44;border-radius:14px;padding:24px;text-align:center;margin-bottom:16px}
+.pro-locked .lock-icon{font-size:2rem;margin-bottom:12px}
+.pro-locked h3{font-size:1rem;font-weight:800;color:white;margin-bottom:6px}
+.pro-locked p{font-size:0.82rem;color:#718096;margin-bottom:16px;line-height:1.5}
+.btn-buy-pro{display:block;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;border-radius:10px;padding:12px;font-size:0.92rem;font-weight:700;cursor:pointer;text-decoration:none;text-align:center;margin-bottom:10px;box-shadow:0 4px 15px rgba(102,126,234,0.3)}
+.pro-features{display:flex;flex-direction:column;gap:6px;text-align:left;margin-top:10px}
+.pro-feature{font-size:0.8rem;color:#a5b4fc;display:flex;gap:8px;align-items:center}
 
-<div style="margin-top:6px">
-<b>Matched:</b>
-${(data.keywordsFound||[]).map(k=>`<span class="chip found">${k}</span>`).join("")}
+/* TABS */
+.tabs{display:flex;gap:6px;margin-bottom:14px}
+.tab{padding:8px 14px;border-radius:8px;background:#1a1f2e;border:1px solid #2d3748;cursor:pointer;font-size:0.82rem;font-weight:700;color:#718096;transition:all 0.2s}
+.tab.active{background:linear-gradient(135deg,#667eea,#764ba2);color:white;border-color:transparent;box-shadow:0 3px 10px rgba(102,126,234,0.3)}
+
+/* RESUME DISPLAY */
+.resume-display{background:#141820;border:1px solid #2d3748;border-radius:10px;padding:18px;margin-bottom:12px}
+.resume-name{font-size:1.3rem;font-weight:900;color:white;margin-bottom:4px}
+.resume-contact{font-size:0.82rem;color:#718096;margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid #2d3748}
+.resume-photo{width:68px;height:68px;border-radius:50%;object-fit:cover;border:2px solid #667eea;float:right;margin-left:12px}
+.resume-body{font-family:Georgia,serif;font-size:0.87rem;line-height:1.8;color:#cbd5e0;white-space:pre-wrap;max-height:400px;overflow-y:auto}
+.resume-section-header{color:#667eea !important;font-family:'Inter',sans-serif !important;font-weight:700 !important;font-size:0.78rem !important;letter-spacing:1.5px !important;display:block;margin-top:8px}
+
+/* COVER DISPLAY */
+.cover-display{background:#141820;border:1px solid #fde68a33;border-radius:10px;padding:18px;margin-bottom:12px;font-family:Georgia,serif;font-size:0.87rem;line-height:1.8;color:#cbd5e0;white-space:pre-wrap;max-height:400px;overflow-y:auto}
+
+/* REPORT */
+.report-section{background:#141820;border:1px solid #2d3748;border-radius:10px;padding:16px;margin-bottom:12px}
+.report-section h4{font-size:0.72rem;font-weight:700;color:#667eea;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px}
+.bar-row{margin-bottom:10px}
+.bar-label{display:flex;justify-content:space-between;font-size:0.78rem;color:#718096;margin-bottom:4px}
+.bar{height:8px;background:#2d3748;border-radius:20px;overflow:hidden}
+.bar-fill{height:100%;border-radius:20px;transition:width 1.2s ease}
+.note-item{display:flex;gap:8px;margin-bottom:8px;font-size:0.83rem;color:#a0aec0;line-height:1.5}
+.note-dot{color:#667eea;flex-shrink:0;font-size:0.9rem}
+
+/* DOWNLOAD BTN */
+.btn-download{width:100%;background:#1a3d2a;color:#68d391;border:1px solid #276749;border-radius:8px;padding:11px;font-size:0.88rem;font-weight:700;cursor:pointer;margin-top:8px;transition:all 0.2s}
+.btn-download:hover{background:#276749;color:white}
+
+footer{text-align:center;padding:20px;color:#4a5568;font-size:0.78rem;border-top:1px solid #1e2535}
+footer a{color:#667eea;text-decoration:none}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">ATS<span>CheckPro</span></div>
+  <div class="header-right">
+    <div class="badge">⚡ AI-Powered</div>
+    <a href="https://quimztech.gumroad.com/l/cxinw" target="_blank" class="btn-buy-header">Buy Access — $10.99</a>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-tag">🎯 ATS Resume Optimizer</div>
+  <h1>Get Past the ATS.<br><span>Land the Interview.</span></h1>
+  <p>Paste your resume and job description. Get an ATS score, optimized resume, cover letter and full report instantly.</p>
+  <div class="hero-stats">
+    <div class="stat"><div class="num">75%</div><div class="lbl">Resumes rejected by ATS</div></div>
+    <div class="stat"><div class="num">60s</div><div class="lbl">Optimization time</div></div>
+    <div class="stat"><div class="num">3-in-1</div><div class="lbl">Resume · Cover · Report</div></div>
+  </div>
 </div>
 
-<div style="margin-top:6px">
-<b>Missing:</b>
-${(data.keywordsMissingTop||[]).map(k=>`<span class="chip missing">${k}</span>`).join("")}
+<div class="main">
+
+  <!-- LEFT: INPUT -->
+  <div class="panel-left">
+
+    <!-- LICENSE KEY -->
+    <div class="key-section">
+      <p>🔑 Already purchased? Enter your license key to unlock full access:</p>
+      <div class="key-row">
+        <input type="text" id="license-key" placeholder="XXXX-XXXX-XXXX-XXXX" />
+        <button class="btn-unlock" id="unlock-btn">Unlock →</button>
+      </div>
+      <div id="key-error"></div>
+      <div id="key-success">✅ License activated! Full access unlocked.</div>
+    </div>
+
+    <div class="input-group">
+      <div class="section-label">Job Description</div>
+      <textarea id="job" rows="7" placeholder="Paste the full job description here..."></textarea>
+    </div>
+
+    <div class="input-group">
+      <div class="section-label">Your Resume</div>
+      <textarea id="resume" rows="8" placeholder="Paste your resume text here..."></textarea>
+    </div>
+
+    <div class="input-group">
+      <div class="section-label">Candidate Photo (optional)</div>
+      <div class="file-upload" onclick="document.getElementById('photoInput').click()">
+        <p>📷 Click to upload photo <strong>(optional)</strong></p>
+        <div id="file-name"></div>
+      </div>
+      <input type="file" id="photoInput" accept="image/*">
+    </div>
+
+    <div class="error-box" id="error-box"></div>
+    <button class="btn-analyze" id="analyzeBtn">⚡ Analyze Resume — Free Preview</button>
+
+  </div>
+
+  <!-- RIGHT: RESULTS -->
+  <div class="panel-right">
+
+    <div class="empty-state" id="empty-state">
+      <div class="icon">📊</div>
+      <h3>Your Results Will Appear Here</h3>
+      <p>Paste a job description and your resume on the left, then click Analyze to get your free ATS score and keyword analysis.</p>
+      <p style="margin-top:12px;color:#667eea;font-weight:600;font-size:0.82rem">Free: ATS Score + Keywords · Paid: Full Resume + Cover Letter + Report</p>
+    </div>
+
+    <div id="loading">
+      <div class="spinner"></div>
+      <p>Analyzing your resume...</p>
+      <div class="loading-steps">
+        <div class="loading-step active" id="ls1">📖 Reading resume & job description</div>
+        <div class="loading-step" id="ls2">🔍 Identifying keyword gaps</div>
+        <div class="loading-step" id="ls3">📊 Calculating ATS score</div>
+        <div class="loading-step" id="ls4">✍️ Optimizing resume content</div>
+      </div>
+    </div>
+
+    <div id="results" style="display:none">
+
+      <!-- SCORE -->
+      <div class="score-card">
+        <div class="score-top">
+          <div class="score-circle" id="score-circle">
+            <div class="snum" id="score-num">0</div>
+            <div class="spct">/100</div>
+          </div>
+          <div class="score-details">
+            <h3 id="score-label">—</h3>
+            <p id="score-sub">ATS keyword match score</p>
+          </div>
+          <div class="score-after-box" id="score-after-box" style="display:none">
+            <div class="anum" id="score-after">—</div>
+            <div class="albl">After Optimization</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- KEYWORDS - FREE -->
+      <div class="kw-card">
+        <div class="kw-title" style="color:#68d391">✅ Keywords Found</div>
+        <div class="chips" id="chips-found"></div>
+      </div>
+      <div class="kw-card">
+        <div class="kw-title" style="color:#fc8181">❌ Keywords Missing</div>
+        <div class="chips" id="chips-missing"></div>
+      </div>
+
+      <!-- PRO LOCKED (shown when no license) -->
+      <div class="pro-locked" id="pro-locked">
+        <div class="lock-icon">🔒</div>
+        <h3>Unlock Full Optimization — $10.99</h3>
+        <p>Your ATS score and keywords are ready above. Unlock to get your fully optimized resume, tailored cover letter, and detailed ATS report with improvement notes.</p>
+        <a href="https://quimztech.gumroad.com/l/cxinw" target="_blank" class="btn-buy-pro">💳 Buy Now — Get Instant Access</a>
+        <div class="pro-features">
+          <div class="pro-feature">✅ AI-optimized resume with keywords integrated</div>
+          <div class="pro-feature">✅ Professional cover letter tailored to the job</div>
+          <div class="pro-feature">✅ Full ATS report with improvement notes</div>
+          <div class="pro-feature">✅ Download all 3 as professional PDFs</div>
+        </div>
+      </div>
+
+      <!-- PRO CONTENT (shown when licensed) -->
+      <div id="pro-content" style="display:none">
+
+        <div class="tabs">
+          <div class="tab active" data-tab="resumeTab">📄 Resume</div>
+          <div class="tab" data-tab="coverTab">✉️ Cover Letter</div>
+          <div class="tab" data-tab="reportTab">📊 Report</div>
+        </div>
+
+        <!-- RESUME TAB -->
+        <div id="resumeTab">
+          <div class="resume-display">
+            <div id="resume-header"></div>
+            <div class="resume-body" id="resume-body"></div>
+          </div>
+          <button class="btn-download" id="downloadResumeBtn">⬇️ Download Resume PDF</button>
+        </div>
+
+        <!-- COVER TAB -->
+        <div id="coverTab" style="display:none">
+          <div class="cover-display" id="cover-body"></div>
+          <button class="btn-download" id="downloadCoverBtn">⬇️ Download Cover Letter PDF</button>
+        </div>
+
+        <!-- REPORT TAB -->
+        <div id="reportTab" style="display:none">
+          <div class="report-section">
+            <h4>📈 ATS Score Comparison</h4>
+            <div class="bar-row">
+              <div class="bar-label"><span>Before</span><span id="rep-before">—</span></div>
+              <div class="bar"><div class="bar-fill" id="bar-before" style="width:0%;background:linear-gradient(90deg,#e53e3e,#dd6b20)"></div></div>
+            </div>
+            <div class="bar-row">
+              <div class="bar-label"><span>After</span><span id="rep-after">—</span></div>
+              <div class="bar"><div class="bar-fill" id="bar-after" style="width:0%;background:linear-gradient(90deg,#667eea,#48bb78)"></div></div>
+            </div>
+          </div>
+          <div class="report-section">
+            <h4>👀 Recruiter Impression</h4>
+            <div id="rep-impression"></div>
+          </div>
+          <div class="report-section">
+            <h4>🔑 Missing Keywords</h4>
+            <div class="chips" id="rep-missing"></div>
+          </div>
+          <div class="report-section">
+            <h4>💡 Improvement Notes</h4>
+            <div id="rep-notes"></div>
+          </div>
+          <button class="btn-download" id="downloadReportBtn">⬇️ Download Full ATS Report PDF</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
 </div>
-`;
 
-/* PRO CONTENT */
+<footer>
+  © 2026 ATSCheckPro · <a href="/blog">📖 Blog</a> · Built to help job seekers land more interviews
+</footer>
 
-if(data.isPro){
+<script>
+  let photoBase64 = "";
+  let lastData = null;
+  let licenseKey = "";
+  let isUnlocked = false;
 
-resumeTab.innerHTML=renderResume(data.optimizedText);
+  // Photo
+  document.getElementById("photoInput").addEventListener("change", e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    document.getElementById("file-name").textContent = "✓ " + f.name;
+    const r = new FileReader();
+    r.onload = () => photoBase64 = r.result;
+    r.readAsDataURL(f);
+  });
 
-coverTab.innerHTML=`
-<div class="resume">${data.coverLetter||""}</div>
-<button id="downloadCoverBtn">Download Cover</button>
-`;
+  // Tabs
+  document.querySelectorAll(".tab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+      tab.classList.add("active");
+      ["resumeTab","coverTab","reportTab"].forEach(id => document.getElementById(id).style.display = "none");
+      document.getElementById(tab.dataset.tab).style.display = "block";
+    });
+  });
 
-reportTab.innerHTML=`
-<div class="reportBox">
-<b>ATS Score</b>
-<div class="bar"><div class="barFill" style="width:${s}%"></div></div>
-</div>
+  // Unlock
+  document.getElementById("unlock-btn").addEventListener("click", async () => {
+    const key = document.getElementById("license-key").value.trim();
+    if (!key) return;
+    const btn = document.getElementById("unlock-btn");
+    const errEl = document.getElementById("key-error");
+    const sucEl = document.getElementById("key-success");
+    btn.textContent = "Checking...";
+    btn.disabled = true;
+    errEl.style.display = "none";
+    sucEl.style.display = "none";
+    try {
+      const res = await fetch("/api/validate-key", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ key })
+      });
+      const data = await res.json();
+      if (data.valid) {
+        licenseKey = key;
+        isUnlocked = true;
+        sucEl.style.display = "block";
+        document.getElementById("analyzeBtn").textContent = "⚡ Analyze & Optimize Resume";
+        // If already analyzed, show pro content
+        if (lastData) renderProContent(lastData);
+      } else {
+        errEl.style.display = "block";
+        errEl.textContent = "❌ " + (data.message || "Invalid key. Please try again.");
+      }
+    } catch {
+      errEl.style.display = "block";
+      errEl.textContent = "❌ Network error. Please try again.";
+    }
+    btn.textContent = "Unlock →";
+    btn.disabled = false;
+  });
 
-<div class="reportBox">
-<b>Recruiter Impression</b><br>
-${(data.quickImpression||[]).map(x=>"• "+x).join("<br>")}
-</div>
+  // Loading animation
+  let stepInterval;
+  function startSteps() {
+    const steps = ["ls1","ls2","ls3","ls4"];
+    let i = 0;
+    steps.forEach(s => document.getElementById(s).classList.remove("active"));
+    document.getElementById(steps[0]).classList.add("active");
+    stepInterval = setInterval(() => {
+      if (i < steps.length - 1) {
+        document.getElementById(steps[i]).classList.remove("active");
+        i++;
+        document.getElementById(steps[i]).classList.add("active");
+      }
+    }, 3500);
+  }
 
-<div class="reportBox">
-<b>Missing Keywords</b><br>
-${(data.keywordsMissingTop||[]).map(x=>`<span class="chip missing">${x}</span>`).join("")}
-</div>
+  // Analyze
+  document.getElementById("analyzeBtn").addEventListener("click", async () => {
+    const job = document.getElementById("job").value.trim();
+    const resume = document.getElementById("resume").value.trim();
+    const errEl = document.getElementById("error-box");
+    errEl.style.display = "none";
+    if (!job) { showError("Please paste a job description."); return; }
+    if (!resume) { showError("Please paste your resume text."); return; }
 
-<div class="reportBox">
-<b>Recruiter Notes</b><br>
-${(data.recruiterNotes||[]).map(x=>"• "+x).join("<br>")}
-</div>
+    document.getElementById("empty-state").style.display = "none";
+    document.getElementById("results").style.display = "none";
+    document.getElementById("loading").style.display = "block";
+    document.getElementById("analyzeBtn").disabled = true;
+    startSteps();
 
-<button id="downloadReportBtn">Download Report</button>
-`;
+    try {
+      const res = await fetch("/api/optimize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ jobDescription: job, resumeText: resume, licenseKey: licenseKey || "free-preview" })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Server error.");
+      lastData = data;
+      renderResults(data);
+    } catch(e) {
+      showError(e.message);
+      document.getElementById("empty-state").style.display = "block";
+    }
+    clearInterval(stepInterval);
+    document.getElementById("loading").style.display = "none";
+    document.getElementById("analyzeBtn").disabled = false;
+  });
 
-/* attach download listeners AFTER render */
+  function showError(msg) {
+    const el = document.getElementById("error-box");
+    el.textContent = msg;
+    el.style.display = "block";
+  }
 
-document.getElementById("downloadResumeBtn").onclick=downloadResume;
-document.getElementById("downloadCoverBtn").onclick=downloadCover;
-document.getElementById("downloadReportBtn").onclick=downloadReport;
+  function getScoreColor(s) {
+    if (s >= 75) return "linear-gradient(135deg,#276749,#38a169)";
+    if (s >= 60) return "linear-gradient(135deg,#975a16,#d69e2e)";
+    return "linear-gradient(135deg,#9b2c2c,#e53e3e)";
+  }
 
-}else{
-resumeTab.innerHTML="🔒 Unlock PRO";
-}
+  function renderResults(data) {
+    const s = data.scoreBefore || 0;
+    document.getElementById("score-circle").style.background = getScoreColor(s);
+    document.getElementById("score-num").textContent = s;
+    document.getElementById("score-label").textContent =
+      s >= 75 ? "Strong ATS Match ✅" : s >= 60 ? "Moderate Match ⚠️" : "Needs Improvement ❌";
+    document.getElementById("score-sub").textContent = data.strengthLevel + " keyword alignment with job";
 
-}
+    // Keywords - always visible
+    document.getElementById("chips-found").innerHTML =
+      (data.keywordsFound||[]).map(k => `<span class="chip chip-found">✓ ${k}</span>`).join("");
+    document.getElementById("chips-missing").innerHTML =
+      (data.keywordsMissingTop||[]).map(k => `<span class="chip chip-missing">✗ ${k}</span>`).join("");
 
-/* DOWNLOAD HELPERS */
+    // Show/hide pro
+    if (isUnlocked && data.isPro) {
+      renderProContent(data);
+    } else {
+      document.getElementById("pro-locked").style.display = "block";
+      document.getElementById("pro-content").style.display = "none";
+    }
 
-function candidateName(){
-let n=(lastData?.optimizedText||"").split("\n")[0]||"resume";
-return n.replace(/[^a-z0-9]/gi,"-");
-}
+    document.getElementById("results").style.display = "block";
+    document.getElementById("results").scrollIntoView({ behavior: "smooth", block: "start" });
+  }
 
-async function download(body,name){
+  function renderProContent(data) {
+    if (!data || !data.isPro) return;
+    const s = data.scoreBefore || 0;
+    const sa = data.scoreAfter || 0;
 
-if(!lastData){alert("Run analysis first");return;}
+    document.getElementById("score-after-box").style.display = "block";
+    document.getElementById("score-after").textContent = sa + "/100";
+    document.getElementById("pro-locked").style.display = "none";
+    document.getElementById("pro-content").style.display = "block";
 
-const r=await fetch("/api/download",{
-method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify(body)
-});
+    // Resume
+    const lines = (data.optimizedText||"").split("\n");
+    const name = lines[0] || "";
+    const contact = lines[1] || "";
+    const body = lines.slice(2);
 
-if(!r.ok){alert("Download failed");return;}
+    document.getElementById("resume-header").innerHTML = `
+      ${photoBase64 ? `<img src="${photoBase64}" class="resume-photo">` : ""}
+      <div class="resume-name">${name}</div>
+      <div class="resume-contact">${contact}</div>`;
 
-const blob=await r.blob();
-const url=URL.createObjectURL(blob);
+    const formatted = body.map(line => {
+      const t = line.trim();
+      if (!t) return "";
+      if (t === t.toUpperCase() && t.length > 2 && t.length < 50 && !/^\d/.test(t))
+        return `<span class="resume-section-header">${t}</span>`;
+      if (t.startsWith("-") || t.startsWith("•"))
+        return `• ${t.replace(/^[-•]\s*/,"")}`;
+      return t;
+    }).join("\n");
+    document.getElementById("resume-body").innerHTML = formatted;
 
-const a=document.createElement("a");
-a.href=url;
-a.download=name+".pdf";
-a.click();
+    // Cover
+    document.getElementById("cover-body").textContent = data.coverLetter || "";
 
-URL.revokeObjectURL(url);
-}
+    // Report
+    document.getElementById("rep-before").textContent = s + "/100";
+    document.getElementById("rep-after").textContent = sa + "/100";
+    setTimeout(() => {
+      document.getElementById("bar-before").style.width = s + "%";
+      document.getElementById("bar-after").style.width = sa + "%";
+    }, 200);
+    document.getElementById("rep-impression").innerHTML =
+      (data.quickImpression||[]).map(x=>`<div class="note-item"><span class="note-dot">→</span>${x}</div>`).join("");
+    document.getElementById("rep-missing").innerHTML =
+      (data.keywordsMissingTop||[]).map(k=>`<span class="chip chip-missing">✗ ${k}</span>`).join("");
+    document.getElementById("rep-notes").innerHTML =
+      (data.recruiterNotes||[]).map(x=>`<div class="note-item"><span class="note-dot">💡</span>${x}</div>`).join("");
 
-function downloadResume(){
-download({
-type:"resume",
-optimizedText:lastData.optimizedText,
-photo:photoBase64,
-licenseKey:key.value.trim()
-},candidateName()+"-Resume");
-}
+    document.getElementById("downloadResumeBtn").onclick = downloadResume;
+    document.getElementById("downloadCoverBtn").onclick = downloadCover;
+    document.getElementById("downloadReportBtn").onclick = downloadReport;
+  }
 
-function downloadCover(){
-download({
-type:"cover",
-coverLetter:lastData.coverLetter,
-licenseKey:key.value.trim()
-},candidateName()+"-Cover");
-}
+  function candidateName() {
+    return ((lastData?.optimizedText||"").split("\n")[0]||"resume").replace(/[^a-z0-9]/gi,"-").toLowerCase();
+  }
 
-function downloadReport(){
-download({
-type:"report",
-report:{
-score:lastData.scoreBefore,
-impression:lastData.quickImpression,
-keywords:lastData.keywordsMissingTop,
-notes:lastData.recruiterNotes
-},
-licenseKey:key.value.trim()
-},candidateName()+"-Report");
-}
+  async function dlFile(body, name, btn) {
+    const orig = btn.textContent;
+    btn.textContent = "⏳ Generating...";
+    btn.disabled = true;
+    try {
+      const r = await fetch("/api/download", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify(body)
+      });
+      if (!r.ok) throw new Error("Download failed");
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = name + ".pdf"; a.click();
+      URL.revokeObjectURL(url);
+      btn.textContent = "✅ Downloaded!";
+      setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2500);
+    } catch(e) {
+      alert("Download failed: " + e.message);
+      btn.textContent = orig; btn.disabled = false;
+    }
+  }
 
+  function downloadResume() { dlFile({ type:"resume", optimizedText:lastData.optimizedText, photo:photoBase64, licenseKey }, candidateName()+"-Resume", document.getElementById("downloadResumeBtn")); }
+  function downloadCover() { dlFile({ type:"cover", coverLetter:lastData.coverLetter, licenseKey }, candidateName()+"-CoverLetter", document.getElementById("downloadCoverBtn")); }
+  function downloadReport() { dlFile({ type:"report", report:{ score:lastData.scoreBefore, scoreAfter:lastData.scoreAfter, impression:lastData.quickImpression, keywords:lastData.keywordsMissingTop, notes:lastData.recruiterNotes }, licenseKey }, candidateName()+"-ATSReport", document.getElementById("downloadReportBtn")); }
 </script>
-
 </body>
 </html>

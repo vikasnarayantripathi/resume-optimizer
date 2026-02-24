@@ -39,17 +39,17 @@ function buildPrompt(job,resume){
 
 {
  "optimizedText": "full optimized resume as plain text, ALL CAPS section headers, bullet points start with - ",
- "coverLetter": "professional cover letter tailored to the job",
- "recruiterNotes": ["specific improvement 1","specific improvement 2","specific improvement 3"]
+ "coverLetter": "professional cover letter",
+ "recruiterNotes": ["improvement note 1","improvement note 2","improvement note 3"]
 }
 
 RULES:
-1. Use ONLY real candidate data - never use placeholders like [Your Name]
+1. Use ONLY real candidate data from the resume — never use placeholders
 2. Do NOT invent experience, skills or education
-3. ALL CAPS section headers: SUMMARY, EXPERIENCE, EDUCATION, SKILLS
-4. Bullet points start with - 
-5. Cover letter professional and tailored to job description
-6. Recruiter notes explain specific improvements made
+3. Use ALL CAPS for section headers: SUMMARY, EXPERIENCE, EDUCATION, SKILLS
+4. Bullet points start with "- "
+5. Cover letter must be professional and tailored to the job
+6. Recruiter notes must explain specific improvements made
 
 JOB DESCRIPTION:
 ${job}
@@ -79,6 +79,7 @@ async function validateLicense(license) {
 
 export default async function handler(req,res){
   if(req.method!=="POST") return res.status(405).json({error:"Method not allowed"});
+
   try {
     const job = req.body.jobDescription||"";
     const resume = req.body.resumeText||"";
@@ -89,13 +90,14 @@ export default async function handler(req,res){
     if(!license) return res.status(401).json({error:"License key required"});
 
     const isPro = await validateLicense(license);
+
     if(!isPro) return res.status(403).json({error:"Invalid or already used license key."});
 
     const {score,matched,missing} = calculateScore(job,resume);
 
     let optimizedText=null, coverLetter=null, recruiterNotes=null;
 
-    if(process.env.GEMINI_API_KEY){
+    if(isPro && process.env.GEMINI_API_KEY){
       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({
         model:"gemini-2.5-flash-lite",
