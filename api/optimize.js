@@ -39,17 +39,17 @@ function buildPrompt(job,resume){
 
 {
  "optimizedText": "full optimized resume as plain text, ALL CAPS section headers, bullet points start with - ",
- "coverLetter": "professional cover letter",
- "recruiterNotes": ["improvement note 1","improvement note 2","improvement note 3"]
+ "coverLetter": "professional cover letter tailored to the job",
+ "recruiterNotes": ["specific improvement 1","specific improvement 2","specific improvement 3"]
 }
 
 RULES:
-1. Use ONLY real candidate data from the resume — never use placeholders
+1. Use ONLY real candidate data - never use placeholders like [Your Name]
 2. Do NOT invent experience, skills or education
-3. Use ALL CAPS for section headers: SUMMARY, EXPERIENCE, EDUCATION, SKILLS
-4. Bullet points start with "- "
-5. Cover letter must be professional and tailored to the job
-6. Recruiter notes must explain specific improvements made
+3. ALL CAPS section headers: SUMMARY, EXPERIENCE, EDUCATION, SKILLS
+4. Bullet points start with -
+5. Cover letter professional and tailored to job description
+6. Recruiter notes explain specific improvements made
 
 JOB DESCRIPTION:
 ${job}
@@ -79,7 +79,6 @@ async function validateLicense(license) {
 
 export default async function handler(req,res){
   if(req.method!=="POST") return res.status(405).json({error:"Method not allowed"});
-
   try {
     const job = req.body.jobDescription||"";
     const resume = req.body.resumeText||"";
@@ -87,16 +86,20 @@ export default async function handler(req,res){
 
     if(job.length<10) return res.status(400).json({error:"Job description missing"});
     if(resume.length<10) return res.status(400).json({error:"Resume missing"});
-    if(!license) return res.status(401).json({error:"License key required"});
 
-    const isPro = await validateLicense(license);
+    // Free preview - no license needed, just show score + keywords
+    const isFree = !license || license === "free-preview";
+    const isPro = isFree ? false : await validateLicense(license);
 
-    if(!isPro) return res.status(403).json({error:"Invalid or already used license key."});
+    if(!isFree && !isPro){
+      return res.status(403).json({error:"Invalid or already used license key."});
+    }
 
     const {score,matched,missing} = calculateScore(job,resume);
 
     let optimizedText=null, coverLetter=null, recruiterNotes=null;
 
+    // Only run AI for paid users
     if(isPro && process.env.GEMINI_API_KEY){
       const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
       const model = genAI.getGenerativeModel({
@@ -118,9 +121,9 @@ export default async function handler(req,res){
     }
 
     return res.json({
-      isPro: true,
+      isPro,
       scoreBefore: score,
-      scoreAfter: Math.min(score+8,95),
+      scoreAfter: isPro ? Math.min(score+8,95) : null,
       strengthLevel: score>=75?"Strong":score>=60?"Moderate":"Weak",
       quickImpression: [
         score>=75?"Strong alignment with job requirements.":score>=60?"Moderate keyword coverage.":"Significant keyword gaps detected.",
