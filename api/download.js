@@ -1,6 +1,9 @@
 import PDFDocument from "pdfkit";
 
-export const config = { api:{ bodyParser:true }, maxDuration:30 };
+export const config = {
+  api:{ bodyParser:true },
+  maxDuration:30
+};
 
 export default async function handler(req,res){
 
@@ -10,7 +13,7 @@ return res.status(405).json({error:"Method not allowed"});
 
 try{
 
-const { type, optimizedText, coverLetter, report, licenseKey } = req.body;
+const { type, optimizedText, coverLetter, report, licenseKey, photo } = req.body;
 
 if(licenseKey!=="test-vikas-2026"){
 return res.status(403).json({error:"Pro required"});
@@ -23,13 +26,30 @@ res.setHeader("Content-Disposition",`attachment; filename=${type}.pdf`);
 
 doc.pipe(res);
 
+/* ================= RESUME ================= */
+
 if(type==="resume"){
 
-const lines=optimizedText.split("\n").filter(l=>l.trim()!="");
+// photo
+if(photo){
+try{
+const img=photo.replace(/^data:image\/\w+;base64,/,"");
+doc.image(Buffer.from(img,"base64"),250,40,{width:80});
+doc.moveDown(4);
+}catch{}
+}
 
-doc.fontSize(20).font("Helvetica-Bold").text(lines[0],{align:"center"});
+const lines=(optimizedText||"").split("\n").filter(l=>l.trim());
 
+if(lines.length>0){
+
+// NAME
+doc.fontSize(20).font("Helvetica-Bold")
+.text(lines[0],{align:"center"});
+
+// CONTACT
 if(lines[1]){
+doc.moveDown(0.3);
 doc.fontSize(10).font("Helvetica").fillColor("#555")
 .text(lines[1],{align:"center"});
 doc.fillColor("#000");
@@ -39,12 +59,15 @@ doc.moveDown();
 doc.moveTo(50,doc.y).lineTo(550,doc.y).stroke();
 doc.moveDown();
 
+}
+
 doc.fontSize(11).font("Helvetica");
 
 for(let i=2;i<lines.length;i++){
 
 let line=lines[i];
 
+// divider
 if(line.includes("----")){
 doc.moveDown(.6);
 doc.moveTo(50,doc.y).lineTo(550,doc.y).stroke();
@@ -52,6 +75,7 @@ doc.moveDown(.6);
 continue;
 }
 
+// section titles
 if(["SUMMARY","SKILLS","EXPERIENCE","EDUCATION"].includes(line)){
 doc.moveDown(.5);
 doc.font("Helvetica-Bold").fontSize(12).text(line);
@@ -65,50 +89,66 @@ doc.text(line);
 
 }
 
+/* ================= COVER LETTER ================= */
+
 else if(type==="cover"){
 
-doc.fontSize(12).font("Helvetica").text(coverLetter);
+doc.fontSize(12).font("Helvetica")
+.text(coverLetter||"");
 
 }
 
+/* ================= REPORT ================= */
+
 else if(type==="report"){
 
-doc.fontSize(18).font("Helvetica-Bold").text("ATS Optimization Report");
+const score=report?.score||0;
+
+doc.fontSize(18).font("Helvetica-Bold")
+.text("ATS Optimization Report");
 
 doc.moveDown();
 
-const score=report.score;
-
-doc.fontSize(12).font("Helvetica").text("ATS Score: "+score+"/100");
+doc.fontSize(12).font("Helvetica")
+.text("ATS Score: "+score+"/100");
 
 doc.moveDown();
 
-// draw meter bar
+// meter background
 const x=50;
 const y=doc.y;
-const width=400;
+const width=420;
 
-doc.rect(x,y,width,15).stroke();
-doc.rect(x,y,width*(score/100),15).fill("#667eea");
-doc.moveDown(2);
+doc.rect(x,y,width,16).stroke();
+
+// meter fill
+let color="#ff5a5a";
+if(score>=70) color="#2ecc71";
+else if(score>=55) color="#ffcc00";
+
+doc.rect(x,y,width*(score/100),16).fill(color);
 
 doc.fillColor("#000");
+doc.moveDown(2);
 
+// impression
 doc.font("Helvetica-Bold").text("Recruiter Impression");
 doc.font("Helvetica");
-(report.impression||[]).forEach(t=>doc.text("• "+t));
+(report?.impression||[]).forEach(t=>doc.text("• "+t));
 
 doc.moveDown();
 
+// missing keywords
 doc.font("Helvetica-Bold").text("Missing Keywords");
 doc.font("Helvetica");
-(report.keywords||[]).forEach(t=>doc.text("• "+t));
+(report?.keywords||[]).forEach(t=>doc.text("• "+t));
 
 doc.moveDown();
 
+// notes
 doc.font("Helvetica-Bold").text("Recruiter Notes");
 doc.font("Helvetica");
-(report.notes||[]).forEach(t=>doc.text("• "+t));
+(report?.notes||[]).forEach(t=>doc.text("• "+t));
 
 }
 
@@ -120,5 +160,4 @@ console.error(e);
 return res.status(500).json({error:e.message});
 
 }
-
 }

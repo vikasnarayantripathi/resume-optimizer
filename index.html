@@ -5,122 +5,53 @@
 <title>ATSCheckPro</title>
 
 <style>
-
-body{
-font-family:system-ui,-apple-system,Segoe UI,Roboto;
-background:#eef2f7;
-margin:0;
-}
-
+body{font-family:system-ui;background:#eef2f7;margin:0}
 .container{max-width:900px;margin:auto;padding:30px}
-
-.card{
-background:white;
-padding:26px;
-border-radius:14px;
-margin-bottom:22px;
-box-shadow:0 8px 24px rgba(0,0,0,.06)
-}
-
-textarea,input{
-width:100%;
-padding:12px;
-border-radius:8px;
-border:1px solid #d4d8e2;
-font-size:14px
-}
-
-button{
-padding:14px;
-border-radius:10px;
-border:none;
-font-weight:700;
-background:linear-gradient(135deg,#667eea,#5a63d8);
-color:white;
-width:100%;
-cursor:pointer;
-margin-top:10px
-}
+.card{background:white;padding:26px;border-radius:14px;margin-bottom:22px;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+textarea,input{width:100%;padding:12px;border-radius:8px;border:1px solid #d4d8e2;font-size:14px}
+button{padding:14px;border-radius:10px;border:none;font-weight:700;background:linear-gradient(135deg,#667eea,#5a63d8);color:white;width:100%;cursor:pointer;margin-top:10px}
 button:hover{opacity:.95}
 
-/* ATS meter */
-
-.meter{
-height:18px;
-background:#e3e7f1;
-border-radius:20px;
-overflow:hidden;
-margin-top:10px
-}
-
-.meter-fill{
-height:100%;
-background:linear-gradient(90deg,#ff5a5a,#ffcc00,#2ecc71);
-width:0%
-}
-
-.score{
-font-size:34px;
-font-weight:800;
-text-align:center;
-color:#2f3a56
-}
-
-.chance{
-text-align:center;
-font-weight:700;
-margin-top:6px
-}
-
-/* keyword chips */
-
-.chips{margin-top:10px}
-.chip{
-display:inline-block;
-padding:6px 12px;
-margin:4px;
-border-radius:18px;
-font-size:13px;
-font-weight:600
-}
-
-.found{background:#d4f6df;color:#0b7a39}
-.missing{background:#ffe0e0;color:#b30000}
-
-/* resume */
-
-.resume{
-font-family:Georgia,serif;
-line-height:1.7;
-white-space:pre-wrap;
-}
-
+.resume{font-family:Georgia,serif;line-height:1.7;white-space:pre-wrap}
 .name{font-size:26px;font-weight:800;text-align:center}
 .contact{text-align:center;color:#666;margin-bottom:10px}
 .rule{border-top:1px solid #dcdfe7;margin:10px 0}
-.lock{background:#fafafa;padding:20px;border-radius:10px;text-align:center;color:#666}
 
+.photo{
+width:90px;height:90px;border-radius:50%;
+object-fit:cover;margin:0 auto 10px auto;display:block;
+border:2px solid #ddd;
+}
+
+.meter{height:18px;background:#e3e7f1;border-radius:20px;overflow:hidden;margin-top:10px}
+.meter-fill{height:100%;background:linear-gradient(90deg,#ff5a5a,#ffcc00,#2ecc71);width:0%}
+
+.chip{display:inline-block;padding:6px 12px;margin:4px;border-radius:18px;font-size:13px;font-weight:600}
+.found{background:#d4f6df;color:#0b7a39}
+.missing{background:#ffe0e0;color:#b30000}
 </style>
 </head>
 
 <body>
-
 <div class="container">
 
 <h2>⚡ ATSCheckPro</h2>
 
 <div class="card">
 <h3>Job Description</h3>
-<textarea id="job" rows="7"></textarea>
+<textarea id="job" rows="6"></textarea>
 </div>
 
 <div class="card">
 <h3>Resume</h3>
-<textarea id="resume" rows="9"></textarea>
+<textarea id="resume" rows="8"></textarea>
+
+<h4 style="margin-top:15px">Candidate Photo (optional)</h4>
+<input type="file" id="photo" accept="image/*">
 </div>
 
 <div class="card">
-<h3>License Key (optional)</h3>
+<h3>License Key</h3>
 <input id="key">
 </div>
 
@@ -129,26 +60,19 @@ white-space:pre-wrap;
 <div id="results" style="display:none">
 
 <div class="card">
-
-<div id="score" class="score"></div>
-
-<div class="meter">
-<div id="meterFill" class="meter-fill"></div>
-</div>
-
-<div id="chance" class="chance"></div>
-
+<div id="score" style="font-size:32px;font-weight:800;text-align:center"></div>
+<div class="meter"><div id="meterFill" class="meter-fill"></div></div>
 </div>
 
 <div class="card">
 <h3>Keyword Match</h3>
-<div id="chips" class="chips"></div>
+<div id="chips"></div>
 </div>
 
 <div class="card">
 <h3>Optimized Resume</h3>
 <div id="resumeOut" class="resume"></div>
-<button onclick="downloadResume()">Download Optimized Resume PDF</button>
+<button onclick="downloadResume()">Download Resume PDF</button>
 </div>
 
 <div class="card">
@@ -158,15 +82,24 @@ white-space:pre-wrap;
 </div>
 
 <div class="card">
-<h3>Optimization Report</h3>
-<button onclick="downloadReport()">Download Optimization Report PDF</button>
+<button onclick="downloadReport()">Download Optimization Report</button>
 </div>
 
 </div>
-
 </div>
 
 <script>
+
+let photoBase64="";
+
+document.getElementById("photo").addEventListener("change",e=>{
+const file=e.target.files[0];
+if(!file) return;
+
+const reader=new FileReader();
+reader.onload=()=>photoBase64=reader.result;
+reader.readAsDataURL(file);
+});
 
 function renderResume(text){
 
@@ -174,107 +107,62 @@ if(!text) return "";
 
 const lines=text.split("\n").filter(l=>l.trim());
 
-if(lines.length<2) return text;
-
-const name=lines[0];
-const contact=lines[1];
-const body=lines.slice(2).join("\n");
+let name=lines[0]||"";
+let contact=lines[1]||"";
+let body=lines.slice(2).join("\n");
 
 return `
+${photoBase64?`<img src="${photoBase64}" class="photo">`:""}
 <div class="name">${name}</div>
 <div class="contact">${contact}</div>
 <div class="rule"></div>
 <div>${body.replace(/--------------------------------/g,'<div class="rule"></div>')}</div>
 `;
-
-}
-
-function selectionChance(score){
-
-if(score>=75) return ["High chance of shortlist","#2ecc71"];
-if(score>=60) return ["Moderate chance","#ffcc00"];
-return ["Low chance — improve resume","#ff5a5a"];
-
 }
 
 async function run(){
 
-const job=document.getElementById("job").value.trim();
-const resume=document.getElementById("resume").value.trim();
-const key=document.getElementById("key").value.trim();
+const job=jobEl.value.trim();
+const resume=resumeEl.value.trim();
+const key=keyEl.value.trim();
 
-if(!job||!resume){
-alert("Paste job + resume first");
-return;
-}
+if(!job||!resume){alert("Paste job + resume");return;}
 
 const res=await fetch("/api/optimize",{
 method:"POST",
 headers:{"Content-Type":"application/json"},
-body:JSON.stringify({
-jobDescription:job,
-resumeText:resume,
-licenseKey:key||""
-})
+body:JSON.stringify({jobDescription:job,resumeText:resume,licenseKey:key})
 });
 
 const data=await res.json();
 window.lastData=data;
 
-document.getElementById("results").style.display="block";
+results.style.display="block";
 
-/* score */
+score.innerText=data.scoreBefore+"/100";
+meterFill.style.width=data.scoreBefore+"%";
 
-const score=data.scoreBefore||0;
-
-document.getElementById("score").innerText=score+"/100";
-
-document.getElementById("meterFill").style.width=score+"%";
-
-/* chance */
-
-const [label,color]=selectionChance(score);
-const chanceEl=document.getElementById("chance");
-chanceEl.innerText=label;
-chanceEl.style.color=color;
-
-/* keywords */
-
-const chips=document.getElementById("chips");
 chips.innerHTML="";
-
-(data.keywordsFound||[]).forEach(k=>{
-chips.innerHTML+=`<span class="chip found">✔ ${k}</span>`;
-});
-
-(data.keywordsMissingTop||[]).forEach(k=>{
-chips.innerHTML+=`<span class="chip missing">✖ ${k}</span>`;
-});
-
-/* pro output */
+(data.keywordsFound||[]).forEach(k=>chips.innerHTML+=`<span class="chip found">${k}</span>`);
+(data.keywordsMissingTop||[]).forEach(k=>chips.innerHTML+=`<span class="chip missing">${k}</span>`);
 
 if(data.isPro){
-
-document.getElementById("resumeOut").innerHTML=
-renderResume(data.optimizedText);
-
-document.getElementById("coverOut").innerText=data.coverLetter||"";
-
+resumeOut.innerHTML=renderResume(data.optimizedText);
+coverOut.innerText=data.coverLetter||"";
 }else{
-
-document.getElementById("resumeOut").innerHTML=
-"<div class='lock'>🔒 Unlock PRO to download resume</div>";
-
-document.getElementById("coverOut").innerHTML=
-"<div class='lock'>🔒 Unlock PRO to download cover letter</div>";
-
+resumeOut.innerHTML="🔒 Unlock PRO";
+coverOut.innerHTML="🔒 Unlock PRO";
+}
 }
 
+/* ---------- DOWNLOADS ---------- */
+
+function candidateName(){
+const t=window.lastData?.optimizedText||"";
+return (t.split("\n")[0]||"resume").replace(/[^a-z0-9]/gi,"-");
 }
 
-/* downloads */
-
-async function download(type,body){
+async function download(type,body,name){
 
 const res=await fetch("/api/download",{
 method:"POST",
@@ -282,43 +170,53 @@ headers:{"Content-Type":"application/json"},
 body:JSON.stringify(body)
 });
 
-if(!res.ok){
-alert("Download failed — ensure PRO key used");
-return;
-}
-
 const blob=await res.blob();
 const url=URL.createObjectURL(blob);
 
 const a=document.createElement("a");
 a.href=url;
-a.download=type+".pdf";
+a.download=name+".pdf";
 a.click();
 
 URL.revokeObjectURL(url);
 }
 
 function downloadResume(){
-if(!window.lastData?.optimizedText)return alert("Run PRO first");
-download("resume",{type:"resume",optimizedText:window.lastData.optimizedText,licenseKey:key.value.trim()});
+download("resume",
+{type:"resume",optimizedText:lastData.optimizedText,photo:photoBase64,licenseKey:keyEl.value.trim()},
+candidateName()+"-Resume");
 }
 
 function downloadCover(){
-if(!window.lastData?.coverLetter)return alert("Run PRO first");
-download("cover",{type:"cover",coverLetter:window.lastData.coverLetter,licenseKey:key.value.trim()});
+download("cover",
+{type:"cover",coverLetter:lastData.coverLetter,licenseKey:keyEl.value.trim()},
+candidateName()+"-CoverLetter");
 }
 
 function downloadReport(){
-if(!window.lastData)return alert("Run analysis first");
-download("report",{type:"report",report:{
-score:window.lastData.scoreBefore,
-impression:window.lastData.quickImpression,
-keywords:window.lastData.keywordsMissingTop,
-notes:window.lastData.recruiterNotes
-},licenseKey:key.value.trim()});
+download("report",
+{type:"report",
+report:{
+score:lastData.scoreBefore,
+impression:lastData.quickImpression,
+keywords:lastData.keywordsMissingTop,
+notes:lastData.recruiterNotes
+},
+licenseKey:keyEl.value.trim()},
+candidateName()+"-ATSReport");
 }
 
-</script>
+/* shortcut refs */
+const jobEl=document.getElementById("job");
+const resumeEl=document.getElementById("resume");
+const keyEl=document.getElementById("key");
+const results=document.getElementById("results");
+const score=document.getElementById("score");
+const meterFill=document.getElementById("meterFill");
+const chips=document.getElementById("chips");
+const resumeOut=document.getElementById("resumeOut");
+const coverOut=document.getElementById("coverOut");
 
+</script>
 </body>
 </html>
