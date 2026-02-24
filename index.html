@@ -12,19 +12,27 @@ textarea,input{width:100%;padding:12px;border-radius:8px;border:1px solid #d4d8e
 button{padding:14px;border-radius:10px;border:none;font-weight:700;background:linear-gradient(135deg,#667eea,#5a63d8);color:white;width:100%;cursor:pointer;margin-top:10px}
 button:hover{opacity:.95}
 
+/* header layout */
+.resumeHeader{text-align:center;margin-bottom:10px}
+
 .photoPreview{
 width:90px;height:90px;border-radius:50%;
-object-fit:cover;margin:10px auto;display:block;border:2px solid #ddd
+object-fit:cover;display:block;margin:0 auto 8px auto;
+border:2px solid #ddd
 }
 
-.resume{font-family:Georgia,serif;line-height:1.7;white-space:pre-wrap}
-.name{font-size:26px;font-weight:800;text-align:center}
-.contact{text-align:center;color:#666;margin-bottom:10px}
+.name{font-size:26px;font-weight:800;margin-top:4px}
+.contact{color:#666;margin-bottom:8px}
+
 .rule{border-top:1px solid #dcdfe7;margin:10px 0}
 
+.resume{font-family:Georgia,serif;line-height:1.7;white-space:pre-wrap}
+
+/* meter */
 .meter{height:18px;background:#e3e7f1;border-radius:20px;overflow:hidden;margin-top:10px}
 .meter-fill{height:100%;background:linear-gradient(90deg,#ff5a5a,#ffcc00,#2ecc71);width:0%}
 
+/* chips */
 .chip{display:inline-block;padding:6px 12px;margin:4px;border-radius:18px;font-size:13px;font-weight:600}
 .found{background:#d4f6df;color:#0b7a39}
 .missing{background:#ffe0e0;color:#b30000}
@@ -92,26 +100,22 @@ object-fit:cover;margin:10px auto;display:block;border:2px solid #ddd
 
 let photoBase64="";
 
-/* ---------- PHOTO HANDLING ---------- */
+/* photo upload */
 
 document.getElementById("photoInput").addEventListener("change",e=>{
-
 const file=e.target.files[0];
 if(!file) return;
 
 const reader=new FileReader();
-
 reader.onload=()=>{
 photoBase64=reader.result;
 photoPreview.src=photoBase64;
 photoPreview.style.display="block";
 };
-
 reader.readAsDataURL(file);
-
 });
 
-/* ---------- RESUME RENDER ---------- */
+/* render resume */
 
 function renderResume(text){
 
@@ -124,16 +128,21 @@ const contact=lines[1]||"";
 const body=lines.slice(2).join("\n");
 
 return `
+<div class="resumeHeader">
 ${photoBase64?`<img src="${photoBase64}" class="photoPreview">`:""}
 <div class="name">${name}</div>
 <div class="contact">${contact}</div>
-<div class="rule"></div>
-<div>${body.replace(/--------------------------------/g,'<div class="rule"></div>')}</div>
-`;
+</div>
 
+<div class="rule"></div>
+
+<div>
+${body.replace(/--------------------------------/g,'<div class="rule"></div>')}
+</div>
+`;
 }
 
-/* ---------- RUN ---------- */
+/* analyze */
 
 async function run(){
 
@@ -175,23 +184,19 @@ coverOut.innerText=data.coverLetter||"";
 resumeOut.innerHTML="🔒 Unlock PRO";
 coverOut.innerHTML="🔒 Unlock PRO";
 }
-
 }
 
-/* ---------- FILE NAME FROM CANDIDATE ---------- */
+/* smart filename */
 
 function candidateName(){
-
 const txt=window.lastData?.optimizedText||"";
 let name=(txt.split("\n")[0]||"resume").trim();
-
 return name.replace(/[^a-z0-9]/gi,"-").replace(/-+/g,"-");
-
 }
 
-/* ---------- DOWNLOAD ---------- */
+/* download helper */
 
-async function download(type,body,fileName){
+async function download(body,fileName){
 
 const res=await fetch("/api/download",{
 method:"POST",
@@ -200,7 +205,7 @@ body:JSON.stringify(body)
 });
 
 if(!res.ok){
-alert("Download failed. Use PRO key.");
+alert("Download failed — use PRO key");
 return;
 }
 
@@ -215,12 +220,12 @@ a.click();
 URL.revokeObjectURL(url);
 }
 
-function downloadResume(){
+/* download actions */
 
+function downloadResume(){
 if(!lastData?.optimizedText)return alert("Run PRO first");
 
 download(
-"resume",
 {
 type:"resume",
 optimizedText:lastData.optimizedText,
@@ -229,15 +234,12 @@ licenseKey:keyEl.value.trim()
 },
 candidateName()+"-Resume"
 );
-
 }
 
 function downloadCover(){
-
 if(!lastData?.coverLetter)return alert("Run PRO first");
 
 download(
-"cover",
 {
 type:"cover",
 coverLetter:lastData.coverLetter,
@@ -245,15 +247,12 @@ licenseKey:keyEl.value.trim()
 },
 candidateName()+"-CoverLetter"
 );
-
 }
 
 function downloadReport(){
-
 if(!lastData)return alert("Run analysis first");
 
 download(
-"report",
 {
 type:"report",
 report:{
@@ -266,10 +265,9 @@ licenseKey:keyEl.value.trim()
 },
 candidateName()+"-ATSReport"
 );
-
 }
 
-/* ---------- refs ---------- */
+/* refs */
 
 const jobEl=document.getElementById("job");
 const resumeEl=document.getElementById("resume");
