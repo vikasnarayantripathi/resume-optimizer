@@ -6,141 +6,18 @@
 
 <style>
 body{font-family:system-ui;background:#eef2f7;margin:0}
-
-.wrapper{
-display:grid;
-grid-template-columns:1fr 1.2fr;
-gap:20px;
-padding:20px;
-height:100vh;
-box-sizing:border-box;
-}
-
-.panel{
-background:white;
-border-radius:14px;
-padding:20px;
-box-shadow:0 8px 24px rgba(0,0,0,.06);
-overflow:auto;
-}
-
-textarea,input{
-width:100%;
-padding:10px;
-border-radius:8px;
-border:1px solid #d4d8e2;
-margin-top:6px;
-}
-
-button{
-padding:12px;
-border-radius:10px;
-border:none;
-font-weight:700;
-background:linear-gradient(135deg,#667eea,#5a63d8);
-color:white;
-width:100%;
-margin-top:12px;
-cursor:pointer;
-}
-
-/* SCORE */
-
-.scoreWrap{display:flex;align-items:center;gap:18px;margin-bottom:10px}
-
-.circle{
-width:78px;height:78px;border-radius:50%;
-display:flex;align-items:center;justify-content:center;
-font-size:22px;font-weight:900;color:white;
-background:conic-gradient(#2ecc71 0deg,#e5e7ef 0deg);
-}
-
-.scoreText{
-font-size:30px;font-weight:900;
-background:linear-gradient(90deg,#667eea,#764ba2);
--webkit-background-clip:text;
--webkit-text-fill-color:transparent;
-}
-
-/* TABS */
-
-.tabs{display:flex;gap:10px;margin:14px 0}
-.tab{
-padding:8px 14px;border-radius:10px;
-background:#eef1fa;cursor:pointer;font-weight:700
-}
-.tab.active{
-background:linear-gradient(135deg,#667eea,#5a63d8);
-color:white;box-shadow:0 6px 14px rgba(102,126,234,.35)
-}
-
-/* RESUME HEADER */
-
-.resumeHeader{
-display:flex;
-align-items:center;
-gap:16px;
-margin-bottom:10px;
-}
-
-.photo{
-width:85px;height:85px;border-radius:50%;
-object-fit:cover;border:2px solid #ddd;
-flex-shrink:0;
-}
-
-.name{font-size:22px;font-weight:900}
-.contact{color:#666;font-size:14px}
-
-.rule{border-top:1px solid #e2e5ee;margin:10px 0}
-
-.resume{
-font-family:Georgia,serif;
-white-space:pre-wrap;
-line-height:1.7;
-}
-
-/* REPORT */
-
-.reportBox{
-background:#f7f8fc;
-padding:14px;
-border-radius:10px;
-margin-bottom:10px
-}
-
-.bar{
-height:12px;
-background:#e3e7f1;
-border-radius:20px;
-overflow:hidden;
-margin-top:6px
-}
-
-.barFill{
-height:100%;
-background:linear-gradient(90deg,#ff5a5a,#ffcc00,#2ecc71);
-}
-
-/* CHIPS */
-
-.chip{
-display:inline-block;
-padding:5px 10px;
-margin:3px;
-border-radius:14px;
-font-size:12px;
-font-weight:700
-}
+.wrapper{display:grid;grid-template-columns:1fr 1.2fr;gap:20px;padding:20px;height:100vh;box-sizing:border-box}
+.panel{background:white;border-radius:14px;padding:20px;box-shadow:0 8px 24px rgba(0,0,0,.06);overflow:auto}
+textarea,input{width:100%;padding:10px;border-radius:8px;border:1px solid #d4d8e2;margin-top:6px}
+button{padding:12px;border-radius:10px;border:none;font-weight:700;background:linear-gradient(135deg,#667eea,#5a63d8);color:white;width:100%;margin-top:12px;cursor:pointer}
+.scoreText{font-size:32px;font-weight:900}
+.chip{display:inline-block;padding:5px 10px;margin:3px;border-radius:14px;font-size:12px;font-weight:700}
 .found{background:#d4f6df;color:#0b7a39}
 .missing{background:#ffe0e0;color:#b30000}
-
-.sectionTitle{
-margin-top:12px;
-font-weight:800;
-font-size:16px;
-}
-
+.resume{white-space:pre-wrap;font-family:Georgia,serif;line-height:1.6}
+.tabs{display:flex;gap:10px;margin-top:14px}
+.tab{padding:8px 14px;border-radius:10px;background:#eef1fa;cursor:pointer;font-weight:700}
+.tab.active{background:#667eea;color:white}
 </style>
 </head>
 
@@ -148,49 +25,41 @@ font-size:16px;
 
 <div class="wrapper">
 
-<!-- INPUT PANEL -->
 <div class="panel">
-
 <h3>Job Description</h3>
 <textarea id="job" rows="6"></textarea>
 
 <h3>Resume</h3>
 <textarea id="resume" rows="7"></textarea>
 
-<h4>Candidate Photo</h4>
-<input type="file" id="photoInput" accept="image/*">
+<h4>Photo</h4>
+<input type="file" id="photo">
 
 <h4>License Key</h4>
-<input id="key">
+<input id="license">
 
-<button onclick="run()">Analyze Resume</button>
-
+<button id="analyzeBtn">Analyze Resume</button>
 </div>
 
-<!-- RESULT PANEL -->
 <div class="panel">
 
 <div id="results" style="display:none">
 
-<div class="scoreWrap">
-<div id="circle" class="circle">0</div>
-<div>
 <div id="score" class="scoreText"></div>
-<div id="scoreLabel"></div>
-</div>
-</div>
 
 <div id="chips"></div>
 
 <div class="tabs">
-<div class="tab active" onclick="showTab('resumeTab',this)">Resume</div>
-<div class="tab" onclick="showTab('coverTab',this)">Cover Letter</div>
-<div class="tab" onclick="showTab('reportTab',this)">Report</div>
+<div class="tab active" data-tab="resume">Resume</div>
+<div class="tab" data-tab="cover">Cover Letter</div>
+<div class="tab" data-tab="report">Report</div>
 </div>
 
-<div id="resumeTab"></div>
-<div id="coverTab" style="display:none"></div>
-<div id="reportTab" style="display:none"></div>
+<div id="content" class="resume"></div>
+
+<button id="downloadResume">Download Resume</button>
+<button id="downloadCover">Download Cover</button>
+<button id="downloadReport">Download Report</button>
 
 </div>
 
@@ -200,10 +69,20 @@ font-size:16px;
 
 <script>
 
-let photoBase64="";
-let lastData=null;
+const state={
+pro:false,
+score:0,
+resume:"",
+cover:"",
+notes:[],
+active:"resume",
+filename:"ATSCheckPro"
+};
 
-photoInput.onchange=e=>{
+let photoBase64="";
+
+/* PHOTO */
+photo.onchange=e=>{
 const f=e.target.files[0];
 if(!f)return;
 const r=new FileReader();
@@ -211,143 +90,102 @@ r.onload=()=>photoBase64=r.result;
 r.readAsDataURL(f);
 };
 
-function showTab(id,el){
+/* TAB SWITCH */
+document.querySelectorAll(".tab").forEach(tab=>{
+tab.onclick=()=>{
 document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-el.classList.add("active");
-["resumeTab","coverTab","reportTab"].forEach(x=>document.getElementById(x).style.display="none");
-document.getElementById(id).style.display="block";
+tab.classList.add("active");
+state.active=tab.dataset.tab;
+renderContent();
+};
+});
+
+function renderContent(){
+if(state.active==="resume") content.textContent=state.resume;
+if(state.active==="cover") content.textContent=state.cover;
+if(state.active==="report") content.innerHTML=state.notes.map(x=>"• "+x).join("<br>");
 }
 
-function renderResume(text){
+/* VALIDATE LICENSE */
+async function validateKey(key){
+if(!key) return false;
 
-const lines=(text||"").split("\n").filter(l=>l.trim());
-const name=lines[0]||"";
-const contact=lines[1]||"";
-const body=lines.slice(2).join("\n");
-
-return `
-<div class="resumeHeader">
-${photoBase64?`<img src="${photoBase64}" class="photo">`:""}
-<div>
-<div class="name">${name}</div>
-<div class="contact">${contact}</div>
-</div>
-</div>
-
-<div class="rule"></div>
-
-<div class="resume">
-${body.replace(/--------------------------------/g,'<div class="rule"></div>')}
-</div>
-
-<button onclick="downloadResume()">Download Resume</button>
-`;
-}
-
-function scoreLabel(score){
-if(score>=75)return["Strong match","#2ecc71"];
-if(score>=60)return["Moderate match","#ffcc00"];
-return["Needs improvement","#ff5a5a"];
-}
-
-async function run(){
-
-const response=await fetch("/api/optimize",{
+const r=await fetch("/api/validate-key",{
 method:"POST",
-headers:{"Content-Type":"application/json"},
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({key})
+});
+
+const d=await r.json();
+return d.valid===true;
+}
+
+/* ANALYZE */
+
+analyzeBtn.onclick=async()=>{
+
+const jd=job.value.trim();
+const resText=resume.value.trim();
+const key=license.value.trim();
+
+if(!jd||!resText){
+alert("Provide JD and Resume");
+return;
+}
+
+state.pro=await validateKey(key);
+
+const r=await fetch("/api/optimize",{
+method:"POST",
+headers:{'Content-Type':'application/json'},
 body:JSON.stringify({
-jobDescription:job.value.trim(),
-resumeText:resume.value.trim(),
-licenseKey:key.value.trim()
+jobDescription:jd,
+resumeText:resText,
+isPro:state.pro
 })
 });
 
-const data=await response.json();
-lastData=data;
+if(!r.ok){alert("Server error");return;}
+
+const data=await r.json();
 
 results.style.display="block";
 
-/* SCORE */
+state.score=data.scoreBefore||0;
+state.resume=data.optimizedText||"";
+state.cover=data.coverLetter||"";
+state.notes=data.recruiterNotes||[];
+state.filename="ATSCheckPro-"+Date.now();
 
-const s=data.scoreBefore||0;
-score.innerText=s+"/100";
-circle.innerText=s;
-circle.style.background=`conic-gradient(#2ecc71 ${s*3.6}deg,#e5e7ef 0deg)`;
+score.textContent="ATS Score: "+state.score+"/100";
 
-const [label,color]=scoreLabel(s);
-scoreLabel.innerText=label;
-scoreLabel.style.color=color;
+chips.innerHTML=
+"<b>Matched:</b>"+
+(data.keywordsFound||[]).map(k=>`<span class="chip found">${k}</span>`).join("")+
+"<br><b>Missing:</b>"+
+(data.keywordsMissingTop||[]).map(k=>`<span class="chip missing">${k}</span>`).join("");
 
-/* KEYWORDS SECTION */
-
-chips.innerHTML=`
-<div class="sectionTitle">🔑 Keyword Match Analysis</div>
-
-<div style="margin-top:6px">
-<b>Matched:</b>
-${(data.keywordsFound||[]).map(k=>`<span class="chip found">${k}</span>`).join("")}
-</div>
-
-<div style="margin-top:6px">
-<b>Missing:</b>
-${(data.keywordsMissingTop||[]).map(k=>`<span class="chip missing">${k}</span>`).join("")}
-</div>
-`;
-
-/* CONTENT */
-
-if(data.isPro){
-
-resumeTab.innerHTML=renderResume(data.optimizedText);
-
-coverTab.innerHTML=`
-<div class="resume">${data.coverLetter||""}</div>
-<button onclick="downloadCover()">Download Cover</button>
-`;
-
-reportTab.innerHTML=`
-<div class="reportBox">
-<b>ATS Score</b>
-<div class="bar"><div class="barFill" style="width:${s}%"></div></div>
-</div>
-
-<div class="reportBox">
-<b>Recruiter Impression</b><br>
-${(data.quickImpression||[]).map(x=>"• "+x).join("<br>")}
-</div>
-
-<div class="reportBox">
-<b>Missing Keywords</b><br>
-${(data.keywordsMissingTop||[]).map(x=>`<span class="chip missing">${x}</span>`).join("")}
-</div>
-
-<div class="reportBox">
-<b>Recruiter Notes</b><br>
-${(data.recruiterNotes||[]).map(x=>"• "+x).join("<br>")}
-</div>
-
-<button onclick="downloadReport()">Download Report</button>
-`;
-
+if(state.pro){
+renderContent();
 }else{
-resumeTab.innerHTML="🔒 Unlock PRO";
+content.textContent="🔒 Unlock PRO to view optimized resume & downloads.";
 }
 
+};
+
+/* DOWNLOAD */
+
+async function download(type,payload){
+
+if(!state.pro){
+alert("PRO required");
+return;
 }
-
-function candidateName(){
-let n=(lastData?.optimizedText||"").split("\n")[0]||"resume";
-return n.replace(/[^a-z0-9]/gi,"-");
-}
-
-async function download(body,name){
-
-if(!lastData){alert("Run analysis first");return;}
 
 const r=await fetch("/api/download",{
 method:"POST",
-headers:{"Content-Type":"application/json"},
-body:JSON.stringify(body)
+headers:{'Content-Type':'application/json'},
+body:JSON.stringify({...payload,type})
 });
 
 if(!r.ok){alert("Download failed");return;}
@@ -357,41 +195,14 @@ const url=URL.createObjectURL(blob);
 
 const a=document.createElement("a");
 a.href=url;
-a.download=name+".pdf";
+a.download=state.filename+"-"+type+".pdf";
 a.click();
-
 URL.revokeObjectURL(url);
 }
 
-function downloadResume(){
-download({
-type:"resume",
-optimizedText:lastData.optimizedText,
-photo:photoBase64,
-licenseKey:key.value.trim()
-},candidateName()+"-Resume");
-}
-
-function downloadCover(){
-download({
-type:"cover",
-coverLetter:lastData.coverLetter,
-licenseKey:key.value.trim()
-},candidateName()+"-Cover");
-}
-
-function downloadReport(){
-download({
-type:"report",
-report:{
-score:lastData.scoreBefore,
-impression:lastData.quickImpression,
-keywords:lastData.keywordsMissingTop,
-notes:lastData.recruiterNotes
-},
-licenseKey:key.value.trim()
-},candidateName()+"-Report");
-}
+downloadResume.onclick=()=>download("resume",{optimizedText:state.resume,photo:photoBase64});
+downloadCover.onclick=()=>download("cover",{coverLetter:state.cover});
+downloadReport.onclick=()=>download("report",{report:{score:state.score,notes:state.notes}});
 
 </script>
 

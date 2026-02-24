@@ -1,203 +1,176 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
-export const config = {
-  api: { bodyParser: true },
-  maxDuration: 30
+export const config={
+api:{bodyParser:{sizeLimit:"6mb"}},
+maxDuration:30
 };
 
-/* ===============================
-   KEYWORD ENGINE (REALISTIC ATS)
-================================ */
+const STOP=new Set(["and","or","the","with","for","to","of","in","on","a","an"]);
 
-const STOP_WORDS = new Set([
-  "and","or","the","with","for","to","of","in","on","a","an",
-  "responsible","candidate","role","ability","work","team",
-  "excellent","strong","good","skills","experience"
-]);
-
-function extractKeywords(text) {
-  const words = (text.toLowerCase().match(/\b[a-zA-Z0-9.+#]{3,}\b/g) || []);
-
-  return Array.from(
-    new Set(
-      words.filter(w => !STOP_WORDS.has(w))
-    )
-  ).slice(0, 40);
+function extract(t){
+return [...new Set((t.toLowerCase().match(/\b[a-z0-9.+#]{3,}\b/g)||[])
+.filter(w=>!STOP.has(w)))].slice(0,40);
 }
 
-function normalize(text) {
-  return text.toLowerCase()
-    .replace(/js/g,"javascript")
-    .replace(/node /g,"nodejs ")
-    .replace(/postgres/g,"postgresql");
+function score(job,resume){
+const k=extract(job);
+const r=resume.toLowerCase();
+const matched=k.filter(x=>r.includes(x));
+let s=Math.round((matched.length/k.length)*100||0);
+s=Math.min(Math.max(s,35),92);
+return {s,matched,missing:k.filter(x=>!matched.includes(x))};
 }
 
-function calculateScore(job, resume) {
+export default async function handler(req,res){
 
-  const jobKeywords = extractKeywords(job);
-  const resumeText = normalize(resume);
+try{
 
-  const matched = jobKeywords.filter(k => resumeText.includes(k));
-  const missing = jobKeywords.filter(k => !resumeText.includes(k));
+const {jobDescription,resumeText,licenseKey}=req.body||{};
 
-  let score = Math.round((matched.length / jobKeywords.length) * 100 || 0);
+if(!jobDescription||jobDescription.length<10)
+return res.status(400).json({error:"Job description missing"});
 
-  // Clamp realistic ATS range
-  score = Math.min(Math.max(score, 35), 92);
+if(!resumeText||resumeText.length<10)
+return res.status(400).json({error:"Resume missing"});
 
-  return {
-    score,
-    matched: matched.slice(0, 12),
-    missing: missing.slice(0, 12)
-  };
+const isPro=licenseKey==="test-vikas-2026";
+
+const {s,matched,missing}=score(jobDescription,resumeText);
+
+let optimizedText=null,coverLetter=null,recruiterNotes=null;
+
+if(isPro){
+
+const genAI=new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+
+const model=genAI.getGenerativeModel({
+model:"gemini-2.5-flash-lite",
+generationConfig:{temperature:0.3,topP:0.9,topK:40}
+});
+
+const prompt=`Return ONLY JSON:
+{"optimizedText":"","coverLetter":"","recruiterNotes":[]}
+
+JOB:${jobDescription}
+RESUME:${resumeText}`;
+
+const out=await model.generateContent(prompt);
+
+let txt=out.response.text().trim()
+.replace(/^```json/i,'')
+.replace(/```$/,'')
+.trim();
+
+try{
+const j=JSON.parse(txt);
+optimizedText=j.optimizedText||null;
+coverLetter=j.coverLetter||null;
+recruiterNotes=j.recruiterNotes||null;
+}catch(e){
+console.error("AI JSON parse failed:",txt);
 }
 
-/* ===============================
-   AI PROMPT (PRO MODE)
-================================ */
-
-function buildPrompt(job, resume) {
-  return `
-You are a professional ATS resume writer.
-
-Return ONLY JSON:
-
-{
- "optimizedText": "...",
- "coverLetter": "...",
- "recruiterNotes": ["note1","note2"]
 }
 
-RULES:
-1. Keep candidate data real.
-2. Do NOT invent experience.
-3. Format resume clearly with sections:
---------------------------------
-SUMMARY
---------------------------------
---------------------------------
-SKILLS
---------------------------------
---------------------------------
-EXPERIENCE
---------------------------------
---------------------------------
-EDUCATION
---------------------------------
-4. Bullet points must start with "- "
-5. Make resume stronger but realistic.
-6. Cover letter must match job tone.
-7. Recruiter notes must mention improvement areas.
+res.json({
+isPro,
+scoreBefore:s,
+keywordsFound:matched.slice(0,10),
+keywordsMissingTop:missing.slice(0,10),
+optimizedText,
+coverLetter,
+recruiterNotes
+});
 
-JOB DESCRIPTION:
-${job}
-
-RESUME:
-${resume}
-`;
+}catch(e){
+console.error(e);
+res.status(500).json({error:e.message});
 }
 
-/* ===============================
-   API HANDLER
-================================ */
+}import { GoogleGenerativeAI } from "@google/generative-ai";
 
-export default async function handler(req, res) {
+export const config={
+api:{bodyParser:{sizeLimit:"6mb"}},
+maxDuration:30
+};
 
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
+const STOP=new Set(["and","or","the","with","for","to","of","in","on","a","an"]);
 
-  try {
+function extract(t){
+return [...new Set((t.toLowerCase().match(/\b[a-z0-9.+#]{3,}\b/g)||[])
+.filter(w=>!STOP.has(w)))].slice(0,40);
+}
 
-    const job = req.body.jobDescription || "";
-    const resume = req.body.resumeText || "";
-    const license = (req.body.licenseKey || "").trim();
+function score(job,resume){
+const k=extract(job);
+const r=resume.toLowerCase();
+const matched=k.filter(x=>r.includes(x));
+let s=Math.round((matched.length/k.length)*100||0);
+s=Math.min(Math.max(s,35),92);
+return {s,matched,missing:k.filter(x=>!matched.includes(x))};
+}
 
-    if (job.length < 10)
-      return res.status(400).json({ error: "Job description missing" });
+export default async function handler(req,res){
 
-    if (resume.length < 10)
-      return res.status(400).json({ error: "Resume missing" });
+try{
 
-    const isPro = license === "test-vikas-2026";
+const {jobDescription,resumeText,isPro}=req.body||{};
 
-    /* ----- ATS SCORE ----- */
+if(!jobDescription||jobDescription.length<10)
+return res.status(400).json({error:"Job description missing"});
 
-    const { score, matched, missing } = calculateScore(job, resume);
+if(!resumeText||resumeText.length<10)
+return res.status(400).json({error:"Resume missing"});
 
-    /* ----- PRO AI GENERATION ----- */
+const {s,matched,missing}=score(jobDescription,resumeText);
 
-    let optimizedText = null;
-    let coverLetter = null;
-    let recruiterNotes = null;
+let optimizedText=null,coverLetter=null,recruiterNotes=null;
 
-    if (isPro) {
+if(isPro){
 
-      const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+const genAI=new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
-      const model = genAI.getGenerativeModel({
-        model: "gemini-2.5-flash-lite",
-        generationConfig: {
-          temperature: 0.3,
-          topP: 0.9,
-          topK: 40
-        }
-      });
+const model=genAI.getGenerativeModel({
+model:"gemini-2.5-flash-lite",
+generationConfig:{temperature:0.3,topP:0.9,topK:40}
+});
 
-      const result = await model.generateContent(
-        buildPrompt(job.slice(0,4000), resume.slice(0,6000))
-      );
+const prompt=`Return ONLY JSON:
+{"optimizedText":"","coverLetter":"","recruiterNotes":[]}
 
-      const raw = result.response.text().trim();
-      const clean = raw.replace(/^```json/i,'').replace(/```$/,'').trim();
+JOB:${jobDescription}
+RESUME:${resumeText}`;
 
-      try {
-        const parsed = JSON.parse(clean);
-        optimizedText = parsed.optimizedText || null;
-        coverLetter = parsed.coverLetter || null;
-        recruiterNotes = parsed.recruiterNotes || null;
-      } catch (e) {
-        console.error("AI JSON parse error:", clean);
-      }
-    }
+const out=await model.generateContent(prompt);
 
-    /* ----- RESPONSE ----- */
+let txt=out.response.text().trim()
+.replace(/^```json/i,'')
+.replace(/```$/,'')
+.trim();
 
-    return res.json({
+try{
+const j=JSON.parse(txt);
+optimizedText=j.optimizedText||null;
+coverLetter=j.coverLetter||null;
+recruiterNotes=j.recruiterNotes||null;
+}catch(e){
+console.error("AI JSON parse error:",txt);
+}
 
-      isPro,
+}
 
-      scoreBefore: score,
+res.json({
+scoreBefore:s,
+keywordsFound:matched.slice(0,10),
+keywordsMissingTop:missing.slice(0,10),
+optimizedText,
+coverLetter,
+recruiterNotes
+});
 
-      strengthLevel:
-        score >= 75 ? "Strong" :
-        score >= 60 ? "Moderate" :
-        "Weak",
+}catch(e){
+console.error(e);
+res.status(500).json({error:e.message});
+}
 
-      quickImpression: [
-        score >= 75 ? "Strong alignment with job requirements." :
-        score >= 60 ? "Moderate keyword coverage." :
-        "Significant keyword gaps detected.",
-        missing.length > 5 ?
-          "Several required skills missing." :
-          "Most core skills covered."
-      ],
-
-      keywordsFound: matched,
-      keywordsMissingTop: missing,
-
-      scoreAfter: isPro ? Math.min(score + 8, 95) : null,
-
-      optimizedText,
-      coverLetter,
-      recruiterNotes,
-
-      originalText: resume
-
-    });
-
-  } catch (err) {
-    console.error("Server Error:", err);
-    return res.status(500).json({ error: err.message });
-  }
 }
