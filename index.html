@@ -737,6 +737,7 @@ document.getElementById("analyzeBtn").addEventListener("click", async () => {
     stopSteps();
     document.getElementById("loading").style.display="none";
     document.getElementById("analyzeBtn").disabled=false;
+    lastData = data;
     renderResults(data);
   } catch(e) {
     stopSteps();
@@ -889,9 +890,18 @@ async function dlFile(body, name, btn) {
   }
 }
 
-function downloadResume() { dlFile({type:"resume",optimizedText:lastData.optimizedText,photo:photoBase64,licenseKey,candidateName:candidateName()},fileSlug()+"-Resume",document.getElementById("downloadResumeBtn")); }
-function downloadCover() { dlFile({type:"cover",coverLetter:lastData.coverLetter,licenseKey,candidateName:candidateName()},fileSlug()+"-CoverLetter",document.getElementById("downloadCoverBtn")); }
-function downloadReport() { dlFile({type:"report",report:{score:lastData.scoreBefore,scoreAfter:lastData.scoreAfter,impression:lastData.quickImpression,keywords:lastData.keywordsMissingTop,notes:lastData.recruiterNotes},licenseKey,candidateName:candidateName()},fileSlug()+"-ATSReport",document.getElementById("downloadReportBtn")); }
+function downloadResume() {
+  if(!lastData) return showInlineErr("Please run analysis first.");
+  dlFile({type:"resume",optimizedText:lastData.optimizedText,photo:photoBase64,licenseKey,candidateName:candidateName()},fileSlug()+"-Resume",document.getElementById("downloadResumeBtn"));
+}
+function downloadCover() {
+  if(!lastData) return showInlineErr("Please run analysis first.");
+  dlFile({type:"cover",coverLetter:lastData.coverLetter,licenseKey,candidateName:candidateName()},fileSlug()+"-CoverLetter",document.getElementById("downloadCoverBtn"));
+}
+function downloadReport() {
+  if(!lastData) return showInlineErr("Please run analysis first.");
+  dlFile({type:"report",report:{score:lastData.scoreBefore,scoreAfter:lastData.scoreAfter,impression:lastData.quickImpression,keywords:lastData.keywordsMissingTop,notes:lastData.recruiterNotes},licenseKey,candidateName:candidateName()},fileSlug()+"-ATSReport",document.getElementById("downloadReportBtn"));
+}
 </script>
 
 <!-- Mammoth.js for DOCX parsing -->
