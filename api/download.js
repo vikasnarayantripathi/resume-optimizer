@@ -94,6 +94,8 @@ function cleanLine(raw) {
 
 // ─── RESUME PDF ────────────────────────────────────────────────────────────
 function buildResumePDF(doc, optimizedText, photo, candidateName) {
+  // LOG: show first 300 chars to debug
+  console.log("BUILD_RESUME_INPUT:", JSON.stringify((optimizedText||"").slice(0,300)));
   const lines = (optimizedText || "").split("\n");
   const pageW = doc.page.width;
   const M = 50, W = pageW - M * 2;

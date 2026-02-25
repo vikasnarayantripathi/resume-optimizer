@@ -154,6 +154,8 @@ export default async function handler(req, res) {
       });
       const result = await model.generateContent(buildPrompt(job.slice(0,4000), cleanResume.slice(0,6000)));
       let raw   = result.response.text().trim();
+      // LOG: show first 500 chars of raw AI output to debug %¸ issue
+      console.log("RAW_AI_OUTPUT_FIRST500:", JSON.stringify(raw.slice(0, 500)));
       // NUCLEAR: replace ALL %¸ %· artifacts in raw JSON string before parsing
       // This runs before JSON.parse so nothing can slip through
       raw = raw
