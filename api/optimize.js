@@ -133,7 +133,14 @@ export default async function handler(req, res) {
     if(!isFree && !isPro) return res.status(403).json({ error:"Invalid or already used license key." });
 
     // Sanitize resume before scoring and AI
-    const cleanResume = stripArtifacts(resume);
+    // Triple-clean the resume before AI sees it
+    // 1. Replace %¸ at raw string level first
+    const rawCleaned = resume
+      .replace(/%¸/g, "- ")
+      .replace(/%·/g, "- ")
+      .replace(/%,/g, "- ");
+    // 2. Then run full stripArtifacts
+    const cleanResume = stripArtifacts(rawCleaned);
 
     const { score, matched, missing } = calculateScore(job, cleanResume);
 
@@ -147,6 +154,14 @@ export default async function handler(req, res) {
       });
       const result = await model.generateContent(buildPrompt(job.slice(0,4000), cleanResume.slice(0,6000)));
       let raw   = result.response.text().trim();
+      // NUCLEAR: replace ALL %¸ %· artifacts in raw JSON string before parsing
+      // This runs before JSON.parse so nothing can slip through
+      raw = raw
+        .replace(/%¸/g, "- ")
+        .replace(/%·/g, "- ")
+        .replace(/%,/g, "- ")
+        .replace(/\\u00b8/gi, "")   // unicode escape for ¸
+        .replace(/\\u0025/gi, "- "); // unicode escape for %
       let clean = raw.replace(/^```json/i,"").replace(/^```/,"").replace(/```$/,"").trim();
       try {
         const parsed = JSON.parse(clean);
