@@ -802,6 +802,8 @@ function renderProContent(data) {
   resumeHTML += `<div class="rname">${name}</div>`;
   if(contact) resumeHTML += `<div class="rcontact">${contact.replace(/\|/g," · ")}</div>`;
   resumeHTML += `<div class="rbody">`;
+  const firstBullet = body.find(l => l.trim().startsWith('%'));
+  if(firstBullet) console.log('BULLET_RAW:', JSON.stringify(firstBullet), 'charCode0:', firstBullet.trim().charCodeAt(0), 'charCode1:', firstBullet.trim().charCodeAt(1));
   resumeHTML += body.map(line => {
     const t=line.trim(); if(!t) return"";
     if(t===t.toUpperCase()&&t.length>2&&t.length<50&&!/^\d/.test(t)&&/[A-Z]/.test(t))
