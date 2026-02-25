@@ -362,6 +362,7 @@ export default async function handler(req, res) {
     const body = await parseBody(req);
     const { type, optimizedText, coverLetter, report, photo, candidateName } = body;
     if (!type) return res.status(400).json({ error: "Missing type" });
+    console.log("DOWNLOAD_RECEIVED:", JSON.stringify((optimizedText||"").slice(0,200)));
 
     const cleanedText  = nukeArtifacts(optimizedText);
     const cleanedCover = nukeArtifacts(coverLetter);
