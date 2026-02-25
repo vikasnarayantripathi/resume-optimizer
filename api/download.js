@@ -12,35 +12,35 @@ const MUTED   = "#78716c";
 const LIGHT   = "#f0fdf4";
 const BORDER  = "#d4cbbf";
 
-// Footer is written per-page via bufferPages loop — NOT inline
-function writeFooter(doc, pageIndex, name) {
-  doc.switchToPage(pageIndex);
-  const pageH = doc.page.height;
-  const pageW = doc.page.width;
-  doc.moveTo(50, pageH - 38).lineTo(pageW - 50, pageH - 38)
-     .strokeColor(BORDER).lineWidth(0.4).stroke();
-  doc.fontSize(7.5).font("Helvetica").fillColor("#a8a29e")
-     .text(
-       (name ? name + "  ·  " : "") + "ATSCheckPro  ·  Confidential",
-       50, pageH - 30, { align: "center", width: pageW - 100 }
-     );
-}
-
-// Safe write — if we're near the bottom, add a new page first
-function safeY(doc, neededHeight = 40) {
-  if (doc.y + neededHeight > doc.page.height - 50) {
+// Check if we need a new page before writing a block
+function safeY(doc, needed = 40) {
+  const bottomLimit = doc.page.height - 80; // leave room for footer
+  if (doc.y + needed > bottomLimit) {
     doc.addPage();
   }
 }
 
+// Inline footer — called right before doc.end() at current y position
+function addFooter(doc) {
+  // We need to write footer at a known position — use absolute positioning
+  // We don't use page.height trick anymore; just write at current y
+  const pageW = doc.page.width;
+  const fy = doc.page.height - 40;
+  doc.moveTo(50, fy).lineTo(pageW - 50, fy)
+     .strokeColor(BORDER).lineWidth(0.4).stroke();
+  doc.fontSize(7.5).font("Helvetica").fillColor("#a8a29e")
+     .text("ATSCheckPro  ·  AI Resume Service  ·  Confidential",
+       50, fy + 6, { align: "center", width: pageW - 100 });
+}
+
 // ─── RESUME ────────────────────────────────────────────────────────────────
-function buildResumePDF(doc, optimizedText, photo) {
+function buildResumePDF(doc, optimizedText, photo, candidateName) {
   const lines    = (optimizedText || "").split("\n");
   const pageW    = doc.page.width;
   const margin   = 50;
   const contentW = pageW - margin * 2;
+  const name     = lines[0]?.trim() || candidateName || "";
 
-  const name = lines[0]?.trim() || "";
   let contactParts = [];
   let bodyStart = 1;
   for (let i = 1; i < Math.min(5, lines.length); i++) {
@@ -57,7 +57,7 @@ function buildResumePDF(doc, optimizedText, photo) {
   // Green top strip
   doc.rect(0, 0, pageW, 5).fill(ACCENT);
 
-  // Photo
+  // Photo — right side
   const hasPhoto = !!photo;
   const nameW = hasPhoto ? contentW - 90 : contentW;
   const phX = pageW - margin - 70, phY = 18;
@@ -72,8 +72,9 @@ function buildResumePDF(doc, optimizedText, photo) {
     } catch(e) {}
   }
 
-  doc.fontSize(20).font("Helvetica-Bold").fillColor(TEXT).text(name, margin, 18, { width: nameW });
-
+  // Name + contact
+  doc.fontSize(20).font("Helvetica-Bold").fillColor(TEXT)
+     .text(name, margin, 18, { width: nameW });
   let contactY = 44;
   if (contactParts.length) {
     doc.fontSize(8.5).font("Helvetica").fillColor(MUTED)
@@ -81,6 +82,7 @@ function buildResumePDF(doc, optimizedText, photo) {
     contactY = doc.y + 4;
   }
 
+  // Divider drawn BELOW photo
   const divY = hasPhoto ? Math.max(contactY + 4, phY + 66 + 10) : contactY + 4;
   doc.moveTo(margin, divY).lineTo(pageW - margin, divY)
      .strokeColor(ACCENT).lineWidth(1.8).stroke();
@@ -92,7 +94,6 @@ function buildResumePDF(doc, optimizedText, photo) {
     const isBullet = /^[%¸►•\-–—▸*]/.test(raw);
     const t = raw.replace(/^[%¸►•\-–—▸*]+\s*/, "").trim();
 
-    // Section header
     if (t === t.toUpperCase() && t.length > 2 && t.length < 55
         && !/^\d/.test(t) && /[A-Z]/.test(t) && !isBullet) {
       safeY(doc, 30);
@@ -105,7 +106,6 @@ function buildResumePDF(doc, optimizedText, photo) {
       continue;
     }
 
-    // Bullet
     if (isBullet) {
       safeY(doc, 20);
       const bY = doc.y;
@@ -116,7 +116,6 @@ function buildResumePDF(doc, optimizedText, photo) {
       continue;
     }
 
-    // Job title / company
     if ((t.includes(" - ") || t.includes(" – ") || t.includes(" | "))
         && t.length < 100 && !t.includes("@")) {
       safeY(doc, 20);
@@ -143,34 +142,29 @@ function buildCoverPDF(doc, coverLetter, candidateName) {
   const pageW    = doc.page.width;
   const margin   = 72;
   const contentW = pageW - margin * 2;
+  const nameNormal = (candidateName || "").trim();
+  const nameUpper  = nameNormal.toUpperCase();
 
   doc.rect(0, 0, pageW, 5).fill(ACCENT);
-
   doc.fontSize(13).font("Helvetica-Bold").fillColor(TEXT)
-     .text(candidateName || "Applicant", margin, 22);
-
+     .text(nameNormal || "Applicant", margin, 22);
   doc.fontSize(8).font("Helvetica-Bold").fillColor(ACCENT)
      .text("ATSCheckPro", pageW - margin - 80, 24, { width: 80, align: "right" });
   doc.fontSize(7.5).font("Helvetica").fillColor(MUTED)
      .text("AI Resume Service", pageW - margin - 80, 36, { width: 80, align: "right" });
-
   doc.moveTo(margin, 50).lineTo(pageW - margin, 50)
      .strokeColor(BORDER).lineWidth(0.5).stroke();
-
   const today = new Date().toLocaleDateString("en-US",
     { year:"numeric", month:"long", day:"numeric" });
   doc.fontSize(9.5).font("Helvetica").fillColor(MUTED)
      .text(today, margin, 62, { width: contentW, align: "right" });
-
   doc.y = 88;
 
-  // Clean AI output — strip junk lines
-  const nameUpper  = (candidateName || "").toUpperCase().trim();
-  const nameNormal = (candidateName || "").trim();
+  // Clean AI junk
   const cleanLines = (coverLetter || "").split("\n").filter(line => {
     const t = line.trim();
     if (!t) return true;
-    if (t.toUpperCase() === nameUpper && nameUpper.length > 2) return false;
+    if (nameUpper && t.toUpperCase() === nameUpper) return false;
     if (/^\[.*\]$/.test(t)) return false;
     if (/^[A-Za-z\s]+[|]\s*[\w.+%-]+@/.test(t)) return false;
     if (/^[\w\s,.-]+\s+[\w.+%-]+@[\w.-]+\.[a-z]{2,}/i.test(t)) return false;
@@ -178,17 +172,15 @@ function buildCoverPDF(doc, coverLetter, candidateName) {
   });
 
   const cleanText = cleanLines.join("\n").replace(/\n{3,}/g, "\n\n").trim();
-  let paragraphs = cleanText.split(/\n{2,}/).filter(p => p.trim());
+  let paragraphs  = cleanText.split(/\n{2,}/).filter(p => p.trim());
   if (paragraphs.length <= 2) paragraphs = cleanText.split("\n").filter(p => p.trim());
 
   let closingDone = false;
-
   for (const para of paragraphs) {
     const p = para.trim().replace(/\n/g, " ");
     if (!p || closingDone) continue;
 
     if (/^(Dear|To Whom|To the)/i.test(p)) {
-      safeY(doc, 20);
       doc.fontSize(10.5).font("Helvetica-Bold").fillColor(TEXT)
          .text(p, margin, doc.y, { width: contentW });
       doc.moveDown(1);
@@ -199,9 +191,10 @@ function buildCoverPDF(doc, coverLetter, candidateName) {
       closingDone = true;
       safeY(doc, 80);
       doc.moveDown(0.8);
-      const closingWord = p.replace(new RegExp(",?\\s*" + nameNormal.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ".*$", "i"), "").trim() || p;
+      const escName = nameNormal.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const closingWord = p.replace(new RegExp(",?\\s*" + escName + ".*$","i"),"").trim() || p;
       doc.fontSize(10.5).font("Helvetica").fillColor(TEXT)
-         .text(closingWord + (closingWord.endsWith(",") ? "" : ","), margin, doc.y, { width: contentW });
+         .text(closingWord.endsWith(",") ? closingWord : closingWord + ",", margin, doc.y, { width: contentW });
       doc.moveDown(2.5);
       doc.moveTo(margin, doc.y).lineTo(margin + 170, doc.y)
          .strokeColor(BORDER).lineWidth(0.8).stroke();
@@ -233,17 +226,14 @@ function buildReportPDF(doc, report, candidateName) {
     "which","who","when","where","ensure","looking","need","must","should","can",
     "may","able","work","working","role","position","team","using","use","used",
     "experience","company","including","strong","good","excellent","apply",
-    "responsible","candidate","ability","skills","description","great","well",
-    "new","best","please","would","could","also","want","require","required"]);
+    "responsible","candidate","ability","skills","great","well","new","best",
+    "please","would","could","also","want","require","required","preferred"]);
 
   const cleanKW = (report?.keywords || []).filter(k =>
     k && k.length > 2 && !STOP.has(k.toLowerCase()) && /[a-zA-Z]/.test(k)
   );
 
-  // Top strip
   doc.rect(0, 0, pageW, 5).fill(ACCENT);
-
-  // Title
   doc.fontSize(22).font("Helvetica-Bold").fillColor(TEXT).text("ATS Resume Report", margin, 20);
   if (candidateName) {
     doc.fontSize(11).font("Helvetica").fillColor(MUTED)
@@ -254,7 +244,6 @@ function buildReportPDF(doc, report, candidateName) {
     { year:"numeric", month:"long", day:"numeric" });
   doc.fontSize(9).font("Helvetica").fillColor(MUTED)
      .text(dateStr, margin, candidateName ? 64 : 48);
-
   const divY = candidateName ? 80 : 66;
   doc.moveTo(margin, divY).lineTo(pageW - margin, divY)
      .strokeColor(ACCENT).lineWidth(1.5).stroke();
@@ -264,36 +253,36 @@ function buildReportPDF(doc, report, candidateName) {
   const boxW = (contentW - 20) / 3;
   const bY   = doc.y;
   const boxes = [
-    { label:"BEFORE OPTIMIZATION", value: score+"/100",
+    { label:"BEFORE",    value: score+"/100",
       sub: score >= 75 ? "Strong" : score >= 60 ? "Moderate" : "Weak",
       color: scoreColor, bg:"#fafaf9", border:BORDER },
-    { label:"AFTER OPTIMIZATION",  value: scoreAfter+"/100",
-      sub:"Projected", color:ACCENT, bg:LIGHT, border:ACCENT },
-    { label:"IMPROVEMENT",         value: "+"+improvement,
-      sub:"points gained", color:"#1d4ed8", bg:"#eff6ff", border:"#bfdbfe" }
+    { label:"AFTER OPT.", value: scoreAfter+"/100",
+      sub:"Projected",   color:ACCENT,   bg:LIGHT,     border:ACCENT },
+    { label:"IMPROVEMENT", value: "+"+improvement,
+      sub:"points",      color:"#1d4ed8", bg:"#eff6ff", border:"#bfdbfe" }
   ];
   boxes.forEach((b, i) => {
     const bx = margin + i * (boxW + 10);
-    doc.rect(bx, bY, boxW, 62).fill(b.bg);
-    doc.rect(bx, bY, boxW, 62).stroke(b.border).lineWidth(0.8);
+    doc.rect(bx, bY, boxW, 58).fill(b.bg);
+    doc.rect(bx, bY, boxW, 58).stroke(b.border).lineWidth(0.8);
     doc.rect(bx, bY, boxW, 4).fill(b.color);
     doc.fontSize(6.5).font("Helvetica-Bold").fillColor(MUTED)
-       .text(b.label, bx, bY + 12, { width: boxW, align:"center", characterSpacing:0.6 });
-    doc.fontSize(20).font("Helvetica-Bold").fillColor(b.color)
-       .text(b.value, bx, bY + 24, { width: boxW, align:"center" });
-    doc.fontSize(8).font("Helvetica").fillColor(MUTED)
-       .text(b.sub, bx, bY + 50, { width: boxW, align:"center" });
+       .text(b.label, bx, bY + 10, { width: boxW, align:"center", characterSpacing:0.6 });
+    doc.fontSize(18).font("Helvetica-Bold").fillColor(b.color)
+       .text(b.value, bx, bY + 22, { width: boxW, align:"center" });
+    doc.fontSize(7.5).font("Helvetica").fillColor(MUTED)
+       .text(b.sub, bx, bY + 46, { width: boxW, align:"center" });
   });
-  doc.y = bY + 78;
+  doc.y = bY + 68;
 
-  // Overall assessment
+  // Assessment strip
   const strength = score >= 75 ? "Strong ATS Match" : score >= 60 ? "Moderate Match" : "Needs Improvement";
   const asBg = score >= 75 ? LIGHT : score >= 60 ? "#fffbeb" : "#fef2f2";
-  doc.rect(margin, doc.y, contentW, 22).fill(asBg);
-  doc.fontSize(9).font("Helvetica").fillColor(MUTED)
-     .text("Overall Assessment:", margin + 10, doc.y + 6, { continued:true });
+  doc.rect(margin, doc.y, contentW, 20).fill(asBg);
+  doc.fontSize(8.5).font("Helvetica").fillColor(MUTED)
+     .text("Overall Assessment:", margin + 10, doc.y + 5, { continued:true });
   doc.font("Helvetica-Bold").fillColor(scoreColor).text("  " + strength);
-  doc.y += 30;
+  doc.y += 26;
 
   function section(title) {
     safeY(doc, 50);
@@ -302,59 +291,53 @@ function buildReportPDF(doc, report, candidateName) {
     doc.rect(margin, sy, contentW, 16).fill(LIGHT);
     doc.moveTo(margin, sy).lineTo(margin, sy + 16)
        .strokeColor(ACCENT).lineWidth(3).stroke();
-    doc.fontSize(8).font("Helvetica-Bold").fillColor(ACCENT2)
+    doc.fontSize(7.5).font("Helvetica-Bold").fillColor(ACCENT2)
        .text(title, margin + 10, sy + 4, { characterSpacing:0.8 });
     doc.y = sy + 22;
   }
 
-  // Recruiter impression
   if (report?.impression?.length) {
     section("RECRUITER IMPRESSION");
     for (const item of report.impression) {
-      safeY(doc, 25);
+      safeY(doc, 22);
       const iy = doc.y;
-      doc.fontSize(9.5).font("Helvetica").fillColor(ACCENT).text("→", margin + 4, iy + 1);
-      doc.fontSize(10).font("Helvetica").fillColor(TEXT)
+      doc.fontSize(9).font("Helvetica").fillColor(ACCENT).text("→", margin + 4, iy + 1);
+      doc.fontSize(9.5).font("Helvetica").fillColor(TEXT)
          .text(item, margin + 18, iy, { width: contentW - 18, lineGap: 2 });
-      doc.moveDown(0.4);
+      doc.moveDown(0.35);
     }
   }
 
-  // Missing keywords as tags
   if (cleanKW.length) {
     section("MISSING KEYWORDS — ADD TO YOUR RESUME");
     let kx = margin + 4, ky = doc.y;
-    const tagH = 15;
+    const tagH = 14;
     for (const kw of cleanKW) {
-      const tw = doc.widthOfString(kw, { fontSize:8.5 }) + 16;
-      // Wrap to next line if overflows
-      if (kx + tw > pageW - margin) { kx = margin + 4; ky += tagH + 6; }
-      // New page if tag row overflows page
-      if (ky + tagH > doc.page.height - 60) {
-        doc.addPage(); ky = doc.y; kx = margin + 4;
+      const tw = doc.widthOfString(kw, { fontSize:8 }) + 14;
+      if (kx + tw > pageW - margin) { kx = margin + 4; ky += tagH + 5; }
+      if (ky + tagH > doc.page.height - 70) {
+        doc.addPage(); doc.y = 50; ky = doc.y; kx = margin + 4;
       }
       doc.rect(kx, ky, tw, tagH).fill("#fee2e2");
       doc.rect(kx, ky, tw, tagH).stroke("#fca5a5").lineWidth(0.5);
-      doc.fontSize(8.5).font("Helvetica-Bold").fillColor("#991b1b")
-         .text(kw, kx + 8, ky + 3.5);
-      kx += tw + 6;
+      doc.fontSize(8).font("Helvetica-Bold").fillColor("#991b1b").text(kw, kx + 7, ky + 3);
+      kx += tw + 5;
     }
-    doc.y = ky + tagH + 12;
+    doc.y = ky + tagH + 10;
   }
 
-  // Improvement notes
   if (report?.notes?.length) {
     section("IMPROVEMENT NOTES");
     for (let i = 0; i < report.notes.length; i++) {
-      safeY(doc, 28);
+      safeY(doc, 26);
       const note = report.notes[i];
       const ny = doc.y;
-      if (i % 2 === 0) doc.rect(margin, ny, contentW, 22).fill("#fafaf9");
-      doc.fontSize(9).font("Helvetica-Bold").fillColor(ACCENT)
-         .text((i + 1) + ".", margin + 5, ny + 4);
+      if (i % 2 === 0) doc.rect(margin, ny, contentW, 20).fill("#fafaf9");
+      doc.fontSize(8.5).font("Helvetica-Bold").fillColor(ACCENT)
+         .text((i + 1) + ".", margin + 5, ny + 3);
       doc.fontSize(9.5).font("Helvetica").fillColor(TEXT)
-         .text(note, margin + 20, ny + 4, { width: contentW - 22, lineGap: 2 });
-      doc.moveDown(0.55);
+         .text(note, margin + 20, ny + 3, { width: contentW - 22, lineGap: 2 });
+      doc.moveDown(0.5);
     }
   }
 }
@@ -366,52 +349,29 @@ export default async function handler(req, res) {
   try {
     const { type, optimizedText, coverLetter, report, photo, candidateName } = req.body;
 
-    const doc = new PDFDocument({
-      margin: 50,
-      size: "A4",
-      bufferPages: true,   // lets us iterate pages to add footer
-      autoFirstPage: true
-    });
+    if (!type) return res.status(400).json({ error: "Missing type" });
 
-    const chunks = [];
-    doc.on("data", c => chunks.push(c));
+    // Simple doc — no bufferPages, no flushPages, just clean single-page-at-a-time
+    const doc = new PDFDocument({ margin: 50, size: "A4", autoFirstPage: true });
 
+    // Stream directly to response
     res.setHeader("Content-Type", "application/pdf");
     res.setHeader("Content-Disposition", `attachment; filename="ATSCheckPro-${type}.pdf"`);
+    doc.pipe(res);
 
     if      (type === "resume") buildResumePDF(doc, optimizedText, photo, candidateName);
     else if (type === "cover")  buildCoverPDF(doc, coverLetter, candidateName);
     else if (type === "report") buildReportPDF(doc, report, candidateName);
 
-    // Add footer to every page AFTER content is written
-    const range = doc.bufferedPageRange();
-    for (let i = range.start; i < range.start + range.count; i++) {
-      writeFooter(doc, i, candidateName);
-    }
+    // Add footer on last (current) page
+    addFooter(doc);
 
-    doc.flushPages();
     doc.end();
-
-    await new Promise(r => doc.on("end", r));
-    const buffer = Buffer.concat(chunks);
-    res.setHeader("Content-Length", buffer.length);
-    res.send(buffer);
 
   } catch(e) {
     console.error("Download error:", e);
-    res.status(500).json({ error: e.message });
+    if (!res.headersSent) {
+      res.status(500).json({ error: e.message });
+    }
   }
-}
-
-function writeFooter(doc, pageIndex, name) {
-  doc.switchToPage(pageIndex);
-  const pageH = doc.page.height;
-  const pageW = doc.page.width;
-  doc.moveTo(50, pageH - 38).lineTo(pageW - 50, pageH - 38)
-     .strokeColor(BORDER).lineWidth(0.4).stroke();
-  doc.fontSize(7.5).font("Helvetica").fillColor("#a8a29e")
-     .text(
-       (name ? name + "  ·  " : "") + "ATSCheckPro  ·  Confidential",
-       50, pageH - 30, { align: "center", width: pageW - 100 }
-     );
 }

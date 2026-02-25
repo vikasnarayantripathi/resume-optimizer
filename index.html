@@ -119,9 +119,13 @@ input[type=file]{display:none}
 .right-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;padding:0 14px;gap:2px;padding-top:8px;background:var(--panel)}
 .right-tab{padding:9px 14px;border-radius:6px 6px 0 0;font-size:0.72rem;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;letter-spacing:0.3px}
 .right-tab.active{color:var(--text);border-bottom-color:var(--accent);background:var(--bg)}
-.right-content{padding:16px}
+.right-content{padding:16px;display:flex;flex-direction:column}
 .right-content::-webkit-scrollbar{width:3px}
 .right-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+#report-content{display:flex;flex-direction:column;min-height:0;flex:1}
+#report-scroll-body{overflow-y:auto;flex:1;min-height:0}
+#report-scroll-body::-webkit-scrollbar{width:3px}
+#report-scroll-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
 /* EMPTY */
 .empty{text-align:center;padding:52px 20px}
@@ -135,14 +139,15 @@ input[type=file]{display:none}
 
 /* LOADING */
 #loading{display:none;text-align:center;padding:52px 20px}
-.spinner{width:36px;height:36px;border:2.5px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px}
-@keyframes spin{to{transform:rotate(360deg)}}
+.progress-ring-wrap{position:relative;width:72px;height:72px;margin:0 auto}
 #loading p{color:var(--muted);font-size:0.82rem;font-weight:600}
-.lsteps{margin-top:14px;display:flex;flex-direction:column;gap:4px;max-width:260px;margin-left:auto;margin-right:auto}
-.lstep{font-size:0.73rem;color:#c4b9ae;padding:5px 10px;border-radius:6px;transition:all 0.3s;text-align:left;display:flex;align-items:center;gap:6px}
+.lsteps{display:flex;flex-direction:column;gap:3px;max-width:280px;margin-left:auto;margin-right:auto}
+.lstep{font-size:0.71rem;color:#c4b9ae;padding:4px 10px;border-radius:5px;transition:all 0.3s;text-align:left;display:flex;align-items:center;gap:6px}
 .lstep::before{content:'○';font-size:0.55rem;flex-shrink:0}
-.lstep.active{color:var(--accent);font-weight:700;background:var(--accent-bg);border:1px solid var(--accent-border)}
-.lstep.active::before{content:'●'}
+.lstep.done{color:var(--accent);font-weight:600}
+.lstep.done::before{content:'✓'}
+.lstep.active{color:var(--text);font-weight:700;background:var(--accent-bg);border:1px solid var(--accent-border)}
+.lstep.active::before{content:'●';color:var(--accent)}
 
 /* SCORE */
 .score-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 6px rgba(0,0,0,0.04)}
@@ -327,13 +332,24 @@ input[type=file]{display:none}
     <div class="right-content">
 
       <div id="loading">
-        <div class="spinner"></div>
-        <p>Analyzing your resume...</p>
-        <div class="lsteps">
-          <div class="lstep active" id="ls1">Reading job description & resume</div>
+        <div class="progress-ring-wrap">
+          <svg width="72" height="72" viewBox="0 0 72 72">
+            <circle cx="36" cy="36" r="30" fill="none" stroke="var(--border)" stroke-width="5"/>
+            <circle id="prog-ring" cx="36" cy="36" r="30" fill="none" stroke="var(--accent)"
+              stroke-width="5" stroke-linecap="round"
+              stroke-dasharray="188.5" stroke-dashoffset="188.5"
+              style="transform:rotate(-90deg);transform-origin:center;transition:stroke-dashoffset 0.6s ease"/>
+          </svg>
+          <div id="prog-pct" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:0.88rem;font-weight:800;color:var(--accent)">0%</div>
+        </div>
+        <p id="prog-label" style="margin-top:12px;font-size:0.83rem;font-weight:700;color:var(--text)">Reading your resume...</p>
+        <p style="font-size:0.72rem;color:var(--muted);margin-top:4px">AI optimization takes 15–25 seconds</p>
+        <div class="lsteps" style="margin-top:14px">
+          <div class="lstep" id="ls1">Reading job description & resume</div>
           <div class="lstep" id="ls2">Identifying keyword gaps</div>
-          <div class="lstep" id="ls3">Calculating ATS score</div>
-          <div class="lstep" id="ls4">Optimizing content</div>
+          <div class="lstep" id="ls3">Calculating ATS match score</div>
+          <div class="lstep" id="ls4">AI optimizing resume content</div>
+          <div class="lstep" id="ls5">Generating cover letter</div>
         </div>
       </div>
 
@@ -454,26 +470,29 @@ input[type=file]{display:none}
             <span style="font-size:1.1rem">👤</span>
             <div><div class="cname" id="badge-name-report">—</div><div class="csub">ATS Analysis Report</div></div>
           </div>
-          <div class="rep-section">
-            <h4>Score Comparison</h4>
-            <div class="bar-row">
-              <div class="bar-label"><span>Before Optimization</span><span id="rep-before">—</span></div>
-              <div class="bar"><div class="bar-fill" id="bar-before" style="width:0%;background:linear-gradient(90deg,#ef4444,#f97316)"></div></div>
+          <!-- Scrollable report body -->
+          <div id="report-scroll-body">
+            <div class="rep-section">
+              <h4>Score Comparison</h4>
+              <div class="bar-row">
+                <div class="bar-label"><span>Before Optimization</span><span id="rep-before">—</span></div>
+                <div class="bar"><div class="bar-fill" id="bar-before" style="width:0%;background:linear-gradient(90deg,#ef4444,#f97316)"></div></div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label"><span>After Optimization</span><span id="rep-after">—</span></div>
+                <div class="bar"><div class="bar-fill" id="bar-after" style="width:0%;background:linear-gradient(90deg,#16a34a,#15803d)"></div></div>
+              </div>
             </div>
-            <div class="bar-row">
-              <div class="bar-label"><span>After Optimization</span><span id="rep-after">—</span></div>
-              <div class="bar"><div class="bar-fill" id="bar-after" style="width:0%;background:linear-gradient(90deg,#16a34a,#15803d)"></div></div>
+            <div class="rep-section">
+              <h4>Recruiter Impression</h4>
+              <div id="rep-impression"></div>
+            </div>
+            <div class="rep-section">
+              <h4>Improvement Notes</h4>
+              <div id="rep-notes"></div>
             </div>
           </div>
-          <div class="rep-section">
-            <h4>Recruiter Impression</h4>
-            <div id="rep-impression"></div>
-          </div>
-          <div class="rep-section">
-            <h4>Improvement Notes</h4>
-            <div id="rep-notes"></div>
-          </div>
-          <button class="btn-dl" id="downloadReportBtn">↓ Download Full ATS Report PDF</button>
+          <button class="btn-dl" id="downloadReportBtn" style="margin-top:10px;flex-shrink:0">↓ Download Full ATS Report PDF</button>
         </div>
       </div>
 
@@ -582,15 +601,58 @@ document.getElementById("unlock-btn").addEventListener("click", async () => {
   btn.textContent="Unlock"; btn.disabled=false;
 });
 
-// Loading steps
+// Loading progress
 let stepInterval;
+const STEPS = [
+  { id:"ls1", label:"Reading job description & resume",  pct:15 },
+  { id:"ls2", label:"Identifying keyword gaps",          pct:35 },
+  { id:"ls3", label:"Calculating ATS match score",       pct:55 },
+  { id:"ls4", label:"AI optimizing resume content",      pct:75 },
+  { id:"ls5", label:"Generating cover letter & report",  pct:90 }
+];
+
+function setProgress(pct, label) {
+  const ring = document.getElementById("prog-ring");
+  const pctEl = document.getElementById("prog-pct");
+  const lblEl = document.getElementById("prog-label");
+  if (!ring) return;
+  const circ = 188.5;
+  ring.style.strokeDashoffset = circ - (circ * pct / 100);
+  if (pctEl) pctEl.textContent = pct + "%";
+  if (lblEl && label) lblEl.textContent = label;
+}
+
 function startSteps() {
-  const steps=["ls1","ls2","ls3","ls4"]; let i=0;
-  steps.forEach(s => document.getElementById(s).classList.remove("active"));
-  document.getElementById(steps[0]).classList.add("active");
-  stepInterval=setInterval(()=>{
-    if(i<steps.length-1){document.getElementById(steps[i]).classList.remove("active");i++;document.getElementById(steps[i]).classList.add("active");}
-  },3500);
+  STEPS.forEach(s => {
+    const el = document.getElementById(s.id);
+    if(el) { el.classList.remove("active","done"); }
+  });
+  setProgress(5, "Starting analysis...");
+  let i = 0;
+  // Activate first step immediately
+  const firstEl = document.getElementById(STEPS[0].id);
+  if(firstEl) firstEl.classList.add("active");
+  setProgress(STEPS[0].pct, STEPS[0].label);
+
+  stepInterval = setInterval(() => {
+    if (i < STEPS.length - 1) {
+      const curr = document.getElementById(STEPS[i].id);
+      if(curr) { curr.classList.remove("active"); curr.classList.add("done"); }
+      i++;
+      const next = document.getElementById(STEPS[i].id);
+      if(next) next.classList.add("active");
+      setProgress(STEPS[i].pct, STEPS[i].label);
+    }
+  }, 4000);
+}
+
+function stopSteps() {
+  clearInterval(stepInterval);
+  STEPS.forEach(s => {
+    const el = document.getElementById(s.id);
+    if(el) { el.classList.remove("active"); el.classList.add("done"); }
+  });
+  setProgress(100, "Analysis complete!");
 }
 
 // Get resume text based on active input
@@ -621,9 +683,11 @@ document.getElementById("analyzeBtn").addEventListener("click", async () => {
     if(!res.ok) throw new Error(data.error||"Server error.");
     lastData=data; renderResults(data);
   } catch(e) { errEl.textContent=e.message; errEl.style.display="block"; document.getElementById("empty-state").style.display="block"; }
-  clearInterval(stepInterval);
-  document.getElementById("loading").style.display="none";
-  document.getElementById("analyzeBtn").disabled=false;
+  stopSteps();
+  setTimeout(() => {
+    document.getElementById("loading").style.display="none";
+    document.getElementById("analyzeBtn").disabled=false;
+  }, 500);
 });
 
 function setRing(score) {
