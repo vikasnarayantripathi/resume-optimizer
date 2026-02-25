@@ -1,31 +1,21 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
 export const config = {
-  api: { bodyParser: false, maxDuration: 60 }
+  api: {
+    bodyParser: { sizeLimit: "4mb" },
+    maxDuration: 60
+  }
 };
 
-// Manual body parser — works reliably on Vercel
-function parseBody(req) {
-  return new Promise((resolve, reject) => {
-    let data = "";
-    req.on("data", chunk => { data += chunk.toString(); });
-    req.on("end", () => {
-      try { resolve(JSON.parse(data)); }
-      catch(e) { reject(new Error("Invalid JSON body")); }
-    });
-    req.on("error", reject);
-  });
-}
-
 const STOP_WORDS = new Set([
+  // Only true grammar/filler words — NEVER remove skill/tech terms
   "and","or","the","with","for","to","of","in","on","a","an","is","are","was",
   "will","be","been","have","has","this","that","you","your","we","our","their",
   "they","it","its","by","as","at","from","about","which","who","when","where",
-  "ensure","looking","need","must","should","can","may","able","work","working",
-  "role","position","team","using","use","used","experience","company","including",
-  "strong","good","excellent","apply","responsible","candidate","ability","skills",
-  "description","great","well","new","best","please","would","could","also","want",
-  "require","required","preferred","applications","validating","bugs","minimum"
+  "not","but","also","just","more","any","all","such","both","each","than","then",
+  "so","yet","nor","too","very","here","there","what","how","its","been","do",
+  "did","get","got","let","may","can","would","could","should","must","need",
+  "please","great","good","well","best","new","want","apply","prefer","include"
 ]);
 
 function normalize(text) {
@@ -74,7 +64,15 @@ function stripArtifacts(str) {
 
 function stripArtifactsArr(arr) {
   if(!Array.isArray(arr)) return arr;
-  return arr.map(item => (item||"").replace(/%[¸·,.]/g,"").replace(/^[%►▸•]+\s*/,"").trim());
+  return arr.map(item => {
+    let s = (item || "").trim();
+    // Strip any leading bullet artifacts: %¸ •► etc
+    s = s.replace(/^[\s]*%[¸·,.\s]+/, "")
+         .replace(/^[\s]*[%¸►•▸◦●◆→\-–]+\s+/, "")
+         .replace(/%[¸·,.]/g, "")
+         .trim();
+    return s;
+  });
 }
 
 async function validateLicense(license) {
@@ -123,10 +121,9 @@ ${resume}`;
 export default async function handler(req, res) {
   if(req.method !== "POST") return res.status(405).json({ error:"Method not allowed" });
   try {
-    const body   = await parseBody(req);
-    const job    = (body.jobDescription || "").trim();
-    const resume = (body.resumeText    || "").trim();
-    const license= (body.licenseKey   || "").trim();
+    const job    = (req.body?.jobDescription || "").trim();
+    const resume = (req.body?.resumeText    || "").trim();
+    const license= (req.body?.licenseKey    || "").trim();
 
     if(job.length < 10)    return res.status(400).json({ error:"Please add a job description (too short)." });
     if(resume.length < 10) return res.status(400).json({ error:"Please add your resume text (too short)." });
@@ -165,7 +162,7 @@ export default async function handler(req, res) {
     return res.json({
       isPro,
       scoreBefore:  score,
-      scoreAfter:   isPro ? Math.min(score + 15, 95) : null,
+      scoreAfter:   isPro ? Math.min(Math.round(score * 1.3 + 12), 95) : null,
       strengthLevel: score >= 75 ? "Strong" : score >= 60 ? "Moderate" : "Weak",
       quickImpression: [
         score >= 75 ? "Strong alignment with job requirements." : score >= 60 ? "Moderate keyword coverage." : "Significant keyword gaps detected.",
