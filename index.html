@@ -733,17 +733,19 @@ document.getElementById("analyzeBtn").addEventListener("click", async () => {
     let data;
     try { data = await res.json(); } catch(je) { throw new Error("Server returned invalid response."); }
     if(!res.ok) throw new Error(data.error || "Server error ("+res.status+")");
-    if(!data.scoreBefore && data.scoreBefore !== 0) throw new Error("Analysis failed — please try again.");
-    lastData=data; renderResults(data);
-  } catch(e) {
+    // Hide loading BEFORE rendering results
+    stopSteps();
     document.getElementById("loading").style.display="none";
-    const msg = e.message || "Network error";
+    document.getElementById("analyzeBtn").disabled=false;
+    renderResults(data);
+  } catch(e) {
+    stopSteps();
+    document.getElementById("loading").style.display="none";
+    document.getElementById("analyzeBtn").disabled=false;
+    const msg = e.message || "Network error — please try again.";
     showInlineErr(msg);
     console.error("Optimize error:", msg);
   }
-  stopSteps();
-  document.getElementById("loading").style.display="none";
-  document.getElementById("analyzeBtn").disabled=false;
 });
 
 function setRing(score) {
@@ -777,7 +779,9 @@ function renderResults(data) {
     if(lk) lk.style.display="block"; if(ct) ct.style.display="none";
   });
   if(isUnlocked && data.isPro) renderProContent(data);
-  ["score","resume","cover","report"].forEach(t => { const el=document.getElementById("tab-"+t); if(el) el.style.display="block"; });
+  // Show all tabs with correct display types
+  ["score","resume","cover"].forEach(t => { const el=document.getElementById("tab-"+t); if(el) el.style.display="block"; });
+  const repTab=document.getElementById("tab-report"); if(repTab) repTab.style.display="flex";
   showRight("score");
 }
 
