@@ -299,8 +299,8 @@ input[type=file]{display:none}
         <input type="file" id="photoInput" accept="image/*">
       </div>
 
-      <div class="err" id="error-box"></div>
       <button class="btn-analyze" id="analyzeBtn">↗ Get Free ATS Score</button>
+      <div id="err-inline" style="display:none;margin-top:8px;background:#fef2f2;border:1px solid #fca5a5;border-radius:7px;padding:8px 12px;font-size:0.76rem;color:#dc2626;font-weight:600;line-height:1.5"></div>
     </div>
 
     <div class="left-content" id="left-unlock" style="display:none">
@@ -336,6 +336,19 @@ input[type=file]{display:none}
       <div class="right-tab" onclick="showRight('report')">REPORT</div>
     </div>
     <div class="right-content">
+
+      <!-- Error shown in results area, not left panel -->
+      <div id="error-state" style="display:none">
+        <div style="text-align:center;padding:48px 20px">
+          <div style="width:56px;height:56px;background:#fef2f2;border:1px solid #fca5a5;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin:0 auto 14px">⚠️</div>
+          <div style="font-size:0.9rem;font-weight:700;color:#dc2626;margin-bottom:6px">Something went wrong</div>
+          <div id="error-msg" style="font-size:0.78rem;color:#78716c;line-height:1.6;max-width:280px;margin:0 auto 16px"></div>
+          <button onclick="document.getElementById('error-state').style.display='none';document.getElementById('empty-state').style.display='block'"
+            style="background:#1c1917;color:#f5f2ee;border:none;border-radius:7px;padding:8px 16px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif">
+            ← Try Again
+          </button>
+        </div>
+      </div>
 
       <div id="loading">
         <div class="progress-ring-wrap">
@@ -569,8 +582,30 @@ document.getElementById("resumePdfFile").addEventListener("change", async e => {
 document.getElementById("photoInput").addEventListener("change", e => {
   const f = e.target.files[0]; if(!f) return;
   document.getElementById("photo-name").textContent = "✓ " + f.name;
+  // Clear any stale error message
+  const inlineErr = document.getElementById("err-inline");
+  if(inlineErr) inlineErr.style.display = "none";
   const r = new FileReader(); r.onload = () => photoBase64 = r.result; r.readAsDataURL(f);
 });
+
+// Clear inline error when user starts editing inputs
+["job","resume"].forEach(id => {
+  const el = document.getElementById(id);
+  if(el) el.addEventListener("input", () => {
+    const errEl = document.getElementById("err-inline");
+    if(errEl) errEl.style.display = "none";
+  });
+});
+
+// Show inline error near the analyze button
+function showInlineErr(msg) {
+  const el = document.getElementById("err-inline");
+  if(!el) return;
+  el.textContent = "⚠ " + msg;
+  el.style.display = "block";
+  // Auto-hide after 6 seconds
+  setTimeout(() => { el.style.display="none"; }, 6000);
+}
 
 // Left tabs
 function showLeft(tab) {
@@ -674,10 +709,17 @@ function getResumeText() {
 document.getElementById("analyzeBtn").addEventListener("click", async () => {
   const job = document.getElementById("job").value.trim();
   const resumeText = getResumeText();
-  const errEl = document.getElementById("error-box");
-  errEl.style.display="none";
-  if(!job) { errEl.textContent="Please paste a job description."; errEl.style.display="block"; return; }
-  if(!resumeText) { errEl.textContent="Please provide your resume (text or upload a file)."; errEl.style.display="block"; return; }
+  // Hide previous errors
+  document.getElementById("err-inline").style.display="none";
+  document.getElementById("error-state").style.display="none";
+  if(!job) {
+    showInlineErr("Please paste a job description first.");
+    return;
+  }
+  if(!resumeText) {
+    showInlineErr("Please provide your resume — paste text or upload a file.");
+    return;
+  }
   document.getElementById("empty-state").style.display="none";
   document.getElementById("loading").style.display="block";
   ["score","resume","cover","report"].forEach(t => { const el=document.getElementById("tab-"+t); if(el) el.style.display="none"; });
@@ -688,15 +730,18 @@ document.getElementById("analyzeBtn").addEventListener("click", async () => {
       method:"POST", headers:{"Content-Type":"application/json"},
       body:JSON.stringify({ jobDescription:job, resumeText, licenseKey:licenseKey||"free-preview" })
     });
-    const data = await res.json();
-    if(!res.ok) throw new Error(data.error||"Server error.");
+    let data;
+    try { data = await res.json(); } catch(je) { throw new Error("Server returned invalid response."); }
+    if(!res.ok) throw new Error(data.error || "Server error ("+res.status+")");
+    if(!data.scoreBefore && data.scoreBefore !== 0) throw new Error("Analysis failed — please try again.");
     lastData=data; renderResults(data);
-  } catch(e) { errEl.textContent=e.message; errEl.style.display="block"; document.getElementById("empty-state").style.display="block"; }
-  stopSteps();
-  setTimeout(() => {
+  } catch(e) {
     document.getElementById("loading").style.display="none";
-    document.getElementById("analyzeBtn").disabled=false;
-  }, 500);
+    showInlineErr(e.message || "Network error — please try again.");
+  }
+  stopSteps();
+  document.getElementById("loading").style.display="none";
+  document.getElementById("analyzeBtn").disabled=false;
 });
 
 function setRing(score) {
@@ -802,15 +847,40 @@ function candidateName() { return (lastData?.optimizedText||"").split("\n")[0]||
 function fileSlug() { return candidateName().replace(/[^a-z0-9]/gi,"-").toLowerCase()||"resume"; }
 
 async function dlFile(body, name, btn) {
-  const orig=btn.textContent; btn.textContent="Generating..."; btn.disabled=true;
+  const orig = btn.textContent;
+  btn.textContent = "⏳ Generating...";
+  btn.disabled = true;
+  // Clear any old errors
+  const inlineErr = document.getElementById("err-inline");
+  if(inlineErr) inlineErr.style.display = "none";
   try {
-    const r=await fetch("/api/download",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
-    if(!r.ok) throw new Error("Failed");
-    const blob=await r.blob(), url=URL.createObjectURL(blob), a=document.createElement("a");
-    a.href=url; a.download=name+".pdf"; a.click(); URL.revokeObjectURL(url);
-    btn.textContent="✓ Downloaded";
-    setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},2500);
-  } catch(e) { alert("Download failed: "+e.message); btn.textContent=orig; btn.disabled=false; }
+    const r = await fetch("/api/download", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    });
+    if (!r.ok) {
+      // Try to read error message from response
+      let errMsg = "Download failed";
+      try {
+        const errData = await r.json();
+        errMsg = errData.error || errMsg;
+      } catch(e) {}
+      throw new Error(errMsg);
+    }
+    const blob = await r.blob();
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement("a");
+    a.href = url; a.download = name + ".pdf"; a.click();
+    URL.revokeObjectURL(url);
+    btn.textContent = "✓ Downloaded!";
+    setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2500);
+  } catch(e) {
+    btn.textContent = orig;
+    btn.disabled = false;
+    // Show error near button — NOT as browser alert
+    showInlineErr("PDF error: " + e.message);
+  }
 }
 
 function downloadResume() { dlFile({type:"resume",optimizedText:lastData.optimizedText,photo:photoBase64,licenseKey,candidateName:candidateName()},fileSlug()+"-Resume",document.getElementById("downloadResumeBtn")); }
