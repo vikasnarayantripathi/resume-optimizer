@@ -737,7 +737,9 @@ document.getElementById("analyzeBtn").addEventListener("click", async () => {
     lastData=data; renderResults(data);
   } catch(e) {
     document.getElementById("loading").style.display="none";
-    showInlineErr(e.message || "Network error — please try again.");
+    const msg = e.message || "Network error";
+    showInlineErr(msg);
+    console.error("Optimize error:", msg);
   }
   stopSteps();
   document.getElementById("loading").style.display="none";
