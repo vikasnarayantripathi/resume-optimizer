@@ -34,26 +34,47 @@ function safeY(doc, needed = 40) {
 
 function addFooter(doc) {
   const pageW = doc.page.width;
-  safeY(doc, 20);
-  doc.moveDown(0.6);
-  doc.moveTo(50, doc.y).lineTo(pageW - 50, doc.y)
+  const fy = doc.y + 10;
+  doc.moveTo(50, fy).lineTo(pageW - 50, fy)
      .strokeColor(BORDER).lineWidth(0.4).stroke();
   doc.fontSize(7.5).font("Helvetica").fillColor("#b0a89e")
      .text("ATSCheckPro  ·  AI Resume Service  ·  Confidential",
-           50, doc.y + 5, { align:"center", width: pageW - 100 });
+           50, fy + 5, { align:"center", width: pageW - 100 });
 }
 
 function cleanLine(raw) {
-  return raw
-    .replace(/^[\s]*[%][¸·,.\-•►▸*○●◆◦‣⁃→\s]+/, "")
-    .replace(/^[\s]*[•►▸◦‣⁃○●◆→]+\s*/, "")
-    .replace(/^[\s]*[-–—]\s+/, "")
-    .trim();
+  let s = raw.trimStart();
+  // Simple string-based removal of PDF bullet artifacts (most reliable cross-platform)
+  while (s.length > 0) {
+    const c = s.charCodeAt(0);
+    // % followed by non-letter (PDF artifact like %¸)
+    if (c === 0x25 && s.length > 1 && !/[a-zA-Z0-9]/.test(s[1])) { s = s.slice(2).trimStart(); continue; }
+    // Bare % at start
+    if (c === 0x25) { s = s.slice(1).trimStart(); continue; }
+    // ¸ cedilla (0xB8) — often follows % in PDF extractions  
+    if (c === 0xB8) { s = s.slice(1).trimStart(); continue; }
+    // Common bullet unicode chars
+    if ([0x2022,0x2023,0x25B8,0x25BA,0x25CF,0x25C6,0x2043,0x2023,0x2192].includes(c)) { s = s.slice(1).trimStart(); continue; }
+    // Dash bullets: - – — at start followed by space
+    if ((c === 0x2D || c === 0x2013 || c === 0x2014) && s[1] === ' ') { s = s.slice(2).trimStart(); continue; }
+    break;
+  }
+  return s.trim();
 }
 
 function isBulletLine(raw) {
-  return /^[\s]*[%¸►•\-–—▸*○●◆◦‣⁃→]/.test(raw)
-    || /^[\s]*%[\s¸·,.\-]/.test(raw);
+  const s = raw.trimStart();
+  if (!s) return false;
+  const c = s.charCodeAt(0);
+  // % followed by non-alphanumeric = PDF bullet artifact
+  if (c === 0x25) return true;
+  // ¸ alone
+  if (c === 0xB8) return true;
+  // Common bullet chars
+  if ([0x2022,0x2023,0x25B8,0x25BA,0x25CF,0x25C6,0x2043,0x2192].includes(c)) return true;
+  // Standard ASCII bullets: * - (with space after)
+  if ((c === 0x2A || c === 0x2D || c === 0x2013 || c === 0x2014) && s[1] === ' ') return true;
+  return false;
 }
 
 // ─── RESUME ────────────────────────────────────────────────────────────────
@@ -367,12 +388,30 @@ export default async function handler(req, res) {
       return res.status(400).json({ error:"Missing type" });
     }
 
+    // Nuclear pre-clean: strip ALL %¸ bullet artifacts from ALL text fields
+    // before any PDF building begins — belt AND suspenders approach
+    function nukeArtifacts(text) {
+      if (!text) return text;
+      return text.split("\n").map(line => {
+        const t = line.trimStart();
+        // %¸ %· or bare % at line start = bullet artifact
+        if (/^%[¸·,.\s]/.test(t) || (t.startsWith("%") && t.length > 1 && !/^%[a-zA-Z0-9]/.test(t))) {
+          return "- " + t.replace(/^%[¸·,.\s]*/, "").trim();
+        }
+        // Remove any inline %¸ %· artifacts
+        return line.replace(/%[¸·,]/g, "").replace(/^%\s*/,"");
+      }).join("\n");
+    }
+
+    const cleanText   = nukeArtifacts(optimizedText);
+    const cleanCover  = nukeArtifacts(coverLetter);
+
     const doc = new PDFDocument({ margin:50, size:"A4", autoFirstPage:true });
     const chunks = [];
     doc.on("data", chunk => chunks.push(chunk));
 
-    if      (type==="resume") buildResumePDF(doc, optimizedText, photo, candidateName);
-    else if (type==="cover")  buildCoverPDF(doc, coverLetter, candidateName);
+    if      (type==="resume") buildResumePDF(doc, cleanText, photo, candidateName);
+    else if (type==="cover")  buildCoverPDF(doc, cleanCover, candidateName);
     else if (type==="report") buildReportPDF(doc, report, candidateName);
 
     doc.end();
