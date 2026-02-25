@@ -6,9 +6,14 @@ export const config = {
 };
 
 const STOP_WORDS = new Set([
-  "and","or","the","with","for","to","of","in","on","a","an",
-  "responsible","candidate","role","ability","work","team",
-  "excellent","strong","good","skills","experience"
+  "and","or","the","with","for","to","of","in","on","a","an","is","are","was",
+  "will","be","been","have","has","this","that","you","your","we","our","their",
+  "they","it","its","by","as","at","from","about","which","who","when","where",
+  "ensure","looking","need","must","should","can","may","able","work","working",
+  "role","position","team","using","use","used","experience","company","including",
+  "strong","good","excellent","apply","responsible","candidate","ability","skills",
+  "description","job","great","well","new","best","please","would","could","also",
+  "want","require","required","preferred","ideal","minimum","years","year","plus"
 ]);
 
 function extractKeywords(text="") {
@@ -44,13 +49,17 @@ function buildPrompt(job,resume){
 }
 
 RULES:
-1. Use ONLY real candidate data - never use placeholders like [Your Name]
-2. Do NOT invent experience, skills or education
-3. optimizedText MUST start with: Line 1 = Full Name, Line 2 = email | phone | location | linkedin (all contact details on one line separated by |)
+1. Use ONLY real candidate data - NEVER use placeholders like [Your Name] or [Date]
+2. Do NOT invent experience, skills or education not present in the resume
+3. optimizedText MUST start with: Line 1 = Full Name only, Line 2 = email | phone | location | linkedin (pipe-separated)
 4. ALL CAPS section headers: SUMMARY, EXPERIENCE, EDUCATION, SKILLS
 5. Bullet points start with -
-6. Cover letter: start with candidate name & contact, then date, then Dear [Hiring Manager], body paragraphs, then Sincerely, [Name]
-7. Recruiter notes explain specific improvements made
+6. coverLetter format: ONLY include these parts in order:
+   - "Dear Hiring Manager," (salutation only, no name/contact/date before it)
+   - 3-4 body paragraphs
+   - "Sincerely," (closing word only, NOT followed by candidate name on same line)
+   DO NOT include: candidate name, contact info, [Date], or any header before Dear
+7. Recruiter notes: explain actual changes made, be specific
 
 JOB DESCRIPTION:
 ${job}
@@ -96,7 +105,14 @@ export default async function handler(req,res){
       return res.status(403).json({error:"Invalid or already used license key."});
     }
 
-    const {score,matched,missing} = calculateScore(job,resume);
+    // Sanitize resume — strip %¸ PDF extraction artifacts before scoring & AI
+    const cleanResume = resume.split("\n").map(line => {
+      if (/^\s*%[¸·,.\-•►\s]/.test(line)) return "- " + line.replace(/^\s*%[¸·,.\-•►]+\s*/, "").trim();
+      if (/^\s*[►▸◦‣⁃○●◆→]+\s/.test(line)) return "- " + line.replace(/^\s*[►▸◦‣⁃○●◆→]+\s*/, "").trim();
+      return line;
+    }).join("\n");
+
+    const {score,matched,missing} = calculateScore(job,cleanResume);
 
     let optimizedText=null, coverLetter=null, recruiterNotes=null;
 
@@ -107,7 +123,7 @@ export default async function handler(req,res){
         model:"gemini-2.5-flash-lite",
         generationConfig:{temperature:0.3,topP:0.9,topK:40}
       });
-      const result = await model.generateContent(buildPrompt(job.slice(0,4000),resume.slice(0,6000)));
+      const result = await model.generateContent(buildPrompt(job.slice(0,4000),cleanResume.slice(0,6000)));
       let raw = result.response.text().trim();
       let clean = raw.replace(/^```json/i,'').replace(/^```/,'').replace(/```$/,'').trim();
       try {
