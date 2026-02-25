@@ -806,7 +806,8 @@ function renderProContent(data) {
     const t=line.trim(); if(!t) return"";
     if(t===t.toUpperCase()&&t.length>2&&t.length<50&&!/^\d/.test(t)&&/[A-Z]/.test(t))
       return`<span class="rsec">${t}</span>`;
-    if(t.startsWith("-")||t.startsWith("•")) return`• ${t.replace(/^[-•]\s*/,"")}`;
+    const clean=t.replace(/^%[^a-zA-Z0-9]*/,"").replace(/^[-•▸]\s*/,"").trim();
+    if(t.startsWith("%")||t.startsWith("-")||t.startsWith("•")||t.startsWith("▸")) return`• ${clean}`;
     return t;
   }).join("\n");
   resumeHTML += `</div>`;
