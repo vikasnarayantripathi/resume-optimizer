@@ -845,9 +845,7 @@ function renderProContent(data) {
     document.getElementById(t+"-content").style.display="block";
   });
 
-  document.getElementById("downloadResumeBtn").onclick=downloadResume;
-  document.getElementById("downloadCoverBtn").onclick=downloadCover;
-  document.getElementById("downloadReportBtn").onclick=downloadReport;
+  // onclicks are set at page load — see bottom of script
 }
 
 function candidateName() { return (lastData?.optimizedText||"").split("\n")[0]||""; }
@@ -860,6 +858,8 @@ async function dlFile(body, name, btn) {
   // Clear any old errors
   const inlineErr = document.getElementById("err-inline");
   if(inlineErr) inlineErr.style.display = "none";
+  // Debug: log what we're sending
+  console.log("dlFile called — type:", body.type, "lastData:", !!lastData, "keys:", Object.keys(body));
   try {
     const r = await fetch("/api/download", {
       method: "POST",
@@ -902,6 +902,10 @@ function downloadReport() {
   if(!lastData) return showInlineErr("Please run analysis first.");
   dlFile({type:"report",report:{score:lastData.scoreBefore,scoreAfter:lastData.scoreAfter,impression:lastData.quickImpression,keywords:lastData.keywordsMissingTop,notes:lastData.recruiterNotes},licenseKey,candidateName:candidateName()},fileSlug()+"-ATSReport",document.getElementById("downloadReportBtn"));
 }
+// Wire download buttons permanently — never depends on isPro state
+document.getElementById("downloadResumeBtn").addEventListener("click", downloadResume);
+document.getElementById("downloadCoverBtn").addEventListener("click", downloadCover);
+document.getElementById("downloadReportBtn").addEventListener("click", downloadReport);
 </script>
 
 <!-- Mammoth.js for DOCX parsing -->
