@@ -119,13 +119,18 @@ input[type=file]{display:none}
 .right-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;padding:0 14px;gap:2px;padding-top:8px;background:var(--panel)}
 .right-tab{padding:9px 14px;border-radius:6px 6px 0 0;font-size:0.72rem;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;letter-spacing:0.3px}
 .right-tab.active{color:var(--text);border-bottom-color:var(--accent);background:var(--bg)}
-.right-content{padding:16px;display:flex;flex-direction:column}
+.right-content{padding:16px;display:flex;flex-direction:column;min-height:0}
 .right-content::-webkit-scrollbar{width:3px}
 .right-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-#report-content{display:flex;flex-direction:column;min-height:0;flex:1}
-#report-scroll-body{overflow-y:auto;flex:1;min-height:0}
+/* Score/Resume/Cover tabs: normal scroll */
+#tab-score,#tab-resume,#tab-cover{overflow-y:auto;flex:1;min-height:0}
+/* Report tab: flex column so button stays visible */
+#tab-report{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
+#report-content{display:flex;flex-direction:column;flex:1;min-height:0}
+#report-scroll-body{overflow-y:auto;flex:1;min-height:0;padding-bottom:4px}
 #report-scroll-body::-webkit-scrollbar{width:3px}
 #report-scroll-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+#report-locked{overflow-y:auto}
 
 /* EMPTY */
 .empty{text-align:center;padding:52px 20px}
@@ -218,7 +223,8 @@ input[type=file]{display:none}
 .bar-label{display:flex;justify-content:space-between;font-size:0.7rem;color:var(--muted);margin-bottom:3px;font-weight:600}
 .bar{height:6px;background:var(--bg);border-radius:20px;overflow:hidden;border:1px solid var(--border)}
 .bar-fill{height:100%;border-radius:20px;transition:width 1.4s cubic-bezier(0.34,1.56,0.64,1)}
-.note-item{display:flex;gap:8px;margin-bottom:6px;font-size:0.78rem;color:var(--muted);line-height:1.5;padding:7px 10px;background:var(--bg);border-radius:6px;border-left:2px solid var(--accent)}
+.note-item{display:flex;gap:8px;margin-bottom:5px;font-size:0.78rem;color:var(--muted);line-height:1.5;padding:6px 10px;background:var(--bg);border-radius:6px;border-left:2px solid var(--accent);align-items:flex-start}
+.note-num{color:var(--accent);font-weight:800;font-size:0.75rem;flex-shrink:0;min-width:14px}
 
 /* DOWNLOAD */
 .btn-dl{width:100%;background:var(--accent);color:white;border:none;border-radius:8px;padding:11px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;transition:all 0.2s}
@@ -576,7 +582,10 @@ function showLeft(tab) {
 // Right tabs
 function showRight(tab) {
   ["score","resume","cover","report"].forEach(t => {
-    const el = document.getElementById("tab-"+t); if(el) el.style.display = t===tab?"block":"none";
+    const el = document.getElementById("tab-"+t);
+    if(!el) return;
+    if(t !== tab) { el.style.display="none"; return; }
+    el.style.display = (t==="report") ? "flex" : "block";
   });
   document.querySelectorAll(".right-tab").forEach((t,i) => t.classList.toggle("active", ["score","resume","cover","report"][i]===tab));
 }
@@ -772,8 +781,12 @@ function renderProContent(data) {
   document.getElementById("rep-before").textContent=s+"/100";
   document.getElementById("rep-after").textContent=sa+"/100";
   setTimeout(()=>{ document.getElementById("bar-before").style.width=s+"%"; document.getElementById("bar-after").style.width=sa+"%"; },200);
-  document.getElementById("rep-impression").innerHTML=(data.quickImpression||[]).map(x=>`<div class="note-item">→ ${x}</div>`).join("");
-  document.getElementById("rep-notes").innerHTML=(data.recruiterNotes||[]).map(x=>`<div class="note-item">💡 ${x}</div>`).join("");
+  // Strip any %¸ PDF artifacts from AI text before rendering
+  function stripBulletArtifacts(str) {
+    return (str||"").replace(/^[%¸►•▸◦‣⁃○●◆→\-–]+\s*/,"").trim();
+  }
+  document.getElementById("rep-impression").innerHTML=(data.quickImpression||[]).map(x=>`<div class="note-item">→ ${stripBulletArtifacts(x)}</div>`).join("");
+  document.getElementById("rep-notes").innerHTML=(data.recruiterNotes||[]).map((x,i)=>`<div class="note-item"><span class="note-num">${i+1}.</span>${stripBulletArtifacts(x)}</div>`).join("");
 
   ["resume","cover","report"].forEach(t => {
     document.getElementById(t+"-locked").style.display="none";
