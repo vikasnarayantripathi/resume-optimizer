@@ -66,7 +66,7 @@ function addFooter(doc) {
   doc.moveTo(50, fy).lineTo(pageW - 50, fy)
      .strokeColor(BORDER).lineWidth(0.4).stroke();
   doc.fontSize(7.5).font("Helvetica").fillColor("#b0a89e")
-     .text("ATSCheckPro  \u00b7  AI Resume Service  \u00b7  Confidential",
+     .text("ATSCheckPro  \u00b7  v3  \u00b7  Confidential",
            50, fy + 5, { align: "center", width: pageW - 100 });
 }
 
