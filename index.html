@@ -890,17 +890,35 @@ async function dlFile(body, name, btn) {
   }
 }
 
+// Strip %¸ PDF artifacts from any string - runs CLIENT-SIDE before sending to download API
+function cleanPdfText(text) {
+  if (!text) return text;
+  return text.split("\n").map(line => {
+    // % at line start = PDF bullet artifact → convert to "- "
+    if (/^\s*%[\u00b8\u00b7,\.\s]/.test(line) || (line.trimStart().startsWith("%") && !line.trimStart().match(/^%[a-zA-Z0-9]/))) {
+      return "- " + line.trimStart().slice(1).replace(/^[\u00b8\u00b7,\.\s]+/, "").trim();
+    }
+    return line.replace(/%[\u00b8\u00b7,]/g, "");
+  }).join("\n");
+}
+function cleanPdfArr(arr) {
+  if (!Array.isArray(arr)) return arr;
+  return arr.map(s => (s||"").replace(/^[\s]*%[\u00b8\u00b7,\.\s]*/,"").replace(/^[\s]*[%\u00b8]+\s*/,"").trim());
+}
+
 function downloadResume() {
   if(!lastData) return showInlineErr("Please run analysis first.");
-  dlFile({type:"resume",optimizedText:lastData.optimizedText,photo:photoBase64,licenseKey,candidateName:candidateName()},fileSlug()+"-Resume",document.getElementById("downloadResumeBtn"));
+  dlFile({type:"resume",optimizedText:cleanPdfText(lastData.optimizedText),photo:photoBase64,licenseKey,candidateName:candidateName()},fileSlug()+"-Resume",document.getElementById("downloadResumeBtn"));
 }
 function downloadCover() {
   if(!lastData) return showInlineErr("Please run analysis first.");
-  dlFile({type:"cover",coverLetter:lastData.coverLetter,licenseKey,candidateName:candidateName()},fileSlug()+"-CoverLetter",document.getElementById("downloadCoverBtn"));
+  dlFile({type:"cover",coverLetter:cleanPdfText(lastData.coverLetter),licenseKey,candidateName:candidateName()},fileSlug()+"-CoverLetter",document.getElementById("downloadCoverBtn"));
 }
 function downloadReport() {
   if(!lastData) return showInlineErr("Please run analysis first.");
-  dlFile({type:"report",report:{score:lastData.scoreBefore,scoreAfter:lastData.scoreAfter,impression:lastData.quickImpression,keywords:lastData.keywordsMissingTop,notes:lastData.recruiterNotes},licenseKey,candidateName:candidateName()},fileSlug()+"-ATSReport",document.getElementById("downloadReportBtn"));
+  const cleanNotes = cleanPdfArr(lastData.recruiterNotes);
+  const cleanImpr  = cleanPdfArr(lastData.quickImpression);
+  dlFile({type:"report",report:{score:lastData.scoreBefore,scoreAfter:lastData.scoreAfter,impression:cleanImpr,keywords:lastData.keywordsMissingTop,notes:cleanNotes},licenseKey,candidateName:candidateName()},fileSlug()+"-ATSReport",document.getElementById("downloadReportBtn"));
 }
 // Wire download buttons permanently — never depends on isPro state
 document.getElementById("downloadResumeBtn").addEventListener("click", downloadResume);

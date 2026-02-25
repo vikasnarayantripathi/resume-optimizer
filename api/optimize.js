@@ -56,9 +56,20 @@ function calculateScore(job, resume) {
 function stripArtifacts(str) {
   if(!str) return str;
   return str.split("\n").map(line => {
-    if(/^\s*%[¸·,.\-•►▸*\s]/.test(line)) return "- " + line.replace(/^\s*%[¸·,.\-•►▸*]+\s*/,"").trim();
-    if(/^\s*[►▸◦‣⁃○●◆→]+\s/.test(line)) return "- " + line.replace(/^\s*[►▸◦‣⁃○●◆→]+\s*/,"").trim();
-    return line.replace(/%[¸·]/g,"");
+    const t = line.trimStart();
+    if(!t) return line;
+    const code = t.charCodeAt(0);
+    // 0x25=% 0xB8=¸  →  both are PDF bullet artifacts
+    if(code === 0x25 || code === 0xB8) {
+      const rest = t.slice(1).replace(/^[\u00b8\u00b7,.\s]+/,"").trim();
+      return "- " + rest;
+    }
+    // Common unicode bullets
+    if([0x2022,0x2023,0x25B8,0x25BA,0x25CF,0x25C6,0x2043,0x2192,0x25B6].includes(code)){
+      return "- " + t.slice(1).trimStart();
+    }
+    // Remove inline %¸ occurrences
+    return line.replace(/\u0025[\u00b8\u00b7,]/g,"").replace(/%[\u00b8\u00b7,]/g,"");
   }).join("\n");
 }
 
