@@ -1,9 +1,25 @@
 import PDFDocument from "pdfkit";
 
 export const config = {
-  api: { bodyParser: { sizeLimit: "10mb" } },
-  maxDuration: 30
+  api: {
+    bodyParser: false,   // disable built-in parser, we parse manually below
+    responseLimit: false,
+    maxDuration: 30
+  }
 };
+
+// Manually parse JSON body from raw stream — works reliably on Vercel
+function parseBody(req) {
+  return new Promise((resolve, reject) => {
+    let data = "";
+    req.on("data", chunk => { data += chunk.toString(); });
+    req.on("end", () => {
+      try { resolve(JSON.parse(data)); }
+      catch(e) { reject(new Error("Invalid JSON body")); }
+    });
+    req.on("error", reject);
+  });
+}
 
 const ACCENT  = "#16a34a";
 const ACCENT2 = "#15803d";
@@ -365,20 +381,36 @@ export default async function handler(req, res) {
   if (req.method !== "POST")
     return res.status(405).json({ error:"Method not allowed" });
   try {
-    const { type, optimizedText, coverLetter, report, photo, candidateName } = req.body;
-    if (!type) return res.status(400).json({ error:"Missing type" });
+    // Parse body manually — most reliable method on Vercel
+    const body = await parseBody(req);
+    const { type, optimizedText, coverLetter, report, photo, candidateName } = body;
+    if (!type) {
+      return res.status(400).json({ error:"Missing type" });
+    }
 
+    // IMPORTANT: Buffer PDF first, THEN send — streaming conflicts with Vercel bodyParser
     const doc = new PDFDocument({ margin:50, size:"A4", autoFirstPage:true });
-
-    res.setHeader("Content-Type", "application/pdf");
-    res.setHeader("Content-Disposition", `attachment; filename="ATSCheckPro-${type}.pdf"`);
-    doc.pipe(res);
+    const chunks = [];
+    doc.on("data", chunk => chunks.push(chunk));
 
     if      (type==="resume") buildResumePDF(doc, optimizedText, photo, candidateName);
     else if (type==="cover")  buildCoverPDF(doc, coverLetter, candidateName);
     else if (type==="report") buildReportPDF(doc, report, candidateName);
 
     doc.end();
+
+    // Wait for PDF to finish generating
+    await new Promise((resolve, reject) => {
+      doc.on("end", resolve);
+      doc.on("error", reject);
+    });
+
+    const buffer = Buffer.concat(chunks);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="ATSCheckPro-${type}.pdf"`);
+    res.setHeader("Content-Length", buffer.length);
+    res.status(200).send(buffer);
+
   } catch(e) {
     console.error("Download error:", e);
     if (!res.headersSent) res.status(500).json({ error:e.message });
