@@ -258,6 +258,25 @@ input[type=file]{display:none}
   font-family:'Sora',sans-serif;transition:all 0.2s;
 }
 .btn-dl:hover{background:var(--accent2);transform:translateY(-1px)}
+
+/* MOBILE */
+@media(max-width:768px){
+  html,body{overflow:auto}
+  .app{height:auto;min-height:100vh}
+  .main{grid-template-columns:1fr;height:auto;overflow:visible}
+  .left{height:auto;overflow:visible;border-right:none;border-bottom:1px solid var(--border)}
+  .left-content{overflow:visible;height:auto;max-height:none}
+  .right{height:auto;overflow:visible;min-height:60vh}
+  .right-content{overflow:visible;height:auto}
+  .right-tabs{overflow-x:auto;white-space:nowrap;-webkit-overflow-scrolling:touch}
+  .right-tab{padding:8px 10px;font-size:0.68rem}
+  .resume-wrap,.cover-wrap{max-height:none}
+  header{padding:0 14px}
+  .hbadge{display:none}
+  .btn-buy-top{font-size:0.72rem;padding:7px 10px}
+  .locked-feats{grid-template-columns:1fr}
+  textarea{font-size:16px}
+}
 </style>
 </head>
 <body>
