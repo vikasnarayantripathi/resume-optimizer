@@ -46,10 +46,11 @@ function buildPrompt(job,resume){
 RULES:
 1. Use ONLY real candidate data - never use placeholders like [Your Name]
 2. Do NOT invent experience, skills or education
-3. ALL CAPS section headers: SUMMARY, EXPERIENCE, EDUCATION, SKILLS
-4. Bullet points start with -
-5. Cover letter professional and tailored to job description
-6. Recruiter notes explain specific improvements made
+3. optimizedText MUST start with: Line 1 = Full Name, Line 2 = email | phone | location | linkedin (all contact details on one line separated by |)
+4. ALL CAPS section headers: SUMMARY, EXPERIENCE, EDUCATION, SKILLS
+5. Bullet points start with -
+6. Cover letter: start with candidate name & contact, then date, then Dear [Hiring Manager], body paragraphs, then Sincerely, [Name]
+7. Recruiter notes explain specific improvements made
 
 JOB DESCRIPTION:
 ${job}
