@@ -630,7 +630,6 @@ export default async function handler(req, res) {
       size: "A4",
       margin: 50,
       autoFirstPage: true,
-      bufferPages: true,
       info: { Title: "ATSCheckPro Resume", Author: "ATSCheckPro" }
     });
     const chunks = [];
@@ -648,9 +647,6 @@ export default async function handler(req, res) {
       buildReportPDF(doc, report, candidateName);
     }
 
-    // Finalize and remove trailing blank pages
-    const range = doc.bufferedPageRange();
-    const totalPages = range.count;
     doc.end();
 
     await new Promise((resolve, reject) => {
