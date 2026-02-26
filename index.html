@@ -77,7 +77,7 @@ textarea::placeholder{color:#c4b9ae}
 .file-drop p{font-size:0.78rem;color:var(--muted);line-height:1.5}
 .file-drop strong{color:var(--accent)}
 .file-drop .fd-types{font-size:0.68rem;color:#c4b9ae;margin-top:4px;font-family:'DM Mono',monospace}
-#resume-file-name{font-size:0.72rem;color:var(--accent);margin-top:6px;font-weight:600;text-align:center}
+#resume-file-name,#resume-file-name-pdf{font-size:0.72rem;color:var(--accent);margin-top:6px;font-weight:600;text-align:center}
 input[type=file]{display:none}
 
 .photo-btn{width:100%;background:var(--card);border:1.5px dashed var(--border);border-radius:8px;padding:10px;text-align:center;cursor:pointer;font-size:0.78rem;color:var(--accent);font-weight:600;transition:all 0.2s}
@@ -695,6 +695,9 @@ function switchResumeInput(type) {
 
 document.getElementById("resumeDocxFile").addEventListener("change", async e => {
   const f = e.target.files[0]; if(!f) return;
+  // Clear previous results when new file uploaded
+  lastData = null;
+  resumeFileText = "";
   document.getElementById("resume-file-name").textContent = "⏳ Reading " + f.name + "...";
   try {
     const arrayBuffer = await f.arrayBuffer();
@@ -708,6 +711,9 @@ document.getElementById("resumeDocxFile").addEventListener("change", async e => 
 
 document.getElementById("resumePdfFile").addEventListener("change", async e => {
   const f = e.target.files[0]; if(!f) return;
+  // Clear previous results when new file uploaded
+  lastData = null;
+  resumeFileText = "";
   document.getElementById("resume-file-name-pdf").textContent = "⏳ Reading " + f.name + "...";
   try {
     const arrayBuffer = await f.arrayBuffer();
