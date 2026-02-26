@@ -26,23 +26,34 @@ const DARK    = "#1c1917";
 
 function nukeArtifacts(text) {
   if (!text) return text;
-  return text.split("\n").map(line => {
-    const t = line.trimStart();
-    if (!t) return line;
-    const code = t.charCodeAt(0);
-    if (code === 0x25) return "- " + t.slice(1).replace(/^[\u00b8\u00b7,.\s]+/, "").trim();
-    if (code === 0x00B8) return "- " + t.slice(1).trimStart();
-    if ([0x2022,0x2023,0x25B8,0x25BA,0x25CF,0x25C6,0x2043,0x2192,0x25B6].includes(code)) return "- " + t.slice(1).trimStart();
-    return line.replace(/%[\u00b8\u00b7,]/g, "");
-  }).join("\n");
+  // First pass: replace ALL unicode bullets/symbols with "- "
+  let cleaned = text
+    .replace(/[%\u00b8\u00b7]\s*/g, "- ")
+    .replace(/[\u2022\u2023\u25b8\u25ba\u25cf\u25c6\u2043\u2192\u25b6\u2713\u2714\u2715\u2716\u2717\u2718\u2726\u2727\u272a\u2730\u2736\u2739\u273f\u2740\u25aa\u25ab\u25ac\u25ad\u25ae\u25af\u25b2\u25b3\u25b4\u25b5\u25bc\u25bd\u25be\u25bf\u25c0\u25c1\u25c2\u25c3\u25c4\u25c5]\s*/gi, "- ")
+    .replace(/[\u2018\u2019\u201a\u201b]/g, "'")
+    .replace(/[\u201c\u201d\u201e\u201f]/g, '"')
+    .replace(/[\u2013\u2014]/g, "-")
+    .replace(/[\u00a0]/g, " ")
+    .replace(/[^\x00-\x7F]/g, (ch) => {
+      // Keep common accented chars for names
+      const code = ch.charCodeAt(0);
+      if (code >= 0xC0 && code <= 0xFF) return ch;
+      return "";
+    });
+  return cleaned;
 }
 
 function nukeItem(str) {
   if (!str) return str;
   let s = str.trim();
-  s = s.replace(/^[\s]*%[\u00b8\u00b7,.\s]+/, "");
-  s = s.replace(/^[\s]*[%\u00b8\u25BA\u2022\u25B8\u25CF\u25C6\u2043\u2192\u25B6\-\u2013]+\s+/, "");
-  s = s.replace(/%[\u00b8\u00b7,]/g, "");
+  s = s.replace(/^[\s\-\*\u2022\u25ba\u25b8\u2192\u2713%\u00b8]+\s*/, "");
+  s = s.replace(/[%\u00b8\u00b7]/g, "");
+  // Remove remaining non-ASCII except accented chars
+  s = s.replace(/[^\x00-\x7F]/g, (ch) => {
+    const code = ch.charCodeAt(0);
+    if (code >= 0xC0 && code <= 0xFF) return ch;
+    return "";
+  });
   return s.trim();
 }
 
@@ -101,8 +112,8 @@ function buildClassicResumePDF(doc, optimizedText, photo, candidateName, profess
   }
   const body = lines.slice(bodyStart);
 
-  doc.rect(0, 0, pageW, 5).fill(ACCENT);
-  const hasPhoto = !!photo;
+  doc.rect(0, 0, pageW, 5).fillColor(ACCENT).fill();
+  doc.fillColor(TEXT);
   const nameW = hasPhoto ? W - 88 : W;
   const phX = pageW - M - 70, phY = 18;
 
@@ -205,8 +216,9 @@ function buildModernResumePDF(doc, optimizedText, photo, candidateName, professi
   }
   const body = lines.slice(bodyStart);
 
-  // ── Header: green accent bar + name ──
-  doc.rect(0, 0, pageW, 4).fill(ACCENT);
+  // ── Header: white background + green accent bar ──
+  doc.rect(0, 0, pageW, 4).fillColor(ACCENT).fill();
+  doc.fillColor(TEXT); // reset to dark text color
 
   const hasPhoto = !!photo;
   const nameW = hasPhoto ? W - 80 : W;
@@ -588,7 +600,12 @@ export default async function handler(req, res) {
     const cleanedText  = nukeArtifacts(optimizedText);
     const cleanedCover = nukeArtifacts(coverLetter);
 
-    const doc = new PDFDocument({ margin: 50, size: "A4", autoFirstPage: true });
+    const doc = new PDFDocument({ 
+      margin: 50, 
+      size: "A4", 
+      autoFirstPage: true,
+      bufferPages: true
+    });
     const chunks = [];
     doc.on("data", chunk => chunks.push(chunk));
 
@@ -603,6 +620,16 @@ export default async function handler(req, res) {
     } else if (type === "report") {
       buildReportPDF(doc, report, candidateName);
     }
+
+    // Remove any trailing blank pages
+    const range = doc.bufferedPageRange();
+    for (let i = range.start; i < range.start + range.count; i++) {
+      doc.switchToPage(i);
+      if (doc.y < 100 && i > range.start) {
+        // blank page — don't finalize it
+      }
+    }
+    doc.flushPages();
 
     doc.end();
     await new Promise((resolve, reject) => {
