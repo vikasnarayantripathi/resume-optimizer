@@ -711,21 +711,24 @@ document.getElementById("resumePdfFile").addEventListener("change", async e => {
   document.getElementById("resume-file-name-pdf").textContent = "⏳ Reading " + f.name + "...";
   try {
     const arrayBuffer = await f.arrayBuffer();
-    const uint8 = new Uint8Array(arrayBuffer);
-    let text = new TextDecoder("utf-8", { fatal: false }).decode(uint8);
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
     let extracted = "";
-    const btMatches = text.match(/BT[\s\S]*?ET/g) || [];
-    for (const block of btMatches) {
-      const strings = block.match(/\(([^)]+)\)/g) || [];
-      extracted += strings.map(s => s.slice(1,-1)).join(" ") + " ";
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const pageText = content.items.map(item => item.str).join(" ");
+      extracted += pageText + "\n";
     }
-    if (extracted.trim().length < 50) {
-      extracted = text.replace(/[^\x20-\x7E\n]/g, " ").replace(/\s+/g, " ").trim();
+    resumeFileText = extracted.trim().slice(0, 8000);
+    const wordCount = resumeFileText.split(/\s+/).length;
+    if (wordCount < 20) {
+      document.getElementById("resume-file-name-pdf").textContent = "⚠ Could not extract text. Please try copy-paste.";
+    } else {
+      document.getElementById("resume-file-name-pdf").textContent = "✓ " + f.name + " — " + wordCount + " words extracted";
     }
-    resumeFileText = extracted.slice(0, 8000);
-    document.getElementById("resume-file-name-pdf").textContent = "✓ " + f.name + " — text extracted";
   } catch(err) {
-    document.getElementById("resume-file-name-pdf").textContent = "⚠ PDF extraction limited. Try copy-paste for best results.";
+    document.getElementById("resume-file-name-pdf").textContent = "⚠ PDF extraction failed. Please try copy-paste.";
+    console.error("PDF error:", err);
   }
 });
 
@@ -1035,5 +1038,7 @@ detectCountry();
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
 </body>
 </html>
