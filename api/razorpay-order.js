@@ -1,33 +1,29 @@
-const Razorpay = require("razorpay");
-
-const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
-});
-
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
   const { country, finalPrice } = req.body;
-
   const isIndia = country === "IN";
 
-  // Use passed finalPrice (after coupon) or default price
   let amount, currency;
-
   if (isIndia) {
     currency = "INR";
     const price = finalPrice || 399;
-    amount = Math.round(price * 100); // paise
+    amount = Math.round(price * 100);
   } else {
     currency = "USD";
     const price = finalPrice || 8.90;
-    amount = Math.round(price * 100); // cents
+    amount = Math.round(price * 100);
   }
 
   try {
+    const Razorpay = (await import("razorpay")).default;
+    const razorpay = new Razorpay({
+      key_id: process.env.RAZORPAY_KEY_ID,
+      key_secret: process.env.RAZORPAY_KEY_SECRET,
+    });
+
     const order = await razorpay.orders.create({
       amount,
       currency,
