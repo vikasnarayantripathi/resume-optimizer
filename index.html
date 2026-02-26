@@ -133,6 +133,7 @@ input[type=file]{display:none}
 #tab-score,#tab-resume,#tab-cover{overflow-y:auto;flex:1;min-height:0}
 #tab-report{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
 #report-content{display:flex;flex-direction:column;flex:1;min-height:0}
+#report-locked{overflow-y:auto;flex:1;min-height:0}
 #report-scroll-body{overflow-y:auto;flex:1;min-height:0;padding-bottom:4px}
 #report-scroll-body::-webkit-scrollbar{width:3px}
 #report-scroll-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
@@ -1206,7 +1207,26 @@ function downloadCover() {
 }
 function downloadReport() {
   if(!lastData) return showInlineErr("Please run analysis first.");
-  dlFile({type:"report",report:{score:lastData.scoreBefore,scoreAfter:lastData.scoreAfter,impression:cleanPdfArr(lastData.quickImpression),keywords:lastData.keywordsMissingTop,notes:cleanPdfArr(lastData.recruiterNotes)},licenseKey,candidateName:candidateName()},fileSlug()+"-ATSReport",document.getElementById("downloadReportBtn"));
+  dlFile({
+    type:"report",
+    report:{
+      score:lastData.scoreBefore,
+      scoreAfter:lastData.scoreAfter,
+      impression:cleanPdfArr(lastData.quickImpression),
+      keywords:lastData.keywordsMissingTop,
+      notes:cleanPdfArr(lastData.recruiterNotes),
+      quickWins:cleanPdfArr(lastData.quickWins),
+      redFlags:cleanPdfArr(lastData.redFlags),
+      coreCompetencies:lastData.coreCompetencies,
+      salaryImpactKeywords:lastData.salaryImpactKeywords,
+      interviewProbability:lastData.interviewProbability,
+      jobFitScore:lastData.jobFitScore,
+      seniorityAlignment:lastData.seniorityAlignment,
+      industryBenchmark:lastData.industryBenchmark
+    },
+    licenseKey,
+    candidateName:candidateName()
+  },fileSlug()+"-ATSReport",document.getElementById("downloadReportBtn"));
 }
 
 document.getElementById("downloadResumeBtn").addEventListener("click", downloadResume);
