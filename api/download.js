@@ -112,8 +112,10 @@ function buildClassicResumePDF(doc, optimizedText, photo, candidateName, profess
   }
   const body = lines.slice(bodyStart);
 
-  doc.rect(0, 0, pageW, 5).fillColor(ACCENT).fill();
-  doc.fillColor(TEXT);
+  doc.save();
+  doc.rect(0, 0, pageW, 5).fill(ACCENT);
+  doc.restore();
+  const hasPhoto = !!(photo && photo.length > 10);
   const nameW = hasPhoto ? W - 88 : W;
   const phX = pageW - M - 70, phY = 18;
 
@@ -216,11 +218,12 @@ function buildModernResumePDF(doc, optimizedText, photo, candidateName, professi
   }
   const body = lines.slice(bodyStart);
 
-  // ── Header: white background + green accent bar ──
-  doc.rect(0, 0, pageW, 4).fillColor(ACCENT).fill();
-  doc.fillColor(TEXT); // reset to dark text color
+  // ── Header: green top bar only ──
+  doc.save();
+  doc.rect(0, 0, pageW, 5).fill(ACCENT);
+  doc.restore();
 
-  const hasPhoto = !!photo;
+  const hasPhoto = !!(photo && photo.length > 10);
   const nameW = hasPhoto ? W - 80 : W;
   const phX = pageW - M - 62, phY = 14;
 
@@ -495,7 +498,7 @@ function buildReportPDF(doc, report, candidateName) {
 
   // Quick Wins
   if (report?.quickWins?.length) {
-    sec("⚡ QUICK WINS — FIX THESE FIRST");
+    sec(">> QUICK WINS - FIX THESE FIRST");
     for (const item of report.quickWins) {
       safeY(doc, 20);
       const iy = doc.y;
@@ -503,15 +506,14 @@ function buildReportPDF(doc, report, candidateName) {
       if (!txt) continue;
       doc.rect(M, iy, W, 18).fill("#f0fdf4");
       doc.rect(M, iy, 3, 18).fill(ACCENT);
-      doc.fontSize(9).font("Helvetica-Bold").fillColor(ACCENT).text("⚡", M+6, iy+4);
-      doc.fontSize(9.5).font("Helvetica").fillColor(TEXT).text(txt, M+20, iy+4, { width:W-24, lineGap:2 });
+      doc.fontSize(9.5).font("Helvetica").fillColor(TEXT).text("+ " + txt, M+8, iy+4, { width:W-14, lineGap:2 });
       doc.y = iy + 22;
     }
   }
 
   // Red Flags
   if (report?.redFlags?.length) {
-    sec("🚩 RED FLAGS FOUND");
+    sec("RED FLAGS FOUND");
     for (const item of report.redFlags) {
       safeY(doc, 20);
       const iy = doc.y;
@@ -519,7 +521,7 @@ function buildReportPDF(doc, report, candidateName) {
       if (!txt) continue;
       doc.rect(M, iy, W, 18).fill("#fef2f2");
       doc.rect(M, iy, 3, 18).fill("#dc2626");
-      doc.fontSize(9.5).font("Helvetica").fillColor("#991b1b").text(txt, M+10, iy+4, { width:W-14, lineGap:2 });
+      doc.fontSize(9.5).font("Helvetica").fillColor("#991b1b").text("! " + txt, M+8, iy+4, { width:W-14, lineGap:2 });
       doc.y = iy + 22;
     }
   }
@@ -532,8 +534,8 @@ function buildReportPDF(doc, report, candidateName) {
       const tw = doc.widthOfString(skill, { fontSize:8 }) + 14;
       if (kx + tw > pageW - M) { kx = M+4; ky += 18; }
       if (ky + 14 > doc.page.height - 60) { doc.addPage(); ky = 50; kx = M+4; }
-      doc.rect(kx, ky, tw, 14).fill(DARK);
-      doc.fontSize(8).font("Helvetica-Bold").fillColor("#f5f2ee").text(skill, kx+7, ky+3);
+      doc.rect(kx, ky, tw, 14).fill(ACCENT2);
+      doc.fontSize(8).font("Helvetica-Bold").fillColor("#ffffff").text(skill, kx+7, ky+3);
       kx += tw+5;
     }
     doc.y = ky + 22;
@@ -541,14 +543,14 @@ function buildReportPDF(doc, report, candidateName) {
 
   // Salary Impact Keywords
   if (report?.salaryImpactKeywords?.length) {
-    sec("💰 SALARY-IMPACT KEYWORDS TO ADD");
+    sec("SALARY-IMPACT KEYWORDS TO ADD");
     let kx = M+4, ky = doc.y;
     for (const kw of report.salaryImpactKeywords) {
       const tw = doc.widthOfString(kw, { fontSize:8 }) + 14;
       if (kx + tw > pageW - M) { kx = M+4; ky += 18; }
       doc.rect(kx, ky, tw, 14).fill("#fffbeb");
       doc.rect(kx, ky, tw, 14).stroke("#fde68a").lineWidth(0.5);
-      doc.fontSize(8).font("Helvetica-Bold").fillColor("#92400e").text("💰 " + kw, kx+7, ky+3);
+      doc.fontSize(8).font("Helvetica-Bold").fillColor("#92400e").text("$ " + kw, kx+7, ky+3);
       kx += tw+5;
     }
     doc.y = ky + 22;
@@ -556,7 +558,7 @@ function buildReportPDF(doc, report, candidateName) {
 
   // Missing Keywords
   if (cleanKW.length) {
-    sec("MISSING KEYWORDS — ADD TO YOUR RESUME");
+    sec("MISSING KEYWORDS - ADD TO YOUR RESUME");
     let kx = M+4, ky = doc.y;
     for (const kw of cleanKW) {
       const tw = doc.widthOfString(kw, { fontSize:8 }) + 14;
