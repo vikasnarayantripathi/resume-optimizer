@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ATSCheckPro — ATS Resume Optimizer</title>
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&display=swap');
 :root{
@@ -17,7 +18,6 @@
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;font-family:'Sora',sans-serif;background:var(--bg);color:var(--text)}
 
-/* DESKTOP: fixed frame */
 @media(min-width:769px){
   html,body{overflow:hidden}
   .app{display:flex;flex-direction:column;height:100vh}
@@ -28,7 +28,6 @@ html,body{height:100%;font-family:'Sora',sans-serif;background:var(--bg);color:v
   .right-content{flex:1;overflow-y:auto}
 }
 
-/* MOBILE: scrollable */
 @media(max-width:768px){
   body{overflow-y:auto}
   .app{display:flex;flex-direction:column;min-height:100vh}
@@ -46,7 +45,6 @@ html,body{height:100%;font-family:'Sora',sans-serif;background:var(--bg);color:v
   .resume-input-tabs{flex-wrap:wrap}
 }
 
-/* HEADER */
 header{height:54px;background:var(--tag);padding:0 20px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
 .logo{font-size:1.1rem;font-weight:800;color:#f5f2ee;letter-spacing:-0.5px;display:flex;align-items:center;gap:8px}
 .logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px rgba(22,163,74,0.7);animation:pulse 2s infinite}
@@ -55,7 +53,6 @@ header{height:54px;background:var(--tag);padding:0 20px;display:flex;align-items
 .hbadge{background:#2c2927;color:#a8a29e;border:1px solid #3c3633;border-radius:4px;padding:4px 10px;font-size:0.7rem;font-weight:600;letter-spacing:0.5px;font-family:'DM Mono',monospace}
 .btn-buy-top{background:var(--accent);color:white;border:none;border-radius:6px;padding:8px 16px;font-size:0.78rem;font-weight:700;cursor:pointer;text-decoration:none;font-family:'Sora',sans-serif}
 
-/* LEFT */
 .left{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column}
 .left-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--bg)}
 .left-tab{flex:1;padding:10px 8px;text-align:center;font-size:0.72rem;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;letter-spacing:0.3px}
@@ -64,19 +61,16 @@ header{height:54px;background:var(--tag);padding:0 20px;display:flex;align-items
 .left-content::-webkit-scrollbar{width:3px}
 .left-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
-/* INPUTS */
 .lbl{font-size:0.68rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px;display:block}
 textarea{width:100%;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:10px 12px;font-size:0.82rem;font-family:'Sora',sans-serif;resize:none;outline:none;line-height:1.6;color:var(--text);transition:all 0.2s}
 textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(22,163,74,0.08)}
 textarea::placeholder{color:#c4b9ae}
 .input-gap{margin-bottom:12px}
 
-/* RESUME INPUT TABS */
 .resume-input-tabs{display:flex;gap:4px;margin-bottom:8px}
 .rit{padding:5px 10px;border-radius:5px;font-size:0.68rem;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--card);color:var(--muted);transition:all 0.2s;font-family:'Sora',sans-serif}
 .rit.active{background:var(--accent);color:white;border-color:var(--accent)}
 
-/* FILE UPLOAD */
 .file-drop{width:100%;background:var(--card);border:1.5px dashed var(--border);border-radius:8px;padding:18px;text-align:center;cursor:pointer;transition:all 0.2s}
 .file-drop:hover{border-color:var(--accent);background:var(--accent-bg)}
 .file-drop .fd-icon{font-size:1.5rem;margin-bottom:6px}
@@ -93,17 +87,32 @@ input[type=file]{display:none}
 .btn-analyze{width:100%;background:var(--tag);color:#f5f2ee;border:none;border-radius:8px;padding:13px;font-size:0.9rem;font-weight:700;cursor:pointer;margin-top:10px;font-family:'Sora',sans-serif;transition:all 0.2s;position:relative;overflow:hidden}
 .btn-analyze:hover{background:#2c2927;transform:translateY(-1px);box-shadow:0 6px 20px rgba(28,25,23,0.2)}
 .btn-analyze:disabled{opacity:0.5;cursor:not-allowed;transform:none}
-.err{background:var(--red-bg);border:1px solid #fca5a5;color:var(--red);border-radius:7px;padding:8px 12px;font-size:0.78rem;margin-top:8px;display:none}
 
 /* UNLOCK TAB */
 .buy-box{background:var(--tag);border-radius:12px;padding:18px;margin-bottom:14px;color:#f5f2ee;position:relative;overflow:hidden}
 .buy-box::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:rgba(22,163,74,0.12)}
-.buy-box .price{font-size:2rem;font-weight:800;margin-bottom:4px;display:flex;align-items:baseline;gap:4px}
-.buy-box .price span{font-size:0.85rem;color:#a8a29e}
+.price-row{display:flex;align-items:baseline;gap:10px;margin-bottom:2px}
+.price-now{font-size:2rem;font-weight:800;color:#f5f2ee}
+.price-was{font-size:0.9rem;color:#57534e;text-decoration:line-through}
+.deal-tag{display:inline-block;background:var(--accent);color:white;font-size:0.62rem;font-weight:800;padding:2px 8px;border-radius:4px;margin-bottom:10px;letter-spacing:0.5px}
 .buy-box p{font-size:0.76rem;color:#a8a29e;margin-bottom:12px;line-height:1.5}
-.btn-buy{display:block;background:var(--accent);color:white;border:none;border-radius:8px;padding:10px;font-size:0.85rem;font-weight:700;cursor:pointer;text-decoration:none;text-align:center;margin-bottom:10px;font-family:'Sora',sans-serif}
+.btn-buy{display:block;width:100%;background:var(--accent);color:white;border:none;border-radius:8px;padding:11px;font-size:0.87rem;font-weight:700;cursor:pointer;text-align:center;margin-bottom:10px;font-family:'Sora',sans-serif;transition:all 0.2s}
+.btn-buy:hover{background:var(--accent2)}
 .pro-feat{font-size:0.72rem;color:#a8a29e;padding:2px 0;display:flex;gap:6px}
 .pro-feat span{color:var(--accent)}
+
+/* COUPON */
+.coupon-box{margin-top:14px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:8px;padding:12px}
+.coupon-box label{font-size:0.68rem;color:#a8a29e;font-weight:600;display:block;margin-bottom:7px}
+.coupon-row{display:flex;gap:6px}
+.coupon-row input{flex:1;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);border-radius:6px;padding:7px 10px;font-size:0.8rem;font-family:'DM Mono',monospace;color:#f5f2ee;outline:none;text-transform:uppercase}
+.coupon-row input::placeholder{color:#44403c;text-transform:none}
+.btn-coupon{background:transparent;border:1px solid rgba(255,255,255,0.2);color:#f5f2ee;border-radius:6px;padding:7px 14px;font-size:0.73rem;font-weight:700;cursor:pointer;white-space:nowrap;font-family:'Sora',sans-serif;transition:all 0.2s}
+.btn-coupon:hover{background:rgba(255,255,255,0.1)}
+.coupon-msg{font-size:0.71rem;margin-top:6px;font-weight:600;display:none}
+.coupon-ok{color:#4ade80}
+.coupon-err{color:#f87171}
+
 .key-box{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px}
 .key-box p{font-size:0.75rem;color:var(--muted);margin-bottom:10px;line-height:1.5}
 .key-row{display:flex;gap:6px}
@@ -114,7 +123,6 @@ input[type=file]{display:none}
 .key-msg{font-size:0.72rem;margin-top:6px;display:none;font-weight:600}
 .key-err{color:var(--red)}.key-ok{color:var(--accent)}
 
-/* RIGHT */
 .right{display:flex;flex-direction:column;background:var(--bg)}
 .right-tabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0;padding:0 14px;gap:2px;padding-top:8px;background:var(--panel)}
 .right-tab{padding:9px 14px;border-radius:6px 6px 0 0;font-size:0.72rem;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all 0.2s;letter-spacing:0.3px}
@@ -122,17 +130,13 @@ input[type=file]{display:none}
 .right-content{padding:16px;display:flex;flex-direction:column;min-height:0}
 .right-content::-webkit-scrollbar{width:3px}
 .right-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-/* Score/Resume/Cover tabs: normal scroll */
 #tab-score,#tab-resume,#tab-cover{overflow-y:auto;flex:1;min-height:0}
-/* Report tab: flex column so button stays visible */
 #tab-report{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
 #report-content{display:flex;flex-direction:column;flex:1;min-height:0}
 #report-scroll-body{overflow-y:auto;flex:1;min-height:0;padding-bottom:4px}
 #report-scroll-body::-webkit-scrollbar{width:3px}
 #report-scroll-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-#report-locked{overflow-y:auto}
 
-/* EMPTY */
 .empty{text-align:center;padding:52px 20px}
 .empty-icon{width:64px;height:64px;border-radius:16px;background:var(--card);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin:0 auto 14px;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
 .empty h3{font-size:0.95rem;font-weight:700;margin-bottom:8px}
@@ -142,7 +146,6 @@ input[type=file]{display:none}
 .hint-text strong{font-size:0.73rem;font-weight:700;display:block}
 .hint-text span{font-size:0.7rem;color:var(--muted)}
 
-/* LOADING */
 #loading{display:none;text-align:center;padding:52px 20px}
 .progress-ring-wrap{position:relative;width:72px;height:72px;margin:0 auto}
 #loading p{color:var(--muted);font-size:0.82rem;font-weight:600}
@@ -154,7 +157,6 @@ input[type=file]{display:none}
 .lstep.active{color:var(--text);font-weight:700;background:var(--accent-bg);border:1px solid var(--accent-border)}
 .lstep.active::before{content:'●';color:var(--accent)}
 
-/* SCORE */
 .score-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:14px;box-shadow:0 2px 6px rgba(0,0,0,0.04)}
 .score-ring{position:relative;width:76px;height:76px;flex-shrink:0}
 .score-ring svg{transform:rotate(-90deg)}
@@ -170,7 +172,6 @@ input[type=file]{display:none}
 .anum{font-size:1.05rem;font-weight:800;color:var(--accent)}
 .albl{font-size:0.58rem;color:var(--accent);font-weight:600;margin-top:1px}
 
-/* KEYWORDS */
 .kw-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,0.03)}
 .kw-head{display:flex;align-items:center;gap:6px;margin-bottom:8px}
 .kw-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
@@ -181,7 +182,6 @@ input[type=file]{display:none}
 .chip-found{background:var(--accent-bg);color:#15803d;border:1px solid var(--accent-border)}
 .chip-missing{background:var(--red-bg);color:#991b1b;border:1px solid #fca5a5}
 
-/* LOCKED */
 .locked-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
 .locked-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
 .locked-icon{width:42px;height:42px;border-radius:10px;background:var(--tag);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
@@ -190,17 +190,16 @@ input[type=file]{display:none}
 .price-badge{display:inline-flex;align-items:center;gap:6px;background:var(--gold-bg);border:1px solid #fde68a;border-radius:6px;padding:5px 10px;margin-bottom:12px}
 .price-badge .p{font-size:1rem;font-weight:800;color:var(--gold)}
 .price-badge .d{font-size:0.7rem;color:#92400e}
-.btn-unlock-pro{display:block;background:var(--tag);color:#f5f2ee;border:none;border-radius:8px;padding:10px;font-size:0.83rem;font-weight:700;cursor:pointer;text-decoration:none;text-align:center;margin-bottom:10px;font-family:'Sora',sans-serif}
+.btn-unlock-pro{display:block;width:100%;background:var(--tag);color:#f5f2ee;border:none;border-radius:8px;padding:10px;font-size:0.83rem;font-weight:700;cursor:pointer;text-align:center;margin-bottom:10px;font-family:'Sora',sans-serif;transition:all 0.2s}
+.btn-unlock-pro:hover{background:#2c2927}
 .locked-feats{display:grid;grid-template-columns:1fr 1fr;gap:5px}
 .lfeat{font-size:0.7rem;color:var(--muted);display:flex;gap:4px}
 .lfeat span{color:var(--accent)}
 
-/* CANDIDATE NAME BADGE */
 .candidate-badge{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:8px;padding:8px 12px;margin-bottom:10px}
 .candidate-badge .cname{font-size:0.82rem;font-weight:700}
 .candidate-badge .csub{font-size:0.7rem;color:var(--muted)}
 
-/* RESUME DISPLAY */
 .resume-wrap{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;margin-bottom:10px;max-height:calc(100vh - 290px);overflow-y:auto;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
 .rname{font-size:1.1rem;font-weight:800;margin-bottom:3px}
 .rcontact{font-size:0.75rem;color:var(--muted);padding-bottom:10px;margin-bottom:10px;border-bottom:2px solid var(--accent)}
@@ -208,7 +207,6 @@ input[type=file]{display:none}
 .rbody{font-family:Georgia,serif;font-size:0.82rem;line-height:1.75;color:#374151;white-space:pre-wrap}
 .rsec{color:var(--accent) !important;font-family:'Sora',sans-serif !important;font-weight:700 !important;font-size:0.65rem !important;letter-spacing:2px;display:block;margin-top:12px;padding-top:8px;border-top:1px solid var(--border)}
 
-/* COVER DISPLAY */
 .cover-wrap{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:20px 28px;margin-bottom:10px;max-height:calc(100vh - 290px);overflow-y:auto;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
 .cover-date{font-size:0.78rem;color:var(--muted);text-align:right;margin-bottom:16px}
 .cover-salutation{font-size:0.9rem;font-weight:700;margin-bottom:14px}
@@ -216,7 +214,6 @@ input[type=file]{display:none}
 .cover-closing{font-size:0.88rem;margin-top:16px}
 .cover-sig{margin-top:24px;border-top:1px solid var(--border);padding-top:8px;font-size:0.82rem;color:var(--muted)}
 
-/* REPORT DISPLAY */
 .rep-section{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;box-shadow:0 1px 4px rgba(0,0,0,0.03)}
 .rep-section h4{font-size:0.65rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1.5px;margin-bottom:10px}
 .bar-row{margin-bottom:8px}
@@ -226,7 +223,6 @@ input[type=file]{display:none}
 .note-item{display:flex;gap:8px;margin-bottom:5px;font-size:0.78rem;color:var(--muted);line-height:1.5;padding:6px 10px;background:var(--bg);border-radius:6px;border-left:2px solid var(--accent);align-items:flex-start}
 .note-num{color:var(--accent);font-weight:800;font-size:0.75rem;flex-shrink:0;min-width:14px}
 
-/* DOWNLOAD */
 .btn-dl{width:100%;background:var(--accent);color:white;border:none;border-radius:8px;padding:11px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;transition:all 0.2s}
 .btn-dl:hover{background:var(--accent2);transform:translateY(-1px)}
 </style>
@@ -238,7 +234,7 @@ input[type=file]{display:none}
   <div class="logo"><div class="logo-dot"></div>ATSCheckPro</div>
   <div class="header-right">
     <div class="hbadge">FREE SCORE ↗</div>
-    <a href="https://quimztech.gumroad.com/l/cxinw" target="_blank" class="btn-buy-top">Buy Full Access — $10.99</a>
+    <button onclick="startRazorpay()" class="btn-buy-top" id="header-buy-btn">Buy Full Access</button>
   </div>
 </header>
 
@@ -251,13 +247,11 @@ input[type=file]{display:none}
     </div>
 
     <div class="left-content" id="left-input">
-      <!-- JOB DESCRIPTION -->
       <div class="input-gap">
         <label class="lbl">Job Description</label>
         <textarea id="job" rows="5" placeholder="Paste the full job description..."></textarea>
       </div>
 
-      <!-- RESUME - 3 input types -->
       <div class="input-gap">
         <label class="lbl">Your Resume</label>
         <div class="resume-input-tabs">
@@ -265,11 +259,9 @@ input[type=file]{display:none}
           <div class="rit" onclick="switchResumeInput('docx')">📄 DOCX</div>
           <div class="rit" onclick="switchResumeInput('pdf')">📑 PDF</div>
         </div>
-        <!-- Text input -->
         <div id="resume-text-input">
           <textarea id="resume" rows="6" placeholder="Paste your resume text here..."></textarea>
         </div>
-        <!-- DOCX upload -->
         <div id="resume-docx-input" style="display:none">
           <div class="file-drop" onclick="document.getElementById('resumeDocxFile').click()">
             <div class="fd-icon">📄</div>
@@ -279,7 +271,6 @@ input[type=file]{display:none}
           <div id="resume-file-name"></div>
           <input type="file" id="resumeDocxFile" accept=".docx,.doc">
         </div>
-        <!-- PDF upload -->
         <div id="resume-pdf-input" style="display:none">
           <div class="file-drop" onclick="document.getElementById('resumePdfFile').click()">
             <div class="fd-icon">📑</div>
@@ -291,7 +282,6 @@ input[type=file]{display:none}
         </div>
       </div>
 
-      <!-- PHOTO -->
       <div class="input-gap">
         <label class="lbl">Photo — Optional</label>
         <div class="photo-btn" onclick="document.getElementById('photoInput').click()">+ Upload Candidate Photo</div>
@@ -303,11 +293,16 @@ input[type=file]{display:none}
       <div id="err-inline" style="display:none;margin-top:8px;background:#fef2f2;border:1px solid #fca5a5;border-radius:7px;padding:8px 12px;font-size:0.76rem;color:#dc2626;font-weight:600;line-height:1.5"></div>
     </div>
 
+    <!-- UNLOCK TAB -->
     <div class="left-content" id="left-unlock" style="display:none">
       <div class="buy-box">
-        <div class="price">$10.99 <span>one-time</span></div>
+        <div class="price-row">
+          <div class="price-now" id="unlock-price-now">—</div>
+          <div class="price-was" id="unlock-price-was">—</div>
+        </div>
+        <div class="deal-tag" id="unlock-deal-tag">🔥 LIMITED TIME DEAL</div>
         <p>Optimized resume, cover letter & full ATS report — all as professional PDFs.</p>
-        <a href="https://quimztech.gumroad.com/l/cxinw" target="_blank" class="btn-buy">Buy on Gumroad →</a>
+        <button onclick="startRazorpay()" class="btn-buy" id="unlock-buy-btn">Buy Now — Instant Access →</button>
         <div style="display:flex;flex-direction:column;gap:4px;margin-top:8px">
           <div class="pro-feat"><span>✓</span> AI-optimized resume with keywords</div>
           <div class="pro-feat"><span>✓</span> Tailored cover letter</div>
@@ -315,11 +310,21 @@ input[type=file]{display:none}
           <div class="pro-feat"><span>✓</span> 3 professional PDF downloads</div>
           <div class="pro-feat"><span>✓</span> Money-back guarantee</div>
         </div>
+        <!-- COUPON BOX -->
+        <div class="coupon-box">
+          <label>🎟 Have a promo code from an influencer?</label>
+          <div class="coupon-row">
+            <input type="text" id="coupon-input" placeholder="e.g. TECHGURU20"/>
+            <button class="btn-coupon" id="coupon-btn" onclick="applyCoupon()">Apply</button>
+          </div>
+          <div id="coupon-msg" class="coupon-msg"></div>
+        </div>
       </div>
+
       <div class="key-box">
-        <p>Already purchased? Paste your license key from Gumroad email:</p>
+        <p>Already purchased? Paste your license key from email:</p>
         <div class="key-row">
-          <input type="text" id="license-key" placeholder="XXXX-XXXX-XXXX"/>
+          <input type="text" id="license-key" placeholder="ATSPRO-XXXX..."/>
           <button class="btn-unlock" id="unlock-btn">Unlock</button>
         </div>
         <div id="key-msg" class="key-msg"></div>
@@ -337,7 +342,6 @@ input[type=file]{display:none}
     </div>
     <div class="right-content">
 
-      <!-- Error shown in results area, not left panel -->
       <div id="error-state" style="display:none">
         <div style="text-align:center;padding:48px 20px">
           <div style="width:56px;height:56px;background:#fef2f2;border:1px solid #fca5a5;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin:0 auto 14px">⚠️</div>
@@ -368,7 +372,7 @@ input[type=file]{display:none}
           <div class="lstep" id="ls2">Identifying keyword gaps</div>
           <div class="lstep" id="ls3">Calculating ATS match score</div>
           <div class="lstep" id="ls4">AI optimizing resume content</div>
-          <div class="lstep" id="ls5">Generating cover letter</div>
+          <div class="lstep" id="ls5">Generating cover letter & report</div>
         </div>
       </div>
 
@@ -384,7 +388,7 @@ input[type=file]{display:none}
             </div>
             <div class="hint-row">
               <span style="font-size:1rem">💎</span>
-              <div class="hint-text"><strong>Full Access — $10.99</strong><span>Resume + Cover Letter + Report + PDFs</span></div>
+              <div class="hint-text"><strong id="hint-price-text">Full Access</strong><span>Resume + Cover Letter + Report + PDFs</span></div>
             </div>
           </div>
         </div>
@@ -441,8 +445,8 @@ input[type=file]{display:none}
             <div class="locked-icon">📄</div>
             <div><h3>Optimized Resume</h3><p>Unlock to see your rewritten resume</p></div>
           </div>
-          <div class="price-badge"><div class="p">$10.99</div><div class="d">one-time · instant access</div></div>
-          <a href="https://quimztech.gumroad.com/l/cxinw" target="_blank" class="btn-unlock-pro">Buy Now on Gumroad →</a>
+          <div class="price-badge"><div class="p" id="locked-price-resume">—</div><div class="d">one-time · instant access</div></div>
+          <button onclick="startRazorpay()" class="btn-unlock-pro">Buy Now — Instant Access →</button>
           <div class="locked-feats">
             <div class="lfeat"><span>✓</span> Keywords integrated</div>
             <div class="lfeat"><span>✓</span> Stronger action verbs</div>
@@ -451,9 +455,7 @@ input[type=file]{display:none}
           </div>
         </div>
         <div id="resume-content" style="display:none">
-          <div class="resume-wrap">
-            <div id="resume-display"></div>
-          </div>
+          <div class="resume-wrap"><div id="resume-display"></div></div>
           <button class="btn-dl" id="downloadResumeBtn">↓ Download Resume PDF</button>
         </div>
       </div>
@@ -465,8 +467,8 @@ input[type=file]{display:none}
             <div class="locked-icon">✉️</div>
             <div><h3>Cover Letter</h3><p>Tailored to this specific job</p></div>
           </div>
-          <div class="price-badge"><div class="p">$10.99</div><div class="d">one-time · instant access</div></div>
-          <a href="https://quimztech.gumroad.com/l/cxinw" target="_blank" class="btn-unlock-pro">Buy Now on Gumroad →</a>
+          <div class="price-badge"><div class="p" id="locked-price-cover">—</div><div class="d">one-time · instant access</div></div>
+          <button onclick="startRazorpay()" class="btn-unlock-pro">Buy Now — Instant Access →</button>
         </div>
         <div id="cover-content" style="display:none">
           <div class="cover-wrap" id="cover-display"></div>
@@ -481,15 +483,14 @@ input[type=file]{display:none}
             <div class="locked-icon">📊</div>
             <div><h3>ATS Report</h3><p>Score breakdown + improvement notes</p></div>
           </div>
-          <div class="price-badge"><div class="p">$10.99</div><div class="d">one-time · instant access</div></div>
-          <a href="https://quimztech.gumroad.com/l/cxinw" target="_blank" class="btn-unlock-pro">Buy Now on Gumroad →</a>
+          <div class="price-badge"><div class="p" id="locked-price-report">—</div><div class="d">one-time · instant access</div></div>
+          <button onclick="startRazorpay()" class="btn-unlock-pro">Buy Now — Instant Access →</button>
         </div>
         <div id="report-content" style="display:none">
           <div id="candidate-badge-report" class="candidate-badge" style="display:none">
             <span style="font-size:1.1rem">👤</span>
             <div><div class="cname" id="badge-name-report">—</div><div class="csub">ATS Analysis Report</div></div>
           </div>
-          <!-- Scrollable report body -->
           <div id="report-scroll-body">
             <div class="rep-section">
               <h4>Score Comparison</h4>
@@ -525,7 +526,154 @@ let photoBase64="", lastData=null, licenseKey="", isUnlocked=false;
 let currentResumeInput="text";
 let resumeFileText="";
 
-// ── RESUME INPUT TABS ────────────────────────────────
+// ── COUNTRY + PRICING ─────────────────────────────────
+let userCountry = "global";
+let appliedDiscount = 0;
+let activePrice = { amount: 8.90, currency: "USD", display: "$8.90", original: "$14.99" };
+
+async function detectCountry() {
+  try {
+    const r = await fetch("https://ipapi.co/json/");
+    const d = await r.json();
+    userCountry = d.country_code || "global";
+  } catch(e) {
+    userCountry = "global";
+  }
+  updatePriceUI();
+}
+
+function updatePriceUI() {
+  const isIndia = userCountry === "IN";
+  let baseAmount  = isIndia ? 399    : 8.90;
+  let origDisplay = isIndia ? "₹1499" : "$14.99";
+  let currency    = isIndia ? "INR"  : "USD";
+
+  // Apply coupon discount
+  if (appliedDiscount > 0) {
+    baseAmount = isIndia
+      ? Math.round(399 - (399 * appliedDiscount / 100))
+      : Math.round((8.90 - (8.90 * appliedDiscount / 100)) * 100) / 100;
+  }
+
+  const displayPrice = isIndia ? "₹" + baseAmount : "$" + baseAmount.toFixed(2);
+  activePrice = { amount: baseAmount, currency, display: displayPrice, original: origDisplay };
+
+  // Update unlock tab
+  const nowEl = document.getElementById("unlock-price-now");
+  const wasEl = document.getElementById("unlock-price-was");
+  if (nowEl) nowEl.textContent = displayPrice;
+  if (wasEl) wasEl.textContent = origDisplay;
+
+  // Update header button
+  const hBtn = document.getElementById("header-buy-btn");
+  if (hBtn) hBtn.textContent = "Buy — " + displayPrice;
+
+  // Update locked card price badges
+  ["resume","cover","report"].forEach(t => {
+    const el = document.getElementById("locked-price-" + t);
+    if (el) el.textContent = displayPrice + " (was " + origDisplay + ")";
+  });
+
+  // Update empty state hint
+  const hintEl = document.getElementById("hint-price-text");
+  if (hintEl) hintEl.textContent = "Full Access — " + displayPrice + " (was " + origDisplay + ")";
+}
+
+// ── COUPON ────────────────────────────────────────────
+async function applyCoupon() {
+  const code = document.getElementById("coupon-input").value.trim();
+  const btn  = document.getElementById("coupon-btn");
+  const msg  = document.getElementById("coupon-msg");
+  if (!code) return;
+  btn.textContent = "..."; btn.disabled = true; msg.style.display = "none";
+  try {
+    const res  = await fetch("/api/validate-coupon", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ code, country: userCountry })
+    });
+    const data = await res.json();
+    if (data.valid) {
+      appliedDiscount = data.discount;
+      updatePriceUI();
+      msg.className = "coupon-msg coupon-ok";
+      msg.textContent = "✓ " + data.message + " Price updated!";
+      msg.style.display = "block";
+    } else {
+      msg.className = "coupon-msg coupon-err";
+      msg.textContent = "✗ " + (data.message || "Invalid code.");
+      msg.style.display = "block";
+    }
+  } catch(e) {
+    msg.className = "coupon-msg coupon-err";
+    msg.textContent = "✗ Network error. Try again.";
+    msg.style.display = "block";
+  }
+  btn.textContent = "Apply"; btn.disabled = false;
+}
+
+// ── RAZORPAY ──────────────────────────────────────────
+async function startRazorpay() {
+  try {
+    const orderRes = await fetch("/api/razorpay-order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ country: userCountry, finalPrice: activePrice.amount })
+    });
+    const order = await orderRes.json();
+    if (!order.order_id) throw new Error("Could not create order. Please try again.");
+
+    const options = {
+      key: order.key_id,
+      amount: order.amount,
+      currency: order.currency,
+      name: "ATSCheckPro",
+      description: "Full Access License",
+      order_id: order.order_id,
+      handler: async function(response) {
+        try {
+          const verifyRes = await fetch("/api/razorpay-verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpay_order_id:  response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature:  response.razorpay_signature
+            })
+          });
+          const data = await verifyRes.json();
+          if (data.success) {
+            licenseKey = data.licenseKey;
+            isUnlocked = true;
+            document.getElementById("license-key").value = licenseKey;
+            const msg = document.getElementById("key-msg");
+            msg.className = "key-msg key-ok";
+            msg.textContent = "✓ Payment successful — full access unlocked!";
+            msg.style.display = "block";
+            document.getElementById("analyzeBtn").textContent = "↗ Analyze & Optimize Resume";
+            showLeft("unlock");
+            if (lastData) { lastData.isPro = true; renderProContent(lastData); }
+            alert("🎉 Payment successful!\n\nYour license key:\n" + licenseKey + "\n\nSave this key — it's also been emailed to you.");
+          } else {
+            alert("Payment verification failed. Please contact support with your payment ID:\n" + response.razorpay_payment_id);
+          }
+        } catch(e) {
+          alert("Verification error. Please contact support with payment ID:\n" + response.razorpay_payment_id);
+        }
+      },
+      prefill: { name: "", email: "", contact: "" },
+      theme: { color: "#16a34a" }
+    };
+
+    const rzp = new Razorpay(options);
+    rzp.open();
+  } catch(err) {
+    console.error("Razorpay error:", err);
+    alert("Something went wrong: " + err.message);
+  }
+}
+
+// ── RESUME INPUT TABS ─────────────────────────────────
 function switchResumeInput(type) {
   currentResumeInput = type;
   ["text","docx","pdf"].forEach(t => {
@@ -536,13 +684,11 @@ function switchResumeInput(type) {
   });
 }
 
-// DOCX file handler - extract text client-side
 document.getElementById("resumeDocxFile").addEventListener("change", async e => {
   const f = e.target.files[0]; if(!f) return;
   document.getElementById("resume-file-name").textContent = "⏳ Reading " + f.name + "...";
   try {
     const arrayBuffer = await f.arrayBuffer();
-    // Use mammoth via CDN loaded below
     const result = await mammoth.extractRawText({ arrayBuffer });
     resumeFileText = result.value;
     document.getElementById("resume-file-name").textContent = "✓ " + f.name + " — " + resumeFileText.split(" ").length + " words extracted";
@@ -551,23 +697,19 @@ document.getElementById("resumeDocxFile").addEventListener("change", async e => 
   }
 });
 
-// PDF file handler - read as text (basic)
 document.getElementById("resumePdfFile").addEventListener("change", async e => {
   const f = e.target.files[0]; if(!f) return;
   document.getElementById("resume-file-name-pdf").textContent = "⏳ Reading " + f.name + "...";
   try {
     const arrayBuffer = await f.arrayBuffer();
     const uint8 = new Uint8Array(arrayBuffer);
-    // Extract readable text from PDF bytes
     let text = new TextDecoder("utf-8", { fatal: false }).decode(uint8);
-    // Clean up PDF binary - extract text between BT/ET markers
     let extracted = "";
     const btMatches = text.match(/BT[\s\S]*?ET/g) || [];
     for (const block of btMatches) {
       const strings = block.match(/\(([^)]+)\)/g) || [];
       extracted += strings.map(s => s.slice(1,-1)).join(" ") + " ";
     }
-    // Fallback: extract printable ASCII
     if (extracted.trim().length < 50) {
       extracted = text.replace(/[^\x20-\x7E\n]/g, " ").replace(/\s+/g, " ").trim();
     }
@@ -578,17 +720,14 @@ document.getElementById("resumePdfFile").addEventListener("change", async e => {
   }
 });
 
-// Photo
 document.getElementById("photoInput").addEventListener("change", e => {
   const f = e.target.files[0]; if(!f) return;
   document.getElementById("photo-name").textContent = "✓ " + f.name;
-  // Clear any stale error message
   const inlineErr = document.getElementById("err-inline");
   if(inlineErr) inlineErr.style.display = "none";
   const r = new FileReader(); r.onload = () => photoBase64 = r.result; r.readAsDataURL(f);
 });
 
-// Clear inline error when user starts editing inputs
 ["job","resume"].forEach(id => {
   const el = document.getElementById(id);
   if(el) el.addEventListener("input", () => {
@@ -597,24 +736,20 @@ document.getElementById("photoInput").addEventListener("change", e => {
   });
 });
 
-// Show inline error near the analyze button
 function showInlineErr(msg) {
   const el = document.getElementById("err-inline");
   if(!el) return;
   el.textContent = "⚠ " + msg;
   el.style.display = "block";
-  // Auto-hide after 6 seconds
   setTimeout(() => { el.style.display="none"; }, 6000);
 }
 
-// Left tabs
 function showLeft(tab) {
-  document.getElementById("left-input").style.display = tab==="input"?"block":"none";
+  document.getElementById("left-input").style.display  = tab==="input"?"block":"none";
   document.getElementById("left-unlock").style.display = tab==="unlock"?"block":"none";
   document.querySelectorAll(".left-tab").forEach((t,i) => t.classList.toggle("active", ["input","unlock"][i]===tab));
 }
 
-// Right tabs
 function showRight(tab) {
   ["score","resume","cover","report"].forEach(t => {
     const el = document.getElementById("tab-"+t);
@@ -625,13 +760,12 @@ function showRight(tab) {
   document.querySelectorAll(".right-tab").forEach((t,i) => t.classList.toggle("active", ["score","resume","cover","report"][i]===tab));
 }
 
-// Unlock
 document.getElementById("unlock-btn").addEventListener("click", async () => {
   const key = document.getElementById("license-key").value.trim(); if(!key) return;
   const btn = document.getElementById("unlock-btn"), msg = document.getElementById("key-msg");
   btn.textContent="..."; btn.disabled=true; msg.style.display="none";
   try {
-    const res = await fetch("/api/validate-key", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({key}) });
+    const res  = await fetch("/api/validate-key", { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify({key}) });
     const data = await res.json();
     if(data.valid) {
       licenseKey=key; isUnlocked=true;
@@ -645,7 +779,6 @@ document.getElementById("unlock-btn").addEventListener("click", async () => {
   btn.textContent="Unlock"; btn.disabled=false;
 });
 
-// Loading progress
 let stepInterval;
 const STEPS = [
   { id:"ls1", label:"Reading job description & resume",  pct:15 },
@@ -656,32 +789,26 @@ const STEPS = [
 ];
 
 function setProgress(pct, label) {
-  const ring = document.getElementById("prog-ring");
+  const ring  = document.getElementById("prog-ring");
   const pctEl = document.getElementById("prog-pct");
   const lblEl = document.getElementById("prog-label");
   if (!ring) return;
-  const circ = 188.5;
-  ring.style.strokeDashoffset = circ - (circ * pct / 100);
+  ring.style.strokeDashoffset = 188.5 - (188.5 * pct / 100);
   if (pctEl) pctEl.textContent = pct + "%";
   if (lblEl && label) lblEl.textContent = label;
 }
 
 function startSteps() {
-  STEPS.forEach(s => {
-    const el = document.getElementById(s.id);
-    if(el) { el.classList.remove("active","done"); }
-  });
+  STEPS.forEach(s => { const el=document.getElementById(s.id); if(el){el.classList.remove("active","done");} });
   setProgress(5, "Starting analysis...");
   let i = 0;
-  // Activate first step immediately
   const firstEl = document.getElementById(STEPS[0].id);
   if(firstEl) firstEl.classList.add("active");
   setProgress(STEPS[0].pct, STEPS[0].label);
-
   stepInterval = setInterval(() => {
     if (i < STEPS.length - 1) {
       const curr = document.getElementById(STEPS[i].id);
-      if(curr) { curr.classList.remove("active"); curr.classList.add("done"); }
+      if(curr){curr.classList.remove("active");curr.classList.add("done");}
       i++;
       const next = document.getElementById(STEPS[i].id);
       if(next) next.classList.add("active");
@@ -692,34 +819,22 @@ function startSteps() {
 
 function stopSteps() {
   clearInterval(stepInterval);
-  STEPS.forEach(s => {
-    const el = document.getElementById(s.id);
-    if(el) { el.classList.remove("active"); el.classList.add("done"); }
-  });
+  STEPS.forEach(s => { const el=document.getElementById(s.id); if(el){el.classList.remove("active");el.classList.add("done");} });
   setProgress(100, "Analysis complete!");
 }
 
-// Get resume text based on active input
 function getResumeText() {
   if(currentResumeInput === "text") return document.getElementById("resume").value.trim();
   return resumeFileText.trim();
 }
 
-// Analyze
 document.getElementById("analyzeBtn").addEventListener("click", async () => {
   const job = document.getElementById("job").value.trim();
   const resumeText = getResumeText();
-  // Hide previous errors
   document.getElementById("err-inline").style.display="none";
   document.getElementById("error-state").style.display="none";
-  if(!job) {
-    showInlineErr("Please paste a job description first.");
-    return;
-  }
-  if(!resumeText) {
-    showInlineErr("Please provide your resume — paste text or upload a file.");
-    return;
-  }
+  if(!job)        { showInlineErr("Please paste a job description first."); return; }
+  if(!resumeText) { showInlineErr("Please provide your resume — paste text or upload a file."); return; }
   document.getElementById("empty-state").style.display="none";
   document.getElementById("loading").style.display="block";
   ["score","resume","cover","report"].forEach(t => { const el=document.getElementById("tab-"+t); if(el) el.style.display="none"; });
@@ -733,7 +848,6 @@ document.getElementById("analyzeBtn").addEventListener("click", async () => {
     let data;
     try { data = await res.json(); } catch(je) { throw new Error("Server returned invalid response."); }
     if(!res.ok) throw new Error(data.error || "Server error ("+res.status+")");
-    // Hide loading BEFORE rendering results
     stopSteps();
     document.getElementById("loading").style.display="none";
     document.getElementById("analyzeBtn").disabled=false;
@@ -743,9 +857,8 @@ document.getElementById("analyzeBtn").addEventListener("click", async () => {
     stopSteps();
     document.getElementById("loading").style.display="none";
     document.getElementById("analyzeBtn").disabled=false;
-    const msg = e.message || "Network error — please try again.";
-    showInlineErr(msg);
-    console.error("Optimize error:", msg);
+    showInlineErr(e.message || "Network error — please try again.");
+    console.error("Optimize error:", e.message);
   }
 });
 
@@ -768,9 +881,8 @@ function renderResults(data) {
   document.getElementById("chips-found").innerHTML=found.map(k=>`<span class="chip chip-found">${k}</span>`).join("");
   document.getElementById("chips-missing").innerHTML=missing.map(k=>`<span class="chip chip-missing">${k}</span>`).join("");
 
-  // Show candidate name badge on score tab
-  const cname = (data.optimizedText||"").split("\n")[0]||"";
-  if(cname) {
+  const cname=(data.optimizedText||"").split("\n")[0]||"";
+  if(cname){
     document.getElementById("badge-name-score").textContent=cname;
     document.getElementById("candidate-badge-score").style.display="flex";
   }
@@ -780,7 +892,6 @@ function renderResults(data) {
     if(lk) lk.style.display="block"; if(ct) ct.style.display="none";
   });
   if(isUnlocked && data.isPro) renderProContent(data);
-  // Show all tabs with correct display types
   ["score","resume","cover"].forEach(t => { const el=document.getElementById("tab-"+t); if(el) el.style.display="block"; });
   const repTab=document.getElementById("tab-report"); if(repTab) repTab.style.display="flex";
   showRight("score");
@@ -796,14 +907,12 @@ function renderProContent(data) {
   const name=lines[0]||"", contact=lines[1]||"";
   const body=lines.slice(2);
 
-  // RESUME display
-  let resumeHTML = "";
-  if(photoBase64) resumeHTML += `<img src="${photoBase64}" class="rphoto">`;
-  resumeHTML += `<div class="rname">${name}</div>`;
-  if(contact) resumeHTML += `<div class="rcontact">${contact.replace(/\|/g," · ")}</div>`;
-  resumeHTML += `<div class="rbody">`;
-  console.log('ALL_BODY_LINES:', JSON.stringify(body.slice(0,15)));
-  resumeHTML += body.map(line => {
+  let resumeHTML="";
+  if(photoBase64) resumeHTML+=`<img src="${photoBase64}" class="rphoto">`;
+  resumeHTML+=`<div class="rname">${name}</div>`;
+  if(contact) resumeHTML+=`<div class="rcontact">${contact.replace(/\|/g," · ")}</div>`;
+  resumeHTML+=`<div class="rbody">`;
+  resumeHTML+=body.map(line => {
     const t=line.trim(); if(!t) return"";
     if(t===t.toUpperCase()&&t.length>2&&t.length<50&&!/^\d/.test(t)&&/[A-Z]/.test(t))
       return`<span class="rsec">${t}</span>`;
@@ -811,32 +920,30 @@ function renderProContent(data) {
     if(t.startsWith("%")||t.startsWith("-")||t.startsWith("•")||t.startsWith("▸")) return`• ${clean}`;
     return t;
   }).join("\n");
-  resumeHTML += `</div>`;
+  resumeHTML+=`</div>`;
   document.getElementById("resume-display").innerHTML=resumeHTML;
 
-  // COVER LETTER display - formatted
-  const today = new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
-  const rawCover = (data.coverLetter||"").trim();
-  let coverHTML = `<div class="cover-date">${today}</div>`;
-  const paras = rawCover.split(/\n{2,}|\n/).filter(p=>p.trim());
+  const today=new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
+  const rawCover=(data.coverLetter||"").trim();
+  let coverHTML=`<div class="cover-date">${today}</div>`;
+  const paras=rawCover.split(/\n{2,}|\n/).filter(p=>p.trim());
   paras.forEach(para => {
     const p=para.trim();
-    if(p.match(/^(Dear|To Whom|To the)/i)) { coverHTML+=`<div class="cover-salutation">${p}</div>`; return; }
-    if(p.match(/^(Sincerely|Best regards|Warm regards|Respectfully|Thank you|Yours)/i)) { coverHTML+=`<div class="cover-closing">${p}</div><div class="cover-sig">${name}</div>`; return; }
+    if(p.match(/^(Dear|To Whom|To the)/i)){coverHTML+=`<div class="cover-salutation">${p}</div>`;return;}
+    if(p.match(/^(Sincerely|Best regards|Warm regards|Respectfully|Thank you|Yours)/i)){coverHTML+=`<div class="cover-closing">${p}</div><div class="cover-sig">${name}</div>`;return;}
     coverHTML+=`<div class="cover-para">${p}</div>`;
   });
   document.getElementById("cover-display").innerHTML=coverHTML;
 
-  // REPORT display - with candidate name
-  if(name) {
+  if(name){
     document.getElementById("badge-name-report").textContent=name;
     document.getElementById("candidate-badge-report").style.display="flex";
   }
   document.getElementById("rep-before").textContent=s+"/100";
   document.getElementById("rep-after").textContent=sa+"/100";
-  setTimeout(()=>{ document.getElementById("bar-before").style.width=s+"%"; document.getElementById("bar-after").style.width=sa+"%"; },200);
-  // Strip any %¸ PDF artifacts from AI text before rendering
-  function stripBulletArtifacts(str) {
+  setTimeout(()=>{document.getElementById("bar-before").style.width=s+"%";document.getElementById("bar-after").style.width=sa+"%";},200);
+
+  function stripBulletArtifacts(str){
     return (str||"").replace(/^[%¸►•▸◦‣⁃○●◆→\-–]+\s*/,"").trim();
   }
   document.getElementById("rep-impression").innerHTML=(data.quickImpression||[]).map(x=>`<div class="note-item">→ ${stripBulletArtifacts(x)}</div>`).join("");
@@ -846,78 +953,60 @@ function renderProContent(data) {
     document.getElementById(t+"-locked").style.display="none";
     document.getElementById(t+"-content").style.display="block";
   });
-
-  // onclicks are set at page load — see bottom of script
 }
 
-function candidateName() { return (lastData?.optimizedText||"").split("\n")[0]||""; }
-function fileSlug() { return candidateName().replace(/[^a-z0-9]/gi,"-").toLowerCase()||"resume"; }
+function candidateName(){ return (lastData?.optimizedText||"").split("\n")[0]||""; }
+function fileSlug(){ return candidateName().replace(/[^a-z0-9]/gi,"-").toLowerCase()||"resume"; }
 
 async function dlFile(body, name, btn) {
   const orig = btn.textContent;
-  btn.textContent = "⏳ Generating...";
-  btn.disabled = true;
-  // Clear any old errors
+  btn.textContent = "⏳ Generating..."; btn.disabled = true;
   const inlineErr = document.getElementById("err-inline");
   if(inlineErr) inlineErr.style.display = "none";
-  // Debug: log what we're sending
-  console.log("dlFile called — type:", body.type, "lastData:", !!lastData, "keys:", Object.keys(body));
   try {
     const r = await fetch("/api/download", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body)
+      method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)
     });
     if (!r.ok) {
-      // Try to read error message from response
       let errMsg = "Download failed";
-      try {
-        const errData = await r.json();
-        errMsg = errData.error || errMsg;
-      } catch(e) {}
+      try { const errData=await r.json(); errMsg=errData.error||errMsg; } catch(e) {}
       throw new Error(errMsg);
     }
-    const blob = await r.blob();
-    const url  = URL.createObjectURL(blob);
-    const a    = document.createElement("a");
-    a.href = url; a.download = name + ".pdf"; a.click();
+    const blob=await r.blob();
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");
+    a.href=url; a.download=name+".pdf"; a.click();
     URL.revokeObjectURL(url);
-    btn.textContent = "✓ Downloaded!";
-    setTimeout(() => { btn.textContent = orig; btn.disabled = false; }, 2500);
+    btn.textContent="✓ Downloaded!";
+    setTimeout(()=>{btn.textContent=orig;btn.disabled=false;},2500);
   } catch(e) {
-    btn.textContent = orig;
-    btn.disabled = false;
-    // Show error near button — NOT as browser alert
-    showInlineErr("PDF error: " + e.message);
+    btn.textContent=orig; btn.disabled=false;
+    showInlineErr("PDF error: "+e.message);
   }
 }
 
-// Strip %¸ PDF artifacts from any string - runs CLIENT-SIDE before sending to download API
 function cleanPdfText(text) {
   if (!text) return text;
   return text.split("\n").map(line => {
-    // % at line start = PDF bullet artifact → convert to "- "
-    if (/^\s*%[\u00b8\u00b7,\.\s]/.test(line) || (line.trimStart().startsWith("%") && !line.trimStart().match(/^%[a-zA-Z0-9]/))) {
-      return "- " + line.trimStart().slice(1).replace(/^[\u00b8\u00b7,\.\s]+/, "").trim();
+    if (/^\s*%[\u00b8\u00b7,\.\s]/.test(line)||(line.trimStart().startsWith("%")&&!line.trimStart().match(/^%[a-zA-Z0-9]/))) {
+      return "- "+line.trimStart().slice(1).replace(/^[\u00b8\u00b7,\.\s]+/,"").trim();
     }
-    return line.replace(/%[\u00b8\u00b7,]/g, "");
+    return line.replace(/%[\u00b8\u00b7,]/g,"");
   }).join("\n");
 }
 function cleanPdfArr(arr) {
   if (!Array.isArray(arr)) return arr;
-  return arr.map(s => (s||"").replace(/^[\s]*%[\u00b8\u00b7,\.\s]*/,"").replace(/^[\s]*[%\u00b8]+\s*/,"").trim());
+  return arr.map(s=>(s||"").replace(/^[\s]*%[\u00b8\u00b7,\.\s]*/,"").replace(/^[\s]*[%\u00b8]+\s*/,"").trim());
 }
-
 function compressPhoto(base64) {
-  // If photo is over 500KB, skip it to avoid payload crash
   if(!base64) return null;
   if(base64.length > 500000) return null;
   return base64;
 }
+
 function downloadResume() {
   if(!lastData) return showInlineErr("Please run analysis first.");
-  const photo = compressPhoto(photoBase64);
-  dlFile({type:"resume",optimizedText:cleanPdfText(lastData.optimizedText),photo:photo,licenseKey,candidateName:candidateName()},fileSlug()+"-Resume",document.getElementById("downloadResumeBtn"));
+  dlFile({type:"resume",optimizedText:cleanPdfText(lastData.optimizedText),photo:compressPhoto(photoBase64),licenseKey,candidateName:candidateName()},fileSlug()+"-Resume",document.getElementById("downloadResumeBtn"));
 }
 function downloadCover() {
   if(!lastData) return showInlineErr("Please run analysis first.");
@@ -925,17 +1014,17 @@ function downloadCover() {
 }
 function downloadReport() {
   if(!lastData) return showInlineErr("Please run analysis first.");
-  const cleanNotes = cleanPdfArr(lastData.recruiterNotes);
-  const cleanImpr  = cleanPdfArr(lastData.quickImpression);
-  dlFile({type:"report",report:{score:lastData.scoreBefore,scoreAfter:lastData.scoreAfter,impression:cleanImpr,keywords:lastData.keywordsMissingTop,notes:cleanNotes},licenseKey,candidateName:candidateName()},fileSlug()+"-ATSReport",document.getElementById("downloadReportBtn"));
+  dlFile({type:"report",report:{score:lastData.scoreBefore,scoreAfter:lastData.scoreAfter,impression:cleanPdfArr(lastData.quickImpression),keywords:lastData.keywordsMissingTop,notes:cleanPdfArr(lastData.recruiterNotes)},licenseKey,candidateName:candidateName()},fileSlug()+"-ATSReport",document.getElementById("downloadReportBtn"));
 }
-// Wire download buttons permanently — never depends on isPro state
+
 document.getElementById("downloadResumeBtn").addEventListener("click", downloadResume);
-document.getElementById("downloadCoverBtn").addEventListener("click", downloadCover);
+document.getElementById("downloadCoverBtn").addEventListener("click",  downloadCover);
 document.getElementById("downloadReportBtn").addEventListener("click", downloadReport);
+
+// ── INIT ──────────────────────────────────────────────
+detectCountry();
 </script>
 
-<!-- Mammoth.js for DOCX parsing -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
 </body>
 </html>

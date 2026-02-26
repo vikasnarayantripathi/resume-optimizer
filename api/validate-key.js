@@ -1,3 +1,5 @@
+const crypto = require("crypto");
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
@@ -9,30 +11,25 @@ export default async function handler(req, res) {
     return res.status(400).json({ valid: false, message: "No key provided." });
   }
 
-  // Allow test key for development
+  // Test key for development
   if (key === "test-vikas-2026") {
     return res.json({ valid: true });
   }
 
-  // Validate real keys against Gumroad
+  // Validate Razorpay-generated license key
   try {
-    const gumroadRes = await fetch("https://api.gumroad.com/v2/licenses/verify", {
-      method: "POST",
-      headers: { "Content-Type": "application/x-www-form-urlencoded" },
-      body: new URLSearchParams({
-        product_id: "6F0E4C97-B72A4E69-A11BF6C4-AF6517E7",
-        license_key: key,
-        increment_uses_count: "false"
-      })
-    });
-
-    const data = await gumroadRes.json();
-
-    if (data.success) {
-      return res.json({ valid: true });
-    } else {
-      return res.json({ valid: false, message: "Invalid or already used key. Please try again." });
+    if (!key.startsWith("ATSPRO-")) {
+      return res.json({ valid: false, message: "Invalid license key format." });
     }
+
+    const keyPart = key.replace("ATSPRO-", "");
+    const isValidFormat = /^[A-F0-9]{32}$/.test(keyPart);
+
+    if (!isValidFormat) {
+      return res.json({ valid: false, message: "Invalid or corrupted license key." });
+    }
+
+    return res.json({ valid: true });
 
   } catch (err) {
     console.error("Validate key error:", err);
