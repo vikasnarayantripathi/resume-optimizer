@@ -159,7 +159,7 @@ function buildResumePDF(doc, optimizedText, photo, candidateName) {
     if (bullet) {
       safeY(doc, 18);
       const by = doc.y;
-      doc.fontSize(9).font("Helvetica").fillColor(ACCENT).text("\u25b8", M + 2, by + 1.5);
+      doc.fontSize(9).font("Helvetica").fillColor(ACCENT).text("-", M + 2, by + 1.5);
       doc.fontSize(9.5).font("Helvetica").fillColor(TEXT).text(t, M + 14, by, { width: W - 14, lineGap: 1.5 });
       doc.moveDown(0.1);
       continue;
