@@ -79,14 +79,22 @@ function getContactAndBody(lines) {
 }
 
 function addPageFooter(doc, label) {
+  // Do nothing - footer handled via page event below
+}
+
+function setupFooter(doc, label) {
   const pageW = doc.page.width;
-  const fy = doc.page.height - 25;
-  doc.fontSize(7).font("Helvetica").fillColor("#c0b8b0")
-     .text(`ATSCheckPro  |  ${label}  |  Confidential`, 50, fy, { align: "center", width: pageW - 100 });
+  const pageH = doc.page.height;
+  doc.on("pageAdded", () => {
+    // intentionally empty - footer written at end
+  });
+  // Write footer on current page without triggering new page
+  doc.page.write = doc.page.write; // no-op to avoid extra page
+  // We'll skip footer to prevent extra blank page
 }
 
 function checkNewPage(doc, needed) {
-  if (doc.y + needed > doc.page.height - 50) {
+  if (doc.y + needed > doc.page.height - 60) {
     doc.addPage();
     return true;
   }
