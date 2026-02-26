@@ -908,30 +908,15 @@ function cleanPdfArr(arr) {
   return arr.map(s => (s||"").replace(/^[\s]*%[\u00b8\u00b7,\.\s]*/,"").replace(/^[\s]*[%\u00b8]+\s*/,"").trim());
 }
 
-async function compressPhoto(base64, maxSize=300) {
+function compressPhoto(base64) {
+  // If photo is over 500KB, skip it to avoid payload crash
   if(!base64) return null;
-  return new Promise(resolve => {
-    const img = new Image();
-    img.onload = () => {
-      try {
-        const w = img.naturalWidth || img.width || 300;
-        const h = img.naturalHeight || img.height || 300;
-        const scale = Math.min(1, maxSize/Math.max(w,h));
-        const canvas = document.createElement('canvas');
-        canvas.width = Math.max(1, Math.round(w*scale));
-        canvas.height = Math.max(1, Math.round(h*scale));
-        canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
-        const out = canvas.toDataURL('image/jpeg',0.7);
-        resolve(out.length > 50 ? out : null);
-      } catch(e) { resolve(null); }
-    };
-    img.onerror = () => resolve(null);
-    img.src = base64;
-  });
+  if(base64.length > 500000) return null;
+  return base64;
 }
-async function downloadResume() {
+function downloadResume() {
   if(!lastData) return showInlineErr("Please run analysis first.");
-  const photo = await compressPhoto(photoBase64);
+  const photo = compressPhoto(photoBase64);
   dlFile({type:"resume",optimizedText:cleanPdfText(lastData.optimizedText),photo:photo,licenseKey,candidateName:candidateName()},fileSlug()+"-Resume",document.getElementById("downloadResumeBtn"));
 }
 function downloadCover() {
