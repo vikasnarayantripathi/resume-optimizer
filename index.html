@@ -130,11 +130,9 @@ input[type=file]{display:none}
 .right-content{padding:16px;display:flex;flex-direction:column;min-height:0}
 .right-content::-webkit-scrollbar{width:3px}
 .right-content::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
-#tab-score,#tab-resume,#tab-cover{overflow-y:auto;flex:1;min-height:0}
-#tab-report{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden}
-#report-content{display:flex;flex-direction:column;flex:1;min-height:0}
-#report-locked{overflow-y:auto;flex:1;min-height:0}
-#report-scroll-body{overflow-y:auto;flex:1;min-height:0;padding-bottom:4px}
+#tab-score,#tab-resume,#tab-cover,#tab-report{overflow-y:auto;flex:1;min-height:0}
+#report-content{display:flex;flex-direction:column;height:100%}
+#report-scroll-body{overflow-y:auto;flex:1;padding-bottom:60px}
 #report-scroll-body::-webkit-scrollbar{width:3px}
 #report-scroll-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
 
@@ -441,6 +439,27 @@ input[type=file]{display:none}
             <div class="albl">AFTER OPT.</div>
           </div>
         </div>
+        <!-- PRO METRICS — shown after unlock -->
+        <div id="score-metrics" style="display:none;margin-bottom:10px">
+          <div class="metric-grid">
+            <div class="metric-card">
+              <div class="metric-val" id="score-interview">—</div>
+              <div class="metric-lbl">Interview Probability</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-val" id="score-jobfit">—</div>
+              <div class="metric-lbl">Job Fit Score</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-val" id="score-seniority" style="font-size:0.85rem">—</div>
+              <div class="metric-lbl">Seniority Match</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-val" id="score-benchmark" style="font-size:0.8rem">—</div>
+              <div class="metric-lbl">Industry Benchmark</div>
+            </div>
+          </div>
+        </div>
         <div class="kw-card">
           <div class="kw-head">
             <div class="kw-dot" style="background:#16a34a"></div>
@@ -456,6 +475,15 @@ input[type=file]{display:none}
             <div class="kw-count" id="missing-count">0</div>
           </div>
           <div class="chips" id="chips-missing"></div>
+        </div>
+        <!-- SALARY KEYWORDS on score tab -->
+        <div id="score-salary-box" style="display:none" class="kw-card">
+          <div class="kw-head">
+            <div class="kw-dot" style="background:#d97706"></div>
+            <div class="kw-label">💰 Salary-Impact Keywords</div>
+          </div>
+          <div class="skill-chips" id="score-salary-chips"></div>
+          <p style="font-size:0.68rem;color:var(--muted);margin-top:6px">Add these to boost your perceived value</p>
         </div>
       </div>
 
@@ -1075,27 +1103,30 @@ function renderProContent(data) {
   document.getElementById("rep-after").textContent=sa+"/100";
   setTimeout(()=>{document.getElementById("bar-before").style.width=s+"%";document.getElementById("bar-after").style.width=sa+"%";},200);
 
-  // Metrics
-  const ip = data.interviewProbability;
-  const jf = data.jobFitScore;
-  const metIp = document.getElementById("met-interview");
-  const metJf = document.getElementById("met-jobfit");
-  if(metIp && ip) {
-    metIp.textContent = ip + "%";
-    metIp.className = "metric-val" + (ip >= 70 ? "" : ip >= 50 ? " warn" : " danger");
+  // Score tab metrics
+  if(data.interviewProbability || data.jobFitScore) {
+    document.getElementById("score-metrics").style.display="block";
+    const si = document.getElementById("score-interview");
+    const sj = document.getElementById("score-jobfit");
+    if(si && data.interviewProbability) {
+      si.textContent = data.interviewProbability + "%";
+      si.className = "metric-val" + (data.interviewProbability>=70?"":(data.interviewProbability>=50?" warn":" danger"));
+    }
+    if(sj && data.jobFitScore) {
+      sj.textContent = data.jobFitScore + "%";
+      sj.className = "metric-val" + (data.jobFitScore>=70?"":(data.jobFitScore>=50?" warn":" danger"));
+    }
+    const ss = document.getElementById("score-seniority");
+    if(ss && data.seniorityAlignment) {
+      ss.textContent = data.seniorityAlignment;
+      ss.className = "metric-val" + (data.seniorityAlignment==="Mismatch"?" danger":"");
+    }
+    const sb = document.getElementById("score-benchmark");
+    if(sb && data.industryBenchmark) sb.textContent = data.industryBenchmark;
   }
-  if(metJf && jf) {
-    metJf.textContent = jf + "%";
-    metJf.className = "metric-val" + (jf >= 70 ? "" : jf >= 50 ? " warn" : " danger");
-  }
-  const metSen = document.getElementById("met-seniority");
-  if(metSen && data.seniorityAlignment) {
-    metSen.textContent = data.seniorityAlignment;
-    metSen.className = "metric-val" + (data.seniorityAlignment === "Mismatch" ? " danger" : "");
-  }
-  const metBench = document.getElementById("met-benchmark");
-  if(metBench && data.industryBenchmark) {
-    metBench.textContent = data.industryBenchmark;
+  if(data.salaryImpactKeywords?.length) {
+    document.getElementById("score-salary-box").style.display="block";
+    document.getElementById("score-salary-chips").innerHTML = data.salaryImpactKeywords.map(s=>`<span class="skill-chip salary">💰 ${s}</span>`).join("");
   }
 
   // Skills
@@ -1193,8 +1224,22 @@ function cleanPdfArr(arr) {
 }
 function compressPhoto(base64) {
   if(!base64) return null;
-  if(base64.length > 500000) return null;
-  return base64;
+  // Always compress using canvas to keep it small
+  try {
+    const img = new Image();
+    img.src = base64;
+    const canvas = document.createElement("canvas");
+    const MAX = 200;
+    const ratio = Math.min(MAX/img.width, MAX/img.height, 1);
+    canvas.width = Math.round(img.width * ratio);
+    canvas.height = Math.round(img.height * ratio);
+    const ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL("image/jpeg", 0.7);
+  } catch(e) {
+    // fallback: just return first 300KB
+    return base64.slice(0, 400000);
+  }
 }
 
 function downloadResume() {

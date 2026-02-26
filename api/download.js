@@ -52,10 +52,10 @@ function safeY(doc, needed = 40) {
 
 function addFooter(doc, label) {
   const pageW = doc.page.width;
-  const fy = doc.page.height - 40;
-  doc.moveTo(50, fy).lineTo(pageW - 50, fy).strokeColor(BORDER).lineWidth(0.4).stroke();
+  const pageH = doc.page.height;
+  const fy = pageH - 30;
   doc.fontSize(7.5).font("Helvetica").fillColor("#b0a89e")
-     .text(`ATSCheckPro  ·  ${label || "Resume"}  ·  Confidential`, 50, fy + 6, { align: "center", width: pageW - 100 });
+     .text(`ATSCheckPro  ·  ${label || "Resume"}  ·  Confidential`, 50, fy, { align: "center", width: pageW - 100 });
 }
 
 function isBulletLine(raw) {
@@ -190,7 +190,6 @@ function buildClassicResumePDF(doc, optimizedText, photo, candidateName, profess
 function buildModernResumePDF(doc, optimizedText, photo, candidateName, professionalSummary, coreCompetencies, technicalSkills) {
   const lines = (optimizedText || "").split("\n");
   const pageW = doc.page.width;
-  const pageH = doc.page.height;
   const M = 50, W = pageW - M * 2;
   const name = (lines[0] || "").trim() || candidateName || "";
 
@@ -206,131 +205,140 @@ function buildModernResumePDF(doc, optimizedText, photo, candidateName, professi
   }
   const body = lines.slice(bodyStart);
 
-  // Dark header
-  const headerH = 90;
-  doc.rect(0, 0, pageW, headerH).fill(DARK);
-  doc.rect(0, headerH - 3, pageW, 3).fill(ACCENT);
+  // ── Header: green accent bar + name ──
+  doc.rect(0, 0, pageW, 4).fill(ACCENT);
 
-  // Photo in header
-  if (photo) {
+  const hasPhoto = !!photo;
+  const nameW = hasPhoto ? W - 80 : W;
+  const phX = pageW - M - 62, phY = 14;
+
+  // Photo circle
+  if (hasPhoto) {
     try {
       const imgData = photo.replace(/^data:image\/\w+;base64,/, "");
-      const phX = pageW - M - 65, phY = 12;
       doc.save();
-      doc.circle(phX + 32, phY + 32, 32).clip();
-      doc.image(Buffer.from(imgData, "base64"), phX, phY, { width: 64, height: 64 });
+      doc.circle(phX + 30, phY + 30, 30).clip();
+      doc.image(Buffer.from(imgData, "base64"), phX, phY, { width: 60, height: 60 });
       doc.restore();
-      doc.circle(phX + 32, phY + 32, 32).strokeColor(ACCENT).lineWidth(2).stroke();
+      doc.circle(phX + 30, phY + 30, 30).strokeColor(ACCENT).lineWidth(2).stroke();
     } catch(e) {}
   }
 
-  // Name and contact in header
-  doc.fontSize(22).font("Helvetica-Bold").fillColor("#f5f2ee").text(name, M, 18, { width: photo ? W - 80 : W });
+  // Name in dark color
+  doc.fontSize(22).font("Helvetica-Bold").fillColor("#1c1917").text(name, M, 16, { width: nameW });
+
+  // Contact line
+  let contactY = 44;
   if (contactParts.length) {
-    doc.fontSize(8).font("Helvetica").fillColor("#a8a29e")
-       .text(contactParts.join("  ·  "), M, 48, { width: photo ? W - 80 : W });
+    doc.fontSize(8.5).font("Helvetica").fillColor(MUTED)
+       .text(contactParts.join("  ·  "), M, contactY, { width: nameW });
+    contactY = doc.y + 4;
   }
 
-  doc.y = headerH + 14;
+  const divY = hasPhoto ? Math.max(contactY + 4, phY + 64) : contactY + 4;
+  // Green accent underline
+  doc.rect(M, divY, W, 2).fill(ACCENT);
+  doc.y = divY + 12;
 
-  // Professional Summary box
+  // Professional Summary
   if (professionalSummary) {
     const sy = doc.y;
-    doc.rect(M, sy, W, 1).fill(ACCENT);
-    doc.rect(M, sy, 3, 50).fill(ACCENT);
+    doc.rect(M, sy, 3, 36).fill(ACCENT);
     doc.fontSize(9).font("Helvetica").fillColor("#374151")
-       .text(professionalSummary, M + 12, sy + 8, { width: W - 12, lineGap: 3 });
-    doc.y = Math.max(doc.y, sy + 50) + 10;
+       .text(professionalSummary, M + 12, sy + 4, { width: W - 12, lineGap: 3 });
+    doc.y = Math.max(doc.y, sy + 36) + 10;
   }
 
-  // Core Competencies chips
-  if (coreCompetencies && coreCompetencies.length) {
-    safeY(doc, 40);
+  // Core Competencies
+  if (coreCompetencies?.length) {
+    safeY(doc, 45);
     const secY = doc.y;
-    doc.rect(M, secY, W, 15).fill("#f8fafc");
-    doc.fontSize(7.5).font("Helvetica-Bold").fillColor(ACCENT2)
-       .text("CORE COMPETENCIES", M + 5, secY + 4, { characterSpacing: 1 });
-    doc.y = secY + 20;
+    doc.rect(M, secY, W, 14).fill(LIGHT);
+    doc.rect(M, secY, 3, 14).fill(ACCENT);
+    doc.fontSize(7).font("Helvetica-Bold").fillColor(ACCENT2)
+       .text("CORE COMPETENCIES", M + 8, secY + 4, { characterSpacing: 1.2 });
+    doc.y = secY + 19;
     let cx = M, cy = doc.y;
     for (const skill of coreCompetencies) {
-      const sw = doc.widthOfString(skill, { fontSize: 8 }) + 14;
-      if (cx + sw > pageW - M) { cx = M; cy += 18; }
-      doc.rect(cx, cy, sw, 14).fill(DARK);
-      doc.fontSize(8).font("Helvetica-Bold").fillColor("#f5f2ee").text(skill, cx + 7, cy + 3);
-      cx += sw + 5;
+      const sw = doc.widthOfString(skill, { fontSize: 7.5 }) + 12;
+      if (cx + sw > pageW - M) { cx = M; cy += 17; }
+      doc.rect(cx, cy, sw, 13).fill("#e7f5ea");
+      doc.rect(cx, cy, sw, 13).stroke(ACCENT).lineWidth(0.5);
+      doc.fontSize(7.5).font("Helvetica-Bold").fillColor(ACCENT2).text(skill, cx + 6, cy + 3);
+      cx += sw + 4;
     }
-    doc.y = cy + 22;
+    doc.y = cy + 19;
   }
 
-  // Technical Skills chips
-  if (technicalSkills && technicalSkills.length) {
+  // Technical Skills
+  if (technicalSkills?.length) {
     safeY(doc, 40);
     const secY = doc.y;
-    doc.rect(M, secY, W, 15).fill("#eff6ff");
-    doc.fontSize(7.5).font("Helvetica-Bold").fillColor("#1d4ed8")
-       .text("TECHNICAL SKILLS", M + 5, secY + 4, { characterSpacing: 1 });
-    doc.y = secY + 20;
+    doc.rect(M, secY, W, 14).fill("#eff6ff");
+    doc.rect(M, secY, 3, 14).fill("#1d4ed8");
+    doc.fontSize(7).font("Helvetica-Bold").fillColor("#1d4ed8")
+       .text("TECHNICAL SKILLS", M + 8, secY + 4, { characterSpacing: 1.2 });
+    doc.y = secY + 19;
     let cx = M, cy = doc.y;
     for (const skill of technicalSkills) {
-      const sw = doc.widthOfString(skill, { fontSize: 8 }) + 14;
-      if (cx + sw > pageW - M) { cx = M; cy += 18; }
-      doc.rect(cx, cy, sw, 14).fill("#dbeafe");
-      doc.rect(cx, cy, sw, 14).stroke("#bfdbfe").lineWidth(0.5);
-      doc.fontSize(8).font("Helvetica-Bold").fillColor("#1d4ed8").text(skill, cx + 7, cy + 3);
-      cx += sw + 5;
+      const sw = doc.widthOfString(skill, { fontSize: 7.5 }) + 12;
+      if (cx + sw > pageW - M) { cx = M; cy += 17; }
+      doc.rect(cx, cy, sw, 13).fill("#dbeafe");
+      doc.rect(cx, cy, sw, 13).stroke("#93c5fd").lineWidth(0.5);
+      doc.fontSize(7.5).font("Helvetica-Bold").fillColor("#1d4ed8").text(skill, cx + 6, cy + 3);
+      cx += sw + 4;
     }
-    doc.y = cy + 22;
+    doc.y = cy + 19;
   }
 
   // Body content
+  const skipSections = new Set(["CORE COMPETENCIES","TECHNICAL SKILLS","SOFT SKILLS"]);
   for (const line of body) {
     const raw = line.trim();
-    if (!raw) { doc.moveDown(0.2); continue; }
+    if (!raw) { doc.moveDown(0.15); continue; }
     const bullet = isBulletLine(raw);
     const t = bullet ? cleanLine(raw) : raw;
     if (!t) continue;
 
     if (!bullet && t === t.toUpperCase() && t.length > 2 && t.length < 55 && /[A-Z]/.test(t) && !/^\d/.test(t)) {
-      // Skip if it's CORE COMPETENCIES or TECHNICAL SKILLS — already shown above
-      if (t === "CORE COMPETENCIES" || t === "TECHNICAL SKILLS" || t === "SOFT SKILLS") continue;
-      safeY(doc, 30);
-      doc.moveDown(0.4);
+      if (skipSections.has(t)) continue;
+      safeY(doc, 28);
+      doc.moveDown(0.3);
       const sy = doc.y;
-      doc.rect(M, sy, W, 16).fill("#f8fafc");
-      doc.rect(M, sy, 3, 16).fill(ACCENT);
-      doc.fontSize(8).font("Helvetica-Bold").fillColor(ACCENT2).text(t, M + 10, sy + 4, { characterSpacing: 1 });
-      doc.y = sy + 20;
+      doc.rect(M, sy, W, 14).fill(LIGHT);
+      doc.rect(M, sy, 3, 14).fill(ACCENT);
+      doc.fontSize(7.5).font("Helvetica-Bold").fillColor(ACCENT2).text(t, M + 8, sy + 3.5, { characterSpacing: 1.2 });
+      doc.y = sy + 18;
       continue;
     }
 
     if (bullet) {
-      safeY(doc, 18);
+      safeY(doc, 16);
       const by = doc.y;
-      doc.rect(M, by, 4, 4).fill(ACCENT);
-      doc.fontSize(9.5).font("Helvetica").fillColor(TEXT).text(t, M + 12, by, { width: W - 12, lineGap: 1.5 });
-      doc.moveDown(0.12);
+      doc.rect(M + 2, by + 4, 4, 4).fill(ACCENT);
+      doc.fontSize(9.5).font("Helvetica").fillColor(TEXT).text(t, M + 14, by, { width: W - 14, lineGap: 1.5 });
+      doc.moveDown(0.08);
       continue;
     }
 
     if ((t.includes(" - ") || t.includes(" – ") || t.includes(" | ")) && t.length < 100 && !t.includes("@")) {
-      safeY(doc, 20);
-      doc.moveDown(0.2);
+      safeY(doc, 18);
+      doc.moveDown(0.15);
       const parts = t.split(/\s[–\-|]\s/);
       if (parts.length > 1) {
-        doc.fontSize(10.5).font("Helvetica-Bold").fillColor(DARK).text(parts[0], M, doc.y, { continued: true });
+        doc.fontSize(10).font("Helvetica-Bold").fillColor("#1c1917").text(parts[0], M, doc.y, { continued: true });
         doc.fontSize(9).font("Helvetica").fillColor(ACCENT).text("  ·  " + parts.slice(1).join(" · "));
       } else {
-        doc.fontSize(10.5).font("Helvetica-Bold").fillColor(DARK).text(t);
+        doc.fontSize(10).font("Helvetica-Bold").fillColor("#1c1917").text(t);
       }
-      doc.moveDown(0.1);
+      doc.moveDown(0.08);
       continue;
     }
 
     safeY(doc, 14);
     doc.fontSize(9.5).font("Helvetica").fillColor(TEXT).text(t, { lineGap: 1.5 });
-    doc.moveDown(0.06);
+    doc.moveDown(0.05);
   }
-
   addFooter(doc, "Modern Visual Resume");
 }
 
