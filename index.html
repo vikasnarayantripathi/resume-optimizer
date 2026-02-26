@@ -929,7 +929,6 @@ async function compressPhoto(base64, maxSize=300) {
     img.src = base64;
   });
 }
-}
 async function downloadResume() {
   if(!lastData) return showInlineErr("Please run analysis first.");
   const photo = await compressPhoto(photoBase64);
