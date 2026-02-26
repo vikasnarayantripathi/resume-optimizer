@@ -77,7 +77,7 @@ textarea::placeholder{color:#c4b9ae}
 .file-drop p{font-size:0.78rem;color:var(--muted);line-height:1.5}
 .file-drop strong{color:var(--accent)}
 .file-drop .fd-types{font-size:0.68rem;color:#c4b9ae;margin-top:4px;font-family:'DM Mono',monospace}
-#resume-file-name,#resume-file-name-pdf{font-size:0.72rem;color:var(--accent);margin-top:6px;font-weight:600;text-align:center}
+#resume-file-name{font-size:0.72rem;color:var(--accent);margin-top:6px;font-weight:600;text-align:center}
 input[type=file]{display:none}
 
 .photo-btn{width:100%;background:var(--card);border:1.5px dashed var(--border);border-radius:8px;padding:10px;text-align:center;cursor:pointer;font-size:0.78rem;color:var(--accent);font-weight:600;transition:all 0.2s}
@@ -93,7 +93,7 @@ input[type=file]{display:none}
 .buy-box::before{content:'';position:absolute;top:-30px;right:-30px;width:100px;height:100px;border-radius:50%;background:rgba(22,163,74,0.12)}
 .price-row{display:flex;align-items:baseline;gap:10px;margin-bottom:2px}
 .price-now{font-size:2rem;font-weight:800;color:#f5f2ee}
-.price-was{font-size:0.9rem;color:#a8a29e;text-decoration:line-through;font-weight:600}
+.price-was{font-size:0.9rem;color:#57534e;text-decoration:line-through}
 .deal-tag{display:inline-block;background:var(--accent);color:white;font-size:0.62rem;font-weight:800;padding:2px 8px;border-radius:4px;margin-bottom:10px;letter-spacing:0.5px}
 .buy-box p{font-size:0.76rem;color:#a8a29e;margin-bottom:12px;line-height:1.5}
 .btn-buy{display:block;width:100%;background:var(--accent);color:white;border:none;border-radius:8px;padding:11px;font-size:0.87rem;font-weight:700;cursor:pointer;text-align:center;margin-bottom:10px;font-family:'Sora',sans-serif;transition:all 0.2s}
@@ -225,6 +225,26 @@ input[type=file]{display:none}
 
 .btn-dl{width:100%;background:var(--accent);color:white;border:none;border-radius:8px;padding:11px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;transition:all 0.2s}
 .btn-dl:hover{background:var(--accent2);transform:translateY(-1px)}
+.metric-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+.metric-card{background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
+.metric-val{font-size:1.3rem;font-weight:800;color:var(--accent)}
+.metric-val.warn{color:var(--gold)}
+.metric-val.danger{color:var(--red)}
+.metric-lbl{font-size:0.62rem;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:0.8px;margin-top:2px}
+.metric-sub{font-size:0.68rem;color:var(--muted);margin-top:3px}
+.skill-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:6px}
+.skill-chip{padding:4px 10px;border-radius:20px;font-size:0.7rem;font-weight:600;background:var(--accent-bg);color:#15803d;border:1px solid var(--accent-border)}
+.skill-chip.tech{background:#eff6ff;color:#1d4ed8;border-color:#bfdbfe}
+.skill-chip.soft{background:#fdf4ff;color:#7e22ce;border-color:#e9d5ff}
+.skill-chip.salary{background:#fffbeb;color:#92400e;border-color:#fde68a}
+.redflag-item{display:flex;gap:8px;margin-bottom:5px;font-size:0.76rem;color:#991b1b;padding:6px 10px;background:#fef2f2;border-radius:6px;border-left:2px solid #dc2626;align-items:flex-start}
+.quickwin-item{display:flex;gap:8px;margin-bottom:5px;font-size:0.76rem;color:#15803d;padding:6px 10px;background:var(--accent-bg);border-radius:6px;border-left:2px solid var(--accent);align-items:flex-start}
+.format-selector{display:flex;gap:8px;margin-bottom:12px}
+.fmt-btn{flex:1;padding:10px;border-radius:8px;border:2px solid var(--border);background:var(--card);cursor:pointer;text-align:center;transition:all 0.2s;font-family:'Sora',sans-serif}
+.fmt-btn.active{border-color:var(--accent);background:var(--accent-bg)}
+.fmt-icon{font-size:1.2rem;display:block;margin-bottom:4px}
+.fmt-name{font-size:0.72rem;font-weight:700;color:var(--text)}
+.fmt-desc{font-size:0.62rem;color:var(--muted);margin-top:2px}
 </style>
 </head>
 <body>
@@ -234,7 +254,7 @@ input[type=file]{display:none}
   <div class="logo"><div class="logo-dot"></div>ATSCheckPro</div>
   <div class="header-right">
     <div class="hbadge">FREE SCORE ↗</div>
-    <button onclick="startRazorpay()" class="btn-buy-top" id="header-buy-btn">Buy Full Access ⏳</button>
+    <button onclick="startRazorpay()" class="btn-buy-top" id="header-buy-btn">Buy Full Access</button>
   </div>
 </header>
 
@@ -455,6 +475,18 @@ input[type=file]{display:none}
           </div>
         </div>
         <div id="resume-content" style="display:none">
+          <div class="format-selector">
+            <div class="fmt-btn active" id="fmt-classic" onclick="selectFormat('classic')">
+              <span class="fmt-icon">📄</span>
+              <div class="fmt-name">Classic ATS</div>
+              <div class="fmt-desc">ATS-safe · B&W</div>
+            </div>
+            <div class="fmt-btn" id="fmt-modern" onclick="selectFormat('modern')">
+              <span class="fmt-icon">🎨</span>
+              <div class="fmt-name">Modern Visual</div>
+              <div class="fmt-desc">Color · Professional</div>
+            </div>
+          </div>
           <div class="resume-wrap"><div id="resume-display"></div></div>
           <button class="btn-dl" id="downloadResumeBtn">↓ Download Resume PDF</button>
         </div>
@@ -492,8 +524,28 @@ input[type=file]{display:none}
             <div><div class="cname" id="badge-name-report">—</div><div class="csub">ATS Analysis Report</div></div>
           </div>
           <div id="report-scroll-body">
+            <!-- METRICS ROW -->
+            <div class="metric-grid">
+              <div class="metric-card">
+                <div class="metric-val" id="met-interview">—</div>
+                <div class="metric-lbl">Interview Probability</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-val" id="met-jobfit">—</div>
+                <div class="metric-lbl">Job Fit Score</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-val" id="met-seniority" style="font-size:0.9rem">—</div>
+                <div class="metric-lbl">Seniority Match</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-val" id="met-benchmark" style="font-size:0.85rem">—</div>
+                <div class="metric-lbl">Industry Benchmark</div>
+              </div>
+            </div>
+            <!-- SCORE BARS -->
             <div class="rep-section">
-              <h4>Score Comparison</h4>
+              <h4>ATS Score Comparison</h4>
               <div class="bar-row">
                 <div class="bar-label"><span>Before Optimization</span><span id="rep-before">—</span></div>
                 <div class="bar"><div class="bar-fill" id="bar-before" style="width:0%;background:linear-gradient(90deg,#ef4444,#f97316)"></div></div>
@@ -503,12 +555,37 @@ input[type=file]{display:none}
                 <div class="bar"><div class="bar-fill" id="bar-after" style="width:0%;background:linear-gradient(90deg,#16a34a,#15803d)"></div></div>
               </div>
             </div>
+            <!-- CORE COMPETENCIES -->
             <div class="rep-section">
-              <h4>Recruiter Impression</h4>
-              <div id="rep-impression"></div>
+              <h4>Core Competencies</h4>
+              <div class="skill-chips" id="rep-competencies"></div>
             </div>
+            <!-- SKILLS -->
             <div class="rep-section">
-              <h4>Improvement Notes</h4>
+              <h4>Technical Skills</h4>
+              <div class="skill-chips" id="rep-techskills"></div>
+              <h4 style="margin-top:10px">Soft Skills</h4>
+              <div class="skill-chips" id="rep-softskills"></div>
+            </div>
+            <!-- SALARY KEYWORDS -->
+            <div class="rep-section">
+              <h4>💰 Salary-Impact Keywords to Add</h4>
+              <div class="skill-chips" id="rep-salary"></div>
+              <p style="font-size:0.7rem;color:var(--muted);margin-top:8px">Adding these keywords can significantly increase your perceived value to recruiters.</p>
+            </div>
+            <!-- QUICK WINS -->
+            <div class="rep-section">
+              <h4>⚡ Quick Wins — Fix These First</h4>
+              <div id="rep-quickwins"></div>
+            </div>
+            <!-- RED FLAGS -->
+            <div class="rep-section">
+              <h4>🚩 Red Flags Found</h4>
+              <div id="rep-redflags"></div>
+            </div>
+            <!-- RECRUITER NOTES -->
+            <div class="rep-section">
+              <h4>Recruiter Notes</h4>
               <div id="rep-notes"></div>
             </div>
           </div>
@@ -532,21 +609,12 @@ let appliedDiscount = 0;
 let activePrice = { amount: 8.90, currency: "USD", display: "$8.90", original: "$14.99" };
 
 async function detectCountry() {
-  // Set default price immediately so UI is never blank
-  updatePriceUI();
   try {
     const r = await fetch("https://ipapi.co/json/");
     const d = await r.json();
     userCountry = d.country_code || "global";
   } catch(e) {
-    // Try second API as fallback
-    try {
-      const r2 = await fetch("https://api.country.is/");
-      const d2 = await r2.json();
-      userCountry = d2.country || "global";
-    } catch(e2) {
-      userCountry = "global";
-    }
+    userCountry = "global";
   }
   updatePriceUI();
 }
@@ -575,7 +643,7 @@ function updatePriceUI() {
 
   // Update header button
   const hBtn = document.getElementById("header-buy-btn");
-if (hBtn) hBtn.textContent = "Buy Now — " + displayPrice + " →";
+  if (hBtn) hBtn.textContent = "Buy — " + displayPrice;
 
   // Update locked card price badges
   ["resume","cover","report"].forEach(t => {
@@ -695,9 +763,6 @@ function switchResumeInput(type) {
 
 document.getElementById("resumeDocxFile").addEventListener("change", async e => {
   const f = e.target.files[0]; if(!f) return;
-  // Clear previous results when new file uploaded
-  lastData = null;
-  resumeFileText = "";
   document.getElementById("resume-file-name").textContent = "⏳ Reading " + f.name + "...";
   try {
     const arrayBuffer = await f.arrayBuffer();
@@ -711,30 +776,24 @@ document.getElementById("resumeDocxFile").addEventListener("change", async e => 
 
 document.getElementById("resumePdfFile").addEventListener("change", async e => {
   const f = e.target.files[0]; if(!f) return;
-  // Clear previous results when new file uploaded
-  lastData = null;
-  resumeFileText = "";
   document.getElementById("resume-file-name-pdf").textContent = "⏳ Reading " + f.name + "...";
   try {
     const arrayBuffer = await f.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const uint8 = new Uint8Array(arrayBuffer);
+    let text = new TextDecoder("utf-8", { fatal: false }).decode(uint8);
     let extracted = "";
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      const pageText = content.items.map(item => item.str).join(" ");
-      extracted += pageText + "\n";
+    const btMatches = text.match(/BT[\s\S]*?ET/g) || [];
+    for (const block of btMatches) {
+      const strings = block.match(/\(([^)]+)\)/g) || [];
+      extracted += strings.map(s => s.slice(1,-1)).join(" ") + " ";
     }
-    resumeFileText = extracted.trim().slice(0, 8000);
-    const wordCount = resumeFileText.split(/\s+/).length;
-    if (wordCount < 20) {
-      document.getElementById("resume-file-name-pdf").textContent = "⚠ Could not extract text. Please try copy-paste.";
-    } else {
-      document.getElementById("resume-file-name-pdf").textContent = "✓ " + f.name + " — " + wordCount + " words extracted";
+    if (extracted.trim().length < 50) {
+      extracted = text.replace(/[^\x20-\x7E\n]/g, " ").replace(/\s+/g, " ").trim();
     }
+    resumeFileText = extracted.slice(0, 8000);
+    document.getElementById("resume-file-name-pdf").textContent = "✓ " + f.name + " — text extracted";
   } catch(err) {
-    document.getElementById("resume-file-name-pdf").textContent = "⚠ PDF extraction failed. Please try copy-paste.";
-    console.error("PDF error:", err);
+    document.getElementById("resume-file-name-pdf").textContent = "⚠ PDF extraction limited. Try copy-paste for best results.";
   }
 });
 
@@ -915,32 +974,83 @@ function renderResults(data) {
   showRight("score");
 }
 
+let selectedFormat = "classic";
+
+function selectFormat(fmt) {
+  selectedFormat = fmt;
+  document.getElementById("fmt-classic").classList.toggle("active", fmt==="classic");
+  document.getElementById("fmt-modern").classList.toggle("active", fmt==="modern");
+  if(lastData) renderResumeDisplay(lastData);
+}
+
+function renderResumeDisplay(data) {
+  const lines=(data.optimizedText||"").split("\n");
+  const name=lines[0]||"", contact=lines[1]||"";
+  const body=lines.slice(2);
+
+  if(selectedFormat === "modern") {
+    let resumeHTML = `<div style="background:linear-gradient(135deg,#1c1917,#2c2927);color:white;padding:20px;border-radius:8px 8px 0 0;margin:-16px -16px 16px">`;
+    if(photoBase64) resumeHTML += `<img src="${photoBase64}" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:3px solid #16a34a;float:right;margin-left:12px">`;
+    resumeHTML += `<div style="font-size:1.3rem;font-weight:800;letter-spacing:-0.5px">${name}</div>`;
+    if(contact) resumeHTML += `<div style="font-size:0.72rem;color:#a8a29e;margin-top:4px">${contact.replace(/\|/g," · ")}</div>`;
+    resumeHTML += `</div>`;
+    if(data.professionalSummary) {
+      resumeHTML += `<div style="background:#f0fdf4;border-left:3px solid #16a34a;padding:10px 12px;border-radius:4px;margin-bottom:12px;font-size:0.8rem;color:#374151;line-height:1.6">${data.professionalSummary}</div>`;
+    }
+    if(data.coreCompetencies?.length) {
+      resumeHTML += `<div style="margin-bottom:12px"><div style="font-size:0.62rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px">Core Competencies</div>`;
+      resumeHTML += `<div style="display:flex;flex-wrap:wrap;gap:4px">${data.coreCompetencies.map(s=>`<span style="background:#1c1917;color:#f5f2ee;padding:3px 9px;border-radius:20px;font-size:0.68rem;font-weight:600">${s}</span>`).join("")}</div></div>`;
+    }
+    if(data.technicalSkills?.length) {
+      resumeHTML += `<div style="margin-bottom:12px"><div style="font-size:0.62rem;font-weight:700;color:#6b7280;text-transform:uppercase;letter-spacing:1.5px;margin-bottom:6px">Technical Skills</div>`;
+      resumeHTML += `<div style="display:flex;flex-wrap:wrap;gap:4px">${data.technicalSkills.map(s=>`<span style="background:#eff6ff;color:#1d4ed8;border:1px solid #bfdbfe;padding:3px 9px;border-radius:20px;font-size:0.68rem;font-weight:600">${s}</span>`).join("")}</div></div>`;
+    }
+    resumeHTML += `<div class="rbody">`;
+    resumeHTML += body.map(line => {
+      const t=line.trim(); if(!t) return"";
+      if(t===t.toUpperCase()&&t.length>2&&t.length<50&&!/^\d/.test(t)&&/[A-Z]/.test(t))
+        return`<span style="color:#16a34a;font-family:'Sora',sans-serif;font-weight:700;font-size:0.65rem;letter-spacing:2px;display:block;margin-top:12px;padding-top:8px;border-top:1px solid #e5e7eb">${t}</span>`;
+      const clean=t.replace(/^%[^a-zA-Z0-9]*/,"").replace(/^[-•▸]\s*/,"").trim();
+      if(t.startsWith("%")||t.startsWith("-")||t.startsWith("•")||t.startsWith("▸")) return`• ${clean}`;
+      return t;
+    }).join("\n");
+    resumeHTML += `</div>`;
+    document.getElementById("resume-display").innerHTML = resumeHTML;
+  } else {
+    // Classic ATS format
+    let resumeHTML="";
+    if(photoBase64) resumeHTML+=`<img src="${photoBase64}" class="rphoto">`;
+    resumeHTML+=`<div class="rname">${name}</div>`;
+    if(contact) resumeHTML+=`<div class="rcontact">${contact.replace(/\|/g," · ")}</div>`;
+    if(data.professionalSummary) {
+      resumeHTML+=`<div style="font-size:0.78rem;color:#374151;line-height:1.6;margin-bottom:10px;font-style:italic">${data.professionalSummary}</div>`;
+    }
+    resumeHTML+=`<div class="rbody">`;
+    resumeHTML+=body.map(line => {
+      const t=line.trim(); if(!t) return"";
+      if(t===t.toUpperCase()&&t.length>2&&t.length<50&&!/^\d/.test(t)&&/[A-Z]/.test(t))
+        return`<span class="rsec">${t}</span>`;
+      const clean=t.replace(/^%[^a-zA-Z0-9]*/,"").replace(/^[-•▸]\s*/,"").trim();
+      if(t.startsWith("%")||t.startsWith("-")||t.startsWith("•")||t.startsWith("▸")) return`• ${clean}`;
+      return t;
+    }).join("\n");
+    resumeHTML+=`</div>`;
+    document.getElementById("resume-display").innerHTML=resumeHTML;
+  }
+}
+
 function renderProContent(data) {
   if(!data||!data.isPro) return;
   const s=data.scoreBefore||0, sa=data.scoreAfter||0;
   document.getElementById("after-pill").style.display="block";
   document.getElementById("score-after").textContent=sa+"/100";
 
+  // Resume display
+  renderResumeDisplay(data);
+
+  // Cover letter
   const lines=(data.optimizedText||"").split("\n");
-  const name=lines[0]||"", contact=lines[1]||"";
-  const body=lines.slice(2);
-
-  let resumeHTML="";
-  if(photoBase64) resumeHTML+=`<img src="${photoBase64}" class="rphoto">`;
-  resumeHTML+=`<div class="rname">${name}</div>`;
-  if(contact) resumeHTML+=`<div class="rcontact">${contact.replace(/\|/g," · ")}</div>`;
-  resumeHTML+=`<div class="rbody">`;
-  resumeHTML+=body.map(line => {
-    const t=line.trim(); if(!t) return"";
-    if(t===t.toUpperCase()&&t.length>2&&t.length<50&&!/^\d/.test(t)&&/[A-Z]/.test(t))
-      return`<span class="rsec">${t}</span>`;
-    const clean=t.replace(/^%[^a-zA-Z0-9]*/,"").replace(/^[-•▸]\s*/,"").trim();
-    if(t.startsWith("%")||t.startsWith("-")||t.startsWith("•")||t.startsWith("▸")) return`• ${clean}`;
-    return t;
-  }).join("\n");
-  resumeHTML+=`</div>`;
-  document.getElementById("resume-display").innerHTML=resumeHTML;
-
+  const name=lines[0]||"";
   const today=new Date().toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"});
   const rawCover=(data.coverLetter||"").trim();
   let coverHTML=`<div class="cover-date">${today}</div>`;
@@ -953,19 +1063,83 @@ function renderProContent(data) {
   });
   document.getElementById("cover-display").innerHTML=coverHTML;
 
+  // Candidate badge
   if(name){
     document.getElementById("badge-name-report").textContent=name;
     document.getElementById("candidate-badge-report").style.display="flex";
   }
+
+  // Score bars
   document.getElementById("rep-before").textContent=s+"/100";
   document.getElementById("rep-after").textContent=sa+"/100";
   setTimeout(()=>{document.getElementById("bar-before").style.width=s+"%";document.getElementById("bar-after").style.width=sa+"%";},200);
 
+  // Metrics
+  const ip = data.interviewProbability;
+  const jf = data.jobFitScore;
+  const metIp = document.getElementById("met-interview");
+  const metJf = document.getElementById("met-jobfit");
+  if(metIp && ip) {
+    metIp.textContent = ip + "%";
+    metIp.className = "metric-val" + (ip >= 70 ? "" : ip >= 50 ? " warn" : " danger");
+  }
+  if(metJf && jf) {
+    metJf.textContent = jf + "%";
+    metJf.className = "metric-val" + (jf >= 70 ? "" : jf >= 50 ? " warn" : " danger");
+  }
+  const metSen = document.getElementById("met-seniority");
+  if(metSen && data.seniorityAlignment) {
+    metSen.textContent = data.seniorityAlignment;
+    metSen.className = "metric-val" + (data.seniorityAlignment === "Mismatch" ? " danger" : "");
+  }
+  const metBench = document.getElementById("met-benchmark");
+  if(metBench && data.industryBenchmark) {
+    metBench.textContent = data.industryBenchmark;
+  }
+
+  // Skills
+  const compEl = document.getElementById("rep-competencies");
+  if(compEl && data.coreCompetencies?.length) {
+    compEl.innerHTML = data.coreCompetencies.map(s=>`<span class="skill-chip">${s}</span>`).join("");
+  }
+  const techEl = document.getElementById("rep-techskills");
+  if(techEl && data.technicalSkills?.length) {
+    techEl.innerHTML = data.technicalSkills.map(s=>`<span class="skill-chip tech">${s}</span>`).join("");
+  }
+  const softEl = document.getElementById("rep-softskills");
+  if(softEl && data.softSkills?.length) {
+    softEl.innerHTML = data.softSkills.map(s=>`<span class="skill-chip soft">${s}</span>`).join("");
+  }
+  const salaryEl = document.getElementById("rep-salary");
+  if(salaryEl && data.salaryImpactKeywords?.length) {
+    salaryEl.innerHTML = data.salaryImpactKeywords.map(s=>`<span class="skill-chip salary">💰 ${s}</span>`).join("");
+  }
+
   function stripBulletArtifacts(str){
     return (str||"").replace(/^[%¸►•▸◦‣⁃○●◆→\-–]+\s*/,"").trim();
   }
-  document.getElementById("rep-impression").innerHTML=(data.quickImpression||[]).map(x=>`<div class="note-item">→ ${stripBulletArtifacts(x)}</div>`).join("");
-  document.getElementById("rep-notes").innerHTML=(data.recruiterNotes||[]).map((x,i)=>`<div class="note-item"><span class="note-num">${i+1}.</span>${stripBulletArtifacts(x)}</div>`).join("");
+
+  // Quick wins
+  const qwEl = document.getElementById("rep-quickwins");
+  if(qwEl && data.quickWins?.length) {
+    qwEl.innerHTML = data.quickWins.map((x,i)=>`<div class="quickwin-item">⚡ ${stripBulletArtifacts(x)}</div>`).join("");
+  }
+
+  // Red flags
+  const rfEl = document.getElementById("rep-redflags");
+  if(rfEl) {
+    if(data.redFlags?.length) {
+      rfEl.innerHTML = data.redFlags.map(x=>`<div class="redflag-item">🚩 ${stripBulletArtifacts(x)}</div>`).join("");
+    } else {
+      rfEl.innerHTML = `<div class="quickwin-item">✅ No major red flags found!</div>`;
+    }
+  }
+
+  // Recruiter notes
+  const notesEl = document.getElementById("rep-notes");
+  if(notesEl) {
+    notesEl.innerHTML=(data.recruiterNotes||[]).map((x,i)=>`<div class="note-item"><span class="note-num">${i+1}.</span>${stripBulletArtifacts(x)}</div>`).join("");
+  }
 
   ["resume","cover","report"].forEach(t => {
     document.getElementById(t+"-locked").style.display="none";
@@ -1024,7 +1198,7 @@ function compressPhoto(base64) {
 
 function downloadResume() {
   if(!lastData) return showInlineErr("Please run analysis first.");
-  dlFile({type:"resume",optimizedText:cleanPdfText(lastData.optimizedText),photo:compressPhoto(photoBase64),licenseKey,candidateName:candidateName()},fileSlug()+"-Resume",document.getElementById("downloadResumeBtn"));
+  dlFile({type:"resume",optimizedText:cleanPdfText(lastData.optimizedText),photo:compressPhoto(photoBase64),licenseKey,candidateName:candidateName(),format:selectedFormat,professionalSummary:lastData.professionalSummary,coreCompetencies:lastData.coreCompetencies,technicalSkills:lastData.technicalSkills},fileSlug()+"-Resume",document.getElementById("downloadResumeBtn"));
 }
 function downloadCover() {
   if(!lastData) return showInlineErr("Please run analysis first.");
@@ -1044,7 +1218,5 @@ detectCountry();
 </script>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
 </body>
 </html>
