@@ -6,6 +6,7 @@
     { "src": "/blog/(.*)", "dest": "/blog/$1" },
     { "src": "/blog.html", "dest": "/blog/index.html" },
     { "src": "/blog-post.html", "dest": "/blog/index.html" },
+    { "src": "/landing", "dest": "/landing.html" },
     { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
