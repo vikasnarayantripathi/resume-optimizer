@@ -1,0 +1,1315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ATSCheckPro — Beat the ATS. Land the Interview.</title>
+<meta name="description" content="AI-powered resume optimizer that scores, rewrites, and supercharges your resume for ATS systems. One-time payment. Lifetime access."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --green:#16a34a;--green-light:#22c55e;--green-dark:#14532d;--green-faint:#dcfce7;
+  --dark:#1c1917;--dark-2:#292524;--dark-3:#3c3633;
+  --mid:#78716c;--mid-2:#57534e;
+  --light:#f5f2ee;--light-2:#ede9e4;--light-3:#e8e3dc;
+  --white:#ffffff;
+  --serif:'Playfair Display',Georgia,serif;
+  --sans:'DM Sans',sans-serif;
+  --mono:'DM Mono',monospace;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--light);color:var(--dark);overflow-x:hidden}
+
+/* ════════════════ NAV ════════════════ */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 5vw;height:64px;
+  background:rgba(245,242,238,0.93);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid rgba(28,25,23,0.07);
+  transition:height 0.3s;
+}
+.nav-logo{font-family:var(--serif);font-size:1.2rem;font-weight:700;color:var(--dark);text-decoration:none;letter-spacing:-0.02em;display:flex;align-items:center;gap:8px}
+.nav-logo-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px rgba(22,163,74,0.6);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.4;transform:scale(1.4)}}
+.nav-logo span{color:var(--green)}
+.nav-links{display:flex;align-items:center;gap:1.75rem;list-style:none}
+.nav-links a{font-size:0.85rem;font-weight:500;color:var(--mid-2);text-decoration:none;transition:color 0.2s}
+.nav-links a:hover{color:var(--dark)}
+.nav-cta{background:var(--green)!important;color:var(--white)!important;padding:0.45rem 1.2rem!important;border-radius:6px;font-weight:700!important;transition:background 0.2s!important;font-size:0.82rem!important}
+.nav-cta:hover{background:var(--green-dark)!important}
+.nav-hamburger{display:none;flex-direction:column;gap:5px;cursor:pointer;padding:4px}
+.nav-hamburger span{width:22px;height:2px;background:var(--dark);border-radius:2px;transition:all 0.3s}
+
+/* ════════════════ HERO ════════════════ */
+.hero{
+  min-height:100vh;display:grid;grid-template-columns:1fr 1fr;
+  align-items:center;padding:100px 5vw 60px;gap:3rem;
+  position:relative;overflow:hidden;
+}
+.hero::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 70% at 75% 40%,rgba(22,163,74,0.07) 0%,transparent 65%),
+    radial-gradient(ellipse 45% 55% at 5% 85%,rgba(22,163,74,0.05) 0%,transparent 55%);
+}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  background:var(--green-faint);color:var(--green-dark);
+  font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;
+  padding:0.35rem 0.9rem;border-radius:100px;margin-bottom:1.5rem;
+}
+.hero-eyebrow::before{content:'';width:6px;height:6px;background:var(--green);border-radius:50%;animation:pulse 2s infinite}
+.hero h1{
+  font-family:var(--serif);font-size:clamp(2.2rem,3.8vw,3.4rem);
+  font-weight:900;line-height:1.09;letter-spacing:-0.03em;
+  color:var(--dark);margin-bottom:1.4rem;
+}
+.hero h1 em{font-style:italic;color:var(--green)}
+.hero-sub{font-size:1.05rem;line-height:1.75;color:var(--mid);max-width:460px;margin-bottom:2.25rem;font-weight:300}
+.hero-actions{display:flex;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.75rem}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  background:var(--green);color:var(--white);
+  font-family:var(--sans);font-size:0.95rem;font-weight:700;
+  padding:0.875rem 1.875rem;border-radius:8px;text-decoration:none;
+  border:none;cursor:pointer;transition:all 0.25s;
+  box-shadow:0 4px 22px rgba(22,163,74,0.3);
+}
+.btn-primary:hover{background:var(--green-dark);transform:translateY(-2px);box-shadow:0 8px 30px rgba(22,163,74,0.35)}
+.btn-primary svg{transition:transform 0.2s}
+.btn-primary:hover svg{transform:translateX(3px)}
+.btn-ghost{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  background:transparent;color:var(--dark);
+  font-family:var(--sans);font-size:0.9rem;font-weight:500;
+  padding:0.875rem 1.5rem;border-radius:8px;text-decoration:none;
+  border:1.5px solid rgba(28,25,23,0.14);cursor:pointer;transition:all 0.2s;
+}
+.btn-ghost:hover{border-color:var(--green);color:var(--green)}
+.hero-trust{font-size:0.78rem;color:var(--mid);display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap}
+.hero-trust svg{color:var(--green);flex-shrink:0}
+.hero-trust-sep{color:var(--mid);opacity:0.3}
+
+/* ── Hero right: score mockup ── */
+.hero-visual{position:relative;display:flex;align-items:center;justify-content:center}
+.score-mockup{
+  background:var(--white);border-radius:18px;padding:1.75rem;
+  box-shadow:0 24px 70px rgba(28,25,23,0.13),0 4px 18px rgba(28,25,23,0.06);
+  position:relative;overflow:hidden;width:100%;max-width:360px;
+}
+.score-mockup::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--green),var(--green-light))}
+.sm-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem}
+.sm-title{font-size:0.65rem;font-weight:700;color:var(--mid);letter-spacing:0.08em;text-transform:uppercase}
+.sm-file{font-size:0.82rem;color:var(--dark);font-weight:600;margin-top:2px;font-family:var(--mono)}
+.sm-badge{background:var(--green-faint);color:var(--green-dark);font-size:0.68rem;font-weight:700;padding:0.2rem 0.65rem;border-radius:100px}
+.sm-score{text-align:center;margin:1rem 0}
+.sm-score-num{font-family:var(--serif);font-size:4.5rem;font-weight:900;color:var(--green);line-height:1}
+.sm-score-lbl{font-size:0.78rem;color:var(--mid);margin-top:3px}
+.sm-bar{margin-bottom:0.65rem}
+.sm-bar-top{display:flex;justify-content:space-between;font-size:0.72rem;color:var(--mid);margin-bottom:3px;font-weight:500}
+.sm-bar-track{height:5px;background:var(--light-2);border-radius:100px;overflow:hidden}
+.sm-bar-fill{height:100%;background:var(--green);border-radius:100px;animation:growbar 1.6s ease forwards}
+@keyframes growbar{from{width:0!important}}
+.sm-metrics{display:grid;grid-template-columns:1fr 1fr;gap:0.6rem;margin-top:1.25rem}
+.sm-metric{background:var(--light);border-radius:9px;padding:0.75rem;text-align:center}
+.sm-metric-val{font-family:var(--serif);font-size:1.3rem;font-weight:700;color:var(--dark)}
+.sm-metric-lbl{font-size:0.62rem;color:var(--mid);margin-top:1px}
+.float-badge{
+  position:absolute;background:var(--white);border-radius:12px;
+  padding:0.65rem 0.9rem;box-shadow:0 8px 28px rgba(28,25,23,0.13);
+  display:flex;align-items:center;gap:0.5rem;
+  font-size:0.78rem;font-weight:600;white-space:nowrap;
+  animation:floatbadge 4s ease-in-out infinite;
+}
+@keyframes floatbadge{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.fb1{bottom:-16px;left:-28px;color:var(--green-dark);animation-delay:0s}
+.fb2{top:10px;right:-24px;animation-delay:1.8s;font-size:0.74rem}
+.fb-dot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0}
+
+/* ════════════════ PROOF BAR ════════════════ */
+.proof-bar{
+  background:var(--dark);padding:18px 5vw;
+  display:flex;align-items:center;gap:2rem;flex-wrap:wrap;justify-content:center;
+}
+.proof-bar-label{font-size:0.72rem;color:rgba(255,255,255,0.35);font-weight:600;letter-spacing:0.08em;text-transform:uppercase;white-space:nowrap}
+.proof-logos{display:flex;gap:2.5rem;align-items:center;flex-wrap:wrap;justify-content:center}
+.proof-logo{font-family:var(--serif);font-size:0.95rem;font-weight:700;color:rgba(255,255,255,0.28);letter-spacing:-0.02em;transition:color 0.2s;cursor:default}
+.proof-logo:hover{color:rgba(255,255,255,0.55)}
+
+/* ════════════════ SECTION BASICS ════════════════ */
+section{padding:88px 5vw}
+.section-tag{font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--green);margin-bottom:0.7rem}
+.section-title{font-family:var(--serif);font-size:clamp(1.75rem,3vw,2.5rem);font-weight:900;letter-spacing:-0.03em;line-height:1.15;color:var(--dark);margin-bottom:0.9rem}
+.section-sub{font-size:1rem;color:var(--mid);line-height:1.75;max-width:520px;font-weight:300}
+
+/* ════════════════ AI SLIDER SECTION ════════════════ */
+.slider-section{background:var(--dark);padding:80px 0;overflow:hidden}
+.slider-header{text-align:center;padding:0 5vw;margin-bottom:3rem}
+.slider-header .section-tag{color:var(--green-light)}
+.slider-header .section-title{color:var(--white)}
+.slider-header .section-sub{color:rgba(255,255,255,0.45);margin:0 auto}
+
+/* Continuous marquee track */
+.slider-track-wrap{position:relative;width:100%;overflow:hidden}
+.slider-track-wrap::before,.slider-track-wrap::after{
+  content:'';position:absolute;top:0;bottom:0;width:120px;z-index:10;pointer-events:none;
+}
+.slider-track-wrap::before{left:0;background:linear-gradient(90deg,var(--dark),transparent)}
+.slider-track-wrap::after{right:0;background:linear-gradient(-90deg,var(--dark),transparent)}
+.slider-track{display:flex;gap:1.5rem;animation:marquee 40s linear infinite;width:max-content;padding:8px 0}
+.slider-track:hover{animation-play-state:paused}
+
+@keyframes marquee{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/* ── AI image cards ── */
+.ai-card{
+  flex-shrink:0;width:280px;border-radius:16px;overflow:hidden;
+  background:var(--dark-2);border:1px solid rgba(255,255,255,0.07);
+  transition:transform 0.3s,border-color 0.3s;cursor:pointer;
+}
+.ai-card:hover{transform:translateY(-6px);border-color:rgba(22,163,74,0.4)}
+.ai-card-img{width:100%;height:200px;position:relative;overflow:hidden;background:var(--dark-3)}
+.ai-card-img svg{width:100%;height:100%}
+.ai-card-body{padding:1rem}
+.ai-card-tag{font-size:0.65rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--green-light);margin-bottom:0.4rem}
+.ai-card-title{font-size:0.88rem;font-weight:700;color:var(--white);margin-bottom:0.3rem}
+.ai-card-sub{font-size:0.75rem;color:rgba(255,255,255,0.4);line-height:1.5}
+
+/* ── Resume preview cards (blurred) ── */
+.resume-card{
+  flex-shrink:0;width:260px;border-radius:16px;overflow:hidden;
+  background:var(--white);border:1px solid rgba(255,255,255,0.1);
+  transition:transform 0.3s,box-shadow 0.3s;cursor:pointer;
+  position:relative;
+}
+.resume-card:hover{transform:translateY(-6px);box-shadow:0 20px 60px rgba(0,0,0,0.35)}
+.resume-card-inner{padding:1.25rem;filter:blur(3.5px);user-select:none;pointer-events:none}
+.resume-card-inner.classic .rc-name{font-size:1rem;font-weight:800;color:var(--dark);border-bottom:2px solid var(--green);padding-bottom:6px;margin-bottom:8px}
+.resume-card-inner.modern .rc-name{font-size:1rem;font-weight:800;color:var(--white);background:var(--dark);padding:10px;margin:-1.25rem -1.25rem 10px;letter-spacing:0.02em}
+.rc-contact{font-size:0.62rem;color:var(--mid);margin-bottom:8px;font-family:var(--mono)}
+.rc-section{font-size:0.58rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:1.5px;border-top:1px solid var(--light-2);padding-top:5px;margin:6px 0 3px}
+.rc-line{height:5px;background:var(--light-2);border-radius:3px;margin-bottom:3px}
+.rc-line.w100{width:100%}
+.rc-line.w85{width:85%}
+.rc-line.w70{width:70%}
+.rc-line.w60{width:60%}
+.rc-line.w45{width:45%}
+.rc-line.w30{width:30%}
+.rc-line.accent{background:rgba(22,163,74,0.25)}
+/* unblur overlay */
+.resume-card-overlay{
+  position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(28,25,23,0.45);backdrop-filter:blur(0px);
+  opacity:0;transition:opacity 0.3s;
+}
+.resume-card:hover .resume-card-overlay{opacity:1}
+.resume-card-overlay span{
+  background:var(--green);color:var(--white);font-size:0.78rem;font-weight:700;
+  padding:0.5rem 1.1rem;border-radius:100px;
+}
+.resume-card-badge{
+  position:absolute;top:10px;right:10px;
+  background:var(--dark);color:var(--white);
+  font-size:0.62rem;font-weight:700;letter-spacing:0.06em;
+  padding:0.25rem 0.6rem;border-radius:100px;
+}
+.resume-card-badge.modern-badge{background:var(--green)}
+
+/* Second slider row - resume cards */
+.slider-track-2{display:flex;gap:1.5rem;animation:marquee2 35s linear infinite;width:max-content;padding:8px 0;margin-top:1.25rem}
+.slider-track-2:hover{animation-play-state:paused}
+@keyframes marquee2{0%{transform:translateX(-50%)}100%{transform:translateX(0)}}
+
+/* ════════════════ HOW IT WORKS ════════════════ */
+.how{background:var(--white)}
+.how-inner{max-width:860px;margin:0 auto}
+.how-header{text-align:center;margin-bottom:3.5rem}
+.steps{display:grid;grid-template-columns:1fr 1fr 1fr;gap:2px;background:var(--light-2);border-radius:16px;overflow:hidden}
+.step{background:var(--white);padding:2.25rem;position:relative;transition:background 0.2s}
+.step:hover{background:#fafaf9}
+.step-num{font-family:var(--serif);font-size:3.5rem;font-weight:900;color:var(--green-faint);line-height:1;margin-bottom:0.75rem}
+.step-icon{width:42px;height:42px;background:var(--green-faint);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;margin-bottom:0.875rem}
+.step h3{font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--dark);margin-bottom:0.45rem;letter-spacing:-0.02em}
+.step p{font-size:0.85rem;color:var(--mid);line-height:1.65;font-weight:300}
+
+/* ════════════════ FEATURES ════════════════ */
+.features{background:var(--light)}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-top:3.25rem}
+.feat-card{
+  background:var(--white);border-radius:14px;padding:1.75rem;
+  border:1px solid rgba(28,25,23,0.06);transition:all 0.25s;position:relative;overflow:hidden;
+}
+.feat-card::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--green),var(--green-light));
+  transform:scaleX(0);transform-origin:left;transition:transform 0.3s;
+}
+.feat-card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(28,25,23,0.09)}
+.feat-card:hover::after{transform:scaleX(1)}
+.feat-icon{font-size:1.5rem;margin-bottom:0.875rem;width:48px;height:48px;background:var(--light);border-radius:10px;display:flex;align-items:center;justify-content:center}
+.feat-card h3{font-family:var(--serif);font-size:1.05rem;font-weight:700;color:var(--dark);margin-bottom:0.45rem;letter-spacing:-0.02em}
+.feat-card p{font-size:0.83rem;color:var(--mid);line-height:1.65;font-weight:300}
+.feat-free{display:inline-block;margin-top:0.65rem;font-size:0.65rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:var(--green-dark);background:var(--green-faint);padding:0.18rem 0.55rem;border-radius:100px}
+
+/* ════════════════ PRICING ════════════════ */
+.pricing{background:var(--dark);overflow:hidden;position:relative}
+.pricing::before{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(22,163,74,0.06) 0%,transparent 60%);
+}
+.pricing .section-title{color:var(--white)}
+.pricing .section-sub{color:rgba(255,255,255,0.45)}
+.pricing .section-tag{color:var(--green-light)}
+.pricing-inner{max-width:520px;margin:0 auto;position:relative}
+.pricing-header{text-align:center;margin-bottom:3rem}
+
+/* Single card — shown by geo */
+.price-card{
+  background:var(--dark-2);border-radius:18px;padding:2.5rem;
+  border:1px solid rgba(22,163,74,0.35);
+  background:linear-gradient(145deg,rgba(22,163,74,0.08) 0%,var(--dark-2) 55%);
+  position:relative;overflow:hidden;
+}
+.price-card::before{
+  content:'BEST VALUE';position:absolute;top:1.25rem;right:1.25rem;
+  font-size:0.62rem;font-weight:700;letter-spacing:0.08em;
+  color:var(--green-light);background:rgba(22,163,74,0.15);
+  padding:0.22rem 0.7rem;border-radius:100px;
+}
+.price-flag{font-size:0.75rem;font-weight:600;color:rgba(255,255,255,0.4);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.35rem}
+.price-flag span{font-size:1rem;margin-right:0.2rem}
+.price-original{
+  font-size:1rem;color:rgba(255,255,255,0.28);
+  text-decoration:line-through;text-decoration-color:rgba(255,90,90,0.55);
+  font-weight:500;margin-bottom:2px;
+}
+.price-amount-row{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin:0.2rem 0 0.3rem}
+.price-amount{font-family:var(--serif);font-size:4rem;font-weight:900;color:var(--white);line-height:1}
+.price-amount sup{font-size:1.5rem;vertical-align:top;margin-top:0.6rem}
+.price-save{
+  display:inline-block;background:rgba(239,68,68,0.18);color:#fca5a5;
+  font-size:0.68rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;
+  padding:0.2rem 0.6rem;border-radius:100px;
+}
+.price-once{font-size:0.78rem;color:rgba(255,255,255,0.3);margin-bottom:2rem}
+.price-features{list-style:none;margin-bottom:2rem}
+.price-features li{
+  font-size:0.88rem;color:rgba(255,255,255,0.6);
+  padding:0.55rem 0;border-bottom:1px solid rgba(255,255,255,0.05);
+  display:flex;align-items:center;gap:0.6rem;
+}
+.price-features li::before{content:'✓';color:var(--green-light);font-weight:700;font-size:0.75rem;flex-shrink:0}
+.btn-buy{
+  display:block;width:100%;text-align:center;
+  background:var(--green);color:var(--white);
+  font-family:var(--sans);font-size:1rem;font-weight:700;
+  padding:0.95rem;border-radius:10px;text-decoration:none;
+  border:none;cursor:pointer;transition:all 0.2s;
+  box-shadow:0 4px 24px rgba(22,163,74,0.4);letter-spacing:0.01em;
+}
+.btn-buy:hover{background:var(--green-dark);box-shadow:0 8px 32px rgba(22,163,74,0.45)}
+.pricing-note{text-align:center;margin-top:1.25rem;font-size:0.78rem;color:rgba(255,255,255,0.25)}
+
+/* Hidden by default — JS reveals correct one */
+#price-india,#price-global{display:none}
+
+/* ════════════════ TESTIMONIALS ════════════════ */
+.testimonials{background:var(--white)}
+.testimonials-header{text-align:center;margin-bottom:3.5rem}
+.testi-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;max-width:980px;margin:0 auto}
+.testi-card{background:var(--light);border-radius:14px;padding:1.75rem;border:1px solid rgba(28,25,23,0.06)}
+.testi-stars{color:#f59e0b;font-size:0.85rem;letter-spacing:2px;margin-bottom:0.875rem}
+.testi-text{font-size:0.88rem;color:var(--dark);line-height:1.75;margin-bottom:1.25rem;font-style:italic}
+.testi-author{display:flex;align-items:center;gap:0.7rem}
+.testi-avatar{width:36px;height:36px;border-radius:50%;background:var(--green-faint);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.82rem;color:var(--green-dark);flex-shrink:0}
+.testi-name{font-size:0.82rem;font-weight:700;color:var(--dark)}
+.testi-role{font-size:0.72rem;color:var(--mid)}
+.testi-placeholder{text-align:center;margin-top:1.75rem;font-size:0.8rem;color:var(--mid)}
+.testi-placeholder a{color:var(--green);text-decoration:none;font-weight:600}
+
+/* ════════════════ FAQ ════════════════ */
+.faq{background:var(--light)}
+.faq-inner{max-width:700px;margin:0 auto}
+.faq-header{text-align:center;margin-bottom:2.75rem}
+.faq-item{border-bottom:1px solid rgba(28,25,23,0.09)}
+.faq-q{
+  width:100%;text-align:left;padding:1.2rem 0;
+  display:flex;justify-content:space-between;align-items:center;
+  background:none;border:none;cursor:pointer;
+  font-family:var(--sans);font-size:0.95rem;font-weight:600;
+  color:var(--dark);gap:1rem;
+}
+.faq-icon{font-size:1.1rem;color:var(--green);flex-shrink:0;transition:transform 0.3s;font-style:normal}
+.faq-item.open .faq-icon{transform:rotate(45deg)}
+.faq-a{font-size:0.86rem;color:var(--mid);line-height:1.75;padding-bottom:1.2rem;display:none;font-weight:300}
+.faq-item.open .faq-a{display:block}
+
+/* ════════════════ CTA BANNER ════════════════ */
+.cta-banner{background:var(--green);padding:80px 5vw;text-align:center;position:relative;overflow:hidden}
+.cta-banner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 80% at 50% 50%,rgba(255,255,255,0.07) 0%,transparent 70%);pointer-events:none}
+.cta-banner h2{font-family:var(--serif);font-size:clamp(1.9rem,3.5vw,2.9rem);font-weight:900;color:var(--white);letter-spacing:-0.03em;margin-bottom:0.9rem}
+.cta-banner p{font-size:1rem;color:rgba(255,255,255,0.72);margin-bottom:2.25rem;font-weight:300}
+.btn-cta-white{
+  display:inline-flex;align-items:center;gap:0.5rem;
+  background:var(--white);color:var(--green-dark);
+  font-family:var(--sans);font-size:1rem;font-weight:700;
+  padding:1rem 2.25rem;border-radius:8px;text-decoration:none;
+  transition:all 0.2s;box-shadow:0 4px 22px rgba(0,0,0,0.14);
+}
+.btn-cta-white:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(0,0,0,0.2)}
+
+/* ════════════════ FOOTER ════════════════ */
+footer{background:var(--dark);padding:52px 5vw 30px}
+.footer-top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:2.5rem;margin-bottom:3rem}
+.footer-logo{font-family:var(--serif);font-size:1.15rem;font-weight:700;color:var(--white);margin-bottom:0.4rem;display:flex;align-items:center;gap:8px}
+.footer-logo span{color:var(--green-light)}
+.footer-logo-dot{width:7px;height:7px;border-radius:50%;background:var(--green)}
+.footer-tagline{font-size:0.8rem;color:rgba(255,255,255,0.3);font-weight:300}
+.footer-links{display:flex;gap:4rem;flex-wrap:wrap}
+.footer-col h4{font-size:0.68rem;font-weight:700;letter-spacing:0.09em;text-transform:uppercase;color:rgba(255,255,255,0.28);margin-bottom:1rem}
+.footer-col ul{list-style:none}
+.footer-col li{margin-bottom:0.55rem}
+.footer-col a{font-size:0.83rem;color:rgba(255,255,255,0.45);text-decoration:none;transition:color 0.2s}
+.footer-col a:hover{color:var(--white)}
+.footer-bottom{border-top:1px solid rgba(255,255,255,0.06);padding-top:1.5rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+.footer-copy{font-size:0.76rem;color:rgba(255,255,255,0.18)}
+.footer-legal{display:flex;gap:1.5rem}
+.footer-legal a{font-size:0.76rem;color:rgba(255,255,255,0.22);text-decoration:none}
+.footer-legal a:hover{color:rgba(255,255,255,0.5)}
+
+/* ════════════════ SCROLL REVEAL ════════════════ */
+.reveal{opacity:0;transform:translateY(22px);transition:opacity 0.65s ease,transform 0.65s ease}
+.reveal.visible{opacity:1;transform:none}
+
+/* ════════════════ RESPONSIVE ════════════════ */
+@media(max-width:960px){
+  .hero{grid-template-columns:1fr;padding-top:88px}
+  .hero-visual{display:none}
+  .steps{grid-template-columns:1fr}
+  .features-grid{grid-template-columns:1fr 1fr}
+  .testi-grid{grid-template-columns:1fr}
+  .footer-links{gap:2rem}
+}
+@media(max-width:640px){
+  .nav-links{display:none}
+  .nav-hamburger{display:flex}
+  .features-grid{grid-template-columns:1fr}
+  .footer-top{flex-direction:column}
+  .proof-logos{gap:1.5rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════════ NAV ════════════════ -->
+<nav id="main-nav">
+  <a href="#" class="nav-logo">
+    <div class="nav-logo-dot"></div>
+    ATS<span>Check</span>Pro
+  </a>
+  <ul class="nav-links">
+    <li><a href="#how">How it Works</a></li>
+    <li><a href="#features">Features</a></li>
+    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="/index.html" class="nav-cta">Try Free →</a></li>
+  </ul>
+  <div class="nav-hamburger" onclick="toggleMobileNav()" id="hamburger">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- Mobile nav drawer -->
+<div id="mobile-nav" style="display:none;position:fixed;top:64px;left:0;right:0;background:var(--light);border-bottom:1px solid var(--light-2);z-index:199;padding:1.5rem 5vw;display:none;flex-direction:column;gap:1rem">
+  <a href="#how" style="font-size:0.9rem;font-weight:600;color:var(--dark);text-decoration:none" onclick="closeMobileNav()">How it Works</a>
+  <a href="#features" style="font-size:0.9rem;font-weight:600;color:var(--dark);text-decoration:none" onclick="closeMobileNav()">Features</a>
+  <a href="#pricing" style="font-size:0.9rem;font-weight:600;color:var(--dark);text-decoration:none" onclick="closeMobileNav()">Pricing</a>
+  <a href="#faq" style="font-size:0.9rem;font-weight:600;color:var(--dark);text-decoration:none" onclick="closeMobileNav()">FAQ</a>
+  <a href="/index.html" style="display:block;background:var(--green);color:white;text-align:center;padding:0.75rem;border-radius:8px;font-weight:700;text-decoration:none;font-size:0.9rem">Try Free →</a>
+</div>
+
+<!-- ════════════════ HERO ════════════════ -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-eyebrow">AI-Powered Resume Optimizer</div>
+    <h1>Your resume is<br/>getting <em>rejected</em><br/>before a human<br/>ever sees it.</h1>
+    <p class="hero-sub">75% of resumes never pass ATS filters. ATSCheckPro scores, rewrites, and supercharges your resume with AI — so you land interviews, not rejections.</p>
+    <div class="hero-actions">
+      <a href="/index.html" class="btn-primary">
+        Check My Resume Free
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="#pricing" class="btn-ghost">See Pricing</a>
+    </div>
+    <p class="hero-trust">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+      ATS score is completely free
+      <span class="hero-trust-sep">·</span>
+      No account needed
+      <span class="hero-trust-sep">·</span>
+      Results in 30 seconds
+    </p>
+  </div>
+
+  <div class="hero-visual">
+    <div style="position:relative;padding:24px 44px 44px 24px">
+      <div class="score-mockup">
+        <div class="sm-header">
+          <div>
+            <div class="sm-title">Resume Analysis</div>
+            <div class="sm-file">Software_Engineer_CV.pdf</div>
+          </div>
+          <div class="sm-badge">Complete</div>
+        </div>
+        <div class="sm-score">
+          <div class="sm-score-num">87</div>
+          <div class="sm-score-lbl">ATS Compatibility Score</div>
+        </div>
+        <div class="sm-bar">
+          <div class="sm-bar-top"><span>Keyword Match</span><span>92%</span></div>
+          <div class="sm-bar-track"><div class="sm-bar-fill" style="width:92%"></div></div>
+        </div>
+        <div class="sm-bar">
+          <div class="sm-bar-top"><span>Format Score</span><span>85%</span></div>
+          <div class="sm-bar-track"><div class="sm-bar-fill" style="width:85%;animation-delay:0.2s"></div></div>
+        </div>
+        <div class="sm-bar">
+          <div class="sm-bar-top"><span>Section Completeness</span><span>78%</span></div>
+          <div class="sm-bar-track"><div class="sm-bar-fill" style="width:78%;animation-delay:0.4s"></div></div>
+        </div>
+        <div class="sm-metrics">
+          <div class="sm-metric"><div class="sm-metric-val">68%</div><div class="sm-metric-lbl">Interview Prob.</div></div>
+          <div class="sm-metric"><div class="sm-metric-val">91%</div><div class="sm-metric-lbl">Job Fit Score</div></div>
+          <div class="sm-metric"><div class="sm-metric-val">+34%</div><div class="sm-metric-lbl">Salary Impact</div></div>
+          <div class="sm-metric"><div class="sm-metric-val">2</div><div class="sm-metric-lbl">PDF Formats</div></div>
+        </div>
+      </div>
+      <div class="float-badge fb1"><div class="fb-dot"></div>AI rewrite ready ✨</div>
+      <div class="float-badge fb2">📄 Cover letter generated</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ PROOF BAR ════════════════ -->
+<div class="proof-bar">
+  <span class="proof-bar-label">Trusted by job seekers targeting</span>
+  <div class="proof-logos">
+    <span class="proof-logo">Google</span>
+    <span class="proof-logo">Microsoft</span>
+    <span class="proof-logo">Infosys</span>
+    <span class="proof-logo">Deloitte</span>
+    <span class="proof-logo">TCS</span>
+    <span class="proof-logo">Wipro</span>
+    <span class="proof-logo">Amazon</span>
+  </div>
+</div>
+
+<!-- ════════════════ AI + RESUME SLIDER ════════════════ -->
+<div class="slider-section">
+  <div class="slider-header reveal">
+    <div class="section-tag">See It In Action</div>
+    <h2 class="section-title">AI that reads, rewrites<br/>and delivers results.</h2>
+    <p class="section-sub">From raw resume to ATS-optimized PDF — powered by Gemini AI. See what the output looks like.</p>
+  </div>
+
+  <!-- Row 1: AI feature cards -->
+  <div class="slider-track-wrap">
+    <div class="slider-track" id="slider-ai">
+
+      <!-- Card 1: ATS Score -->
+      <div class="ai-card">
+        <div class="ai-card-img">
+          <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="200" fill="#1c1917"/>
+            <circle cx="140" cy="90" r="64" fill="none" stroke="#2c2927" stroke-width="12"/>
+            <circle cx="140" cy="90" r="64" fill="none" stroke="#16a34a" stroke-width="12" stroke-dasharray="402" stroke-dashoffset="100" stroke-linecap="round" transform="rotate(-90 140 90)"/>
+            <text x="140" y="85" text-anchor="middle" fill="#f5f2ee" font-family="Georgia,serif" font-size="30" font-weight="bold">87</text>
+            <text x="140" y="104" text-anchor="middle" fill="#78716c" font-family="sans-serif" font-size="10">/100 ATS SCORE</text>
+            <!-- Glow -->
+            <circle cx="140" cy="90" r="48" fill="rgba(22,163,74,0.05)"/>
+            <text x="140" y="160" text-anchor="middle" fill="#16a34a" font-family="sans-serif" font-size="9" font-weight="bold" letter-spacing="2">KEYWORD MATCH: 92%</text>
+            <!-- dots decoration -->
+            <circle cx="40" cy="30" r="3" fill="rgba(22,163,74,0.3)"/>
+            <circle cx="240" cy="30" r="3" fill="rgba(22,163,74,0.3)"/>
+            <circle cx="40" cy="170" r="2" fill="rgba(22,163,74,0.2)"/>
+            <circle cx="240" cy="170" r="2" fill="rgba(22,163,74,0.2)"/>
+          </svg>
+        </div>
+        <div class="ai-card-body">
+          <div class="ai-card-tag">Free Feature</div>
+          <div class="ai-card-title">Instant ATS Score</div>
+          <div class="ai-card-sub">Know exactly how well your resume matches any job — before you apply.</div>
+        </div>
+      </div>
+
+      <!-- Card 2: AI Rewrite -->
+      <div class="ai-card">
+        <div class="ai-card-img">
+          <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="200" fill="#1c1917"/>
+            <!-- Before column -->
+            <rect x="18" y="20" width="110" height="160" rx="6" fill="#292524" stroke="#3c3633" stroke-width="1"/>
+            <text x="73" y="36" text-anchor="middle" fill="#57534e" font-family="sans-serif" font-size="7" font-weight="bold" letter-spacing="1">BEFORE</text>
+            <rect x="28" y="44" width="90" height="4" rx="2" fill="#3c3633"/>
+            <rect x="28" y="54" width="75" height="3" rx="2" fill="#3c3633"/>
+            <rect x="28" y="63" width="82" height="3" rx="2" fill="#3c3633"/>
+            <rect x="28" y="76" width="55" height="3" rx="2" fill="#3c3633"/>
+            <rect x="28" y="85" width="70" height="3" rx="2" fill="#3c3633"/>
+            <rect x="28" y="94" width="60" height="3" rx="2" fill="#3c3633"/>
+            <rect x="28" y="107" width="80" height="3" rx="2" fill="#3c3633"/>
+            <rect x="28" y="116" width="65" height="3" rx="2" fill="#3c3633"/>
+            <text x="73" y="158" text-anchor="middle" fill="#57534e" font-family="sans-serif" font-size="8">Score: 42</text>
+            <!-- Arrow -->
+            <text x="140" y="105" text-anchor="middle" fill="#16a34a" font-family="sans-serif" font-size="18">→</text>
+            <!-- After column -->
+            <rect x="152" y="20" width="110" height="160" rx="6" fill="#14532d" stroke="#16a34a" stroke-width="1"/>
+            <text x="207" y="36" text-anchor="middle" fill="#22c55e" font-family="sans-serif" font-size="7" font-weight="bold" letter-spacing="1">AFTER AI</text>
+            <rect x="162" y="44" width="90" height="4" rx="2" fill="rgba(22,163,74,0.5)"/>
+            <rect x="162" y="54" width="80" height="3" rx="2" fill="rgba(22,163,74,0.35)"/>
+            <rect x="162" y="63" width="88" height="3" rx="2" fill="rgba(22,163,74,0.35)"/>
+            <rect x="162" y="76" width="70" height="3" rx="2" fill="rgba(22,163,74,0.35)"/>
+            <rect x="162" y="85" width="82" height="3" rx="2" fill="rgba(22,163,74,0.35)"/>
+            <rect x="162" y="94" width="75" height="3" rx="2" fill="rgba(22,163,74,0.35)"/>
+            <rect x="162" y="107" width="85" height="3" rx="2" fill="rgba(22,163,74,0.35)"/>
+            <rect x="162" y="116" width="68" height="3" rx="2" fill="rgba(22,163,74,0.35)"/>
+            <text x="207" y="158" text-anchor="middle" fill="#22c55e" font-family="sans-serif" font-size="8" font-weight="bold">Score: 91 ↑</text>
+          </svg>
+        </div>
+        <div class="ai-card-body">
+          <div class="ai-card-tag">Pro Feature</div>
+          <div class="ai-card-title">AI Resume Rewrite</div>
+          <div class="ai-card-sub">Gemini AI rewrites your resume with role-specific keywords and power phrases.</div>
+        </div>
+      </div>
+
+      <!-- Card 3: Cover Letter -->
+      <div class="ai-card">
+        <div class="ai-card-img">
+          <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="200" fill="#1c1917"/>
+            <rect x="30" y="22" width="220" height="156" rx="8" fill="#f5f2ee" opacity="0.06" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+            <!-- envelope flap -->
+            <path d="M30 22 L140 95 L250 22" fill="none" stroke="rgba(22,163,74,0.4)" stroke-width="1.5"/>
+            <rect x="42" y="50" width="196" height="3" rx="2" fill="rgba(255,255,255,0.12)"/>
+            <rect x="42" y="62" width="180" height="2.5" rx="2" fill="rgba(255,255,255,0.08)"/>
+            <rect x="42" y="72" width="185" height="2.5" rx="2" fill="rgba(255,255,255,0.08)"/>
+            <rect x="42" y="82" width="160" height="2.5" rx="2" fill="rgba(255,255,255,0.08)"/>
+            <rect x="42" y="100" width="196" height="2.5" rx="2" fill="rgba(255,255,255,0.08)"/>
+            <rect x="42" y="110" width="170" height="2.5" rx="2" fill="rgba(255,255,255,0.08)"/>
+            <rect x="42" y="120" width="175" height="2.5" rx="2" fill="rgba(255,255,255,0.08)"/>
+            <rect x="42" y="140" width="80" height="2.5" rx="2" fill="rgba(22,163,74,0.5)"/>
+            <!-- AI spark icon -->
+            <circle cx="230" cy="38" r="16" fill="rgba(22,163,74,0.15)" stroke="rgba(22,163,74,0.3)" stroke-width="1"/>
+            <text x="230" y="43" text-anchor="middle" fill="#22c55e" font-family="sans-serif" font-size="13">✦</text>
+          </svg>
+        </div>
+        <div class="ai-card-body">
+          <div class="ai-card-tag">Pro Feature</div>
+          <div class="ai-card-title">Cover Letter Generator</div>
+          <div class="ai-card-sub">Personalized, job-specific cover letter generated in seconds. Ready to copy.</div>
+        </div>
+      </div>
+
+      <!-- Card 4: Interview Probability -->
+      <div class="ai-card">
+        <div class="ai-card-img">
+          <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="200" fill="#1c1917"/>
+            <!-- Gauge arc -->
+            <path d="M60 150 A80 80 0 0 1 220 150" fill="none" stroke="#2c2927" stroke-width="14" stroke-linecap="round"/>
+            <path d="M60 150 A80 80 0 0 1 180 78" fill="none" stroke="#16a34a" stroke-width="14" stroke-linecap="round"/>
+            <!-- Needle -->
+            <line x1="140" y1="150" x2="175" y2="82" stroke="#f5f2ee" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="140" cy="150" r="7" fill="#16a34a"/>
+            <text x="140" y="125" text-anchor="middle" fill="#f5f2ee" font-family="Georgia,serif" font-size="26" font-weight="bold">68%</text>
+            <text x="140" y="142" text-anchor="middle" fill="#78716c" font-family="sans-serif" font-size="8">INTERVIEW PROBABILITY</text>
+            <text x="68" y="170" fill="#3c3633" font-family="sans-serif" font-size="8">Low</text>
+            <text x="126" y="170" fill="#16a34a" font-family="sans-serif" font-size="8" font-weight="bold">Good</text>
+            <text x="200" y="170" fill="#3c3633" font-family="sans-serif" font-size="8">High</text>
+            <text x="140" y="192" text-anchor="middle" fill="#16a34a" font-family="sans-serif" font-size="8" letter-spacing="1">↑ +26% AFTER OPTIMIZATION</text>
+          </svg>
+        </div>
+        <div class="ai-card-body">
+          <div class="ai-card-tag">Pro Feature</div>
+          <div class="ai-card-title">Interview Probability</div>
+          <div class="ai-card-sub">See your realistic chance of getting called before and after optimization.</div>
+        </div>
+      </div>
+
+      <!-- Card 5: Salary Keywords -->
+      <div class="ai-card">
+        <div class="ai-card-img">
+          <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="200" fill="#1c1917"/>
+            <!-- Tag clouds -->
+            <rect x="18" y="28" width="78" height="22" rx="11" fill="rgba(22,163,74,0.15)" stroke="rgba(22,163,74,0.3)" stroke-width="1"/>
+            <text x="57" y="43" text-anchor="middle" fill="#22c55e" font-family="sans-serif" font-size="9" font-weight="bold">CI/CD Pipeline</text>
+            <rect x="104" y="28" width="68" height="22" rx="11" fill="rgba(22,163,74,0.15)" stroke="rgba(22,163,74,0.3)" stroke-width="1"/>
+            <text x="138" y="43" text-anchor="middle" fill="#22c55e" font-family="sans-serif" font-size="9" font-weight="bold">Kubernetes</text>
+            <rect x="180" y="28" width="80" height="22" rx="11" fill="rgba(22,163,74,0.15)" stroke="rgba(22,163,74,0.3)" stroke-width="1"/>
+            <text x="220" y="43" text-anchor="middle" fill="#22c55e" font-family="sans-serif" font-size="9" font-weight="bold">Stakeholder Mgmt</text>
+            <rect x="18" y="60" width="56" height="22" rx="11" fill="rgba(217,119,6,0.15)" stroke="rgba(217,119,6,0.35)" stroke-width="1"/>
+            <text x="46" y="75" text-anchor="middle" fill="#d97706" font-family="sans-serif" font-size="9" font-weight="bold">P&L Owner</text>
+            <rect x="82" y="60" width="90" height="22" rx="11" fill="rgba(217,119,6,0.15)" stroke="rgba(217,119,6,0.35)" stroke-width="1"/>
+            <text x="127" y="75" text-anchor="middle" fill="#d97706" font-family="sans-serif" font-size="9" font-weight="bold">Revenue Growth</text>
+            <rect x="180" y="60" width="82" height="22" rx="11" fill="rgba(217,119,6,0.15)" stroke="rgba(217,119,6,0.35)" stroke-width="1"/>
+            <text x="221" y="75" text-anchor="middle" fill="#d97706" font-family="sans-serif" font-size="9" font-weight="bold">Cross-functional</text>
+            <!-- Salary bar -->
+            <rect x="18" y="102" width="244" height="1" fill="#2c2927"/>
+            <text x="18" y="118" fill="#78716c" font-family="sans-serif" font-size="8">WITHOUT keywords</text>
+            <rect x="18" y="125" width="140" height="8" rx="4" fill="#3c3633"/>
+            <text x="165" y="133" fill="#78716c" font-family="sans-serif" font-size="9">₹12 LPA</text>
+            <text x="18" y="150" fill="#22c55e" font-family="sans-serif" font-size="8" font-weight="bold">WITH salary keywords</text>
+            <rect x="18" y="157" width="200" height="8" rx="4" fill="#16a34a"/>
+            <text x="225" y="165" fill="#22c55e" font-family="sans-serif" font-size="9" font-weight="bold">₹16 LPA</text>
+            <text x="18" y="185" fill="#16a34a" font-family="sans-serif" font-size="8">💰 +33% salary negotiation leverage</text>
+          </svg>
+        </div>
+        <div class="ai-card-body">
+          <div class="ai-card-tag">Pro Feature</div>
+          <div class="ai-card-title">Salary-Impact Keywords</div>
+          <div class="ai-card-sub">High-value phrases top earners use to negotiate 20–35% higher salaries.</div>
+        </div>
+      </div>
+
+      <!-- Card 6: Job Fit Score -->
+      <div class="ai-card">
+        <div class="ai-card-img">
+          <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="200" fill="#1c1917"/>
+            <!-- Radar chart placeholder -->
+            <polygon points="140,30 210,80 185,160 95,160 70,80" fill="rgba(22,163,74,0.08)" stroke="rgba(22,163,74,0.2)" stroke-width="1"/>
+            <polygon points="140,50 190,88 170,148 110,148 90,88" fill="rgba(22,163,74,0.12)" stroke="rgba(22,163,74,0.25)" stroke-width="1"/>
+            <polygon points="140,55 185,92 166,144 114,144 95,92" fill="rgba(22,163,74,0.2)" stroke="#16a34a" stroke-width="1.5"/>
+            <text x="140" y="26" text-anchor="middle" fill="#78716c" font-family="sans-serif" font-size="8">Skills</text>
+            <text x="218" y="84" fill="#78716c" font-family="sans-serif" font-size="8">Exp.</text>
+            <text x="188" y="172" fill="#78716c" font-family="sans-serif" font-size="8">Keywords</text>
+            <text x="78" y="172" fill="#78716c" font-family="sans-serif" font-size="8">Format</text>
+            <text x="42" y="84" fill="#78716c" font-family="sans-serif" font-size="8">Culture</text>
+            <text x="140" y="112" text-anchor="middle" fill="#f5f2ee" font-family="Georgia,serif" font-size="22" font-weight="bold">91%</text>
+            <text x="140" y="128" text-anchor="middle" fill="#16a34a" font-family="sans-serif" font-size="8">JOB FIT SCORE</text>
+          </svg>
+        </div>
+        <div class="ai-card-body">
+          <div class="ai-card-tag">Pro Feature</div>
+          <div class="ai-card-title">Job Fit Score</div>
+          <div class="ai-card-sub">Multi-dimensional analysis of how well your background fits the exact role.</div>
+        </div>
+      </div>
+
+      <!-- Duplicate set for seamless loop -->
+      <div class="ai-card">
+        <div class="ai-card-img">
+          <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="200" fill="#1c1917"/>
+            <circle cx="140" cy="90" r="64" fill="none" stroke="#2c2927" stroke-width="12"/>
+            <circle cx="140" cy="90" r="64" fill="none" stroke="#16a34a" stroke-width="12" stroke-dasharray="402" stroke-dashoffset="100" stroke-linecap="round" transform="rotate(-90 140 90)"/>
+            <text x="140" y="85" text-anchor="middle" fill="#f5f2ee" font-family="Georgia,serif" font-size="30" font-weight="bold">87</text>
+            <text x="140" y="104" text-anchor="middle" fill="#78716c" font-family="sans-serif" font-size="10">/100 ATS SCORE</text>
+            <circle cx="140" cy="90" r="48" fill="rgba(22,163,74,0.05)"/>
+            <text x="140" y="160" text-anchor="middle" fill="#16a34a" font-family="sans-serif" font-size="9" font-weight="bold" letter-spacing="2">KEYWORD MATCH: 92%</text>
+          </svg>
+        </div>
+        <div class="ai-card-body"><div class="ai-card-tag">Free Feature</div><div class="ai-card-title">Instant ATS Score</div><div class="ai-card-sub">Know exactly how well your resume matches any job — before you apply.</div></div>
+      </div>
+      <div class="ai-card">
+        <div class="ai-card-img">
+          <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="200" fill="#1c1917"/>
+            <rect x="18" y="20" width="110" height="160" rx="6" fill="#292524" stroke="#3c3633" stroke-width="1"/>
+            <text x="73" y="36" text-anchor="middle" fill="#57534e" font-family="sans-serif" font-size="7" font-weight="bold" letter-spacing="1">BEFORE</text>
+            <rect x="28" y="44" width="90" height="4" rx="2" fill="#3c3633"/><rect x="28" y="54" width="75" height="3" rx="2" fill="#3c3633"/><rect x="28" y="63" width="82" height="3" rx="2" fill="#3c3633"/>
+            <text x="73" y="158" text-anchor="middle" fill="#57534e" font-family="sans-serif" font-size="8">Score: 42</text>
+            <text x="140" y="105" text-anchor="middle" fill="#16a34a" font-family="sans-serif" font-size="18">→</text>
+            <rect x="152" y="20" width="110" height="160" rx="6" fill="#14532d" stroke="#16a34a" stroke-width="1"/>
+            <text x="207" y="36" text-anchor="middle" fill="#22c55e" font-family="sans-serif" font-size="7" font-weight="bold" letter-spacing="1">AFTER AI</text>
+            <rect x="162" y="44" width="90" height="4" rx="2" fill="rgba(22,163,74,0.5)"/><rect x="162" y="54" width="80" height="3" rx="2" fill="rgba(22,163,74,0.35)"/>
+            <text x="207" y="158" text-anchor="middle" fill="#22c55e" font-family="sans-serif" font-size="8" font-weight="bold">Score: 91 ↑</text>
+          </svg>
+        </div>
+        <div class="ai-card-body"><div class="ai-card-tag">Pro Feature</div><div class="ai-card-title">AI Resume Rewrite</div><div class="ai-card-sub">Gemini AI rewrites your resume with role-specific keywords and power phrases.</div></div>
+      </div>
+      <div class="ai-card">
+        <div class="ai-card-img">
+          <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="200" fill="#1c1917"/>
+            <path d="M60 150 A80 80 0 0 1 220 150" fill="none" stroke="#2c2927" stroke-width="14" stroke-linecap="round"/>
+            <path d="M60 150 A80 80 0 0 1 180 78" fill="none" stroke="#16a34a" stroke-width="14" stroke-linecap="round"/>
+            <line x1="140" y1="150" x2="175" y2="82" stroke="#f5f2ee" stroke-width="2.5" stroke-linecap="round"/>
+            <circle cx="140" cy="150" r="7" fill="#16a34a"/>
+            <text x="140" y="125" text-anchor="middle" fill="#f5f2ee" font-family="Georgia,serif" font-size="26" font-weight="bold">68%</text>
+            <text x="140" y="142" text-anchor="middle" fill="#78716c" font-family="sans-serif" font-size="8">INTERVIEW PROBABILITY</text>
+            <text x="140" y="192" text-anchor="middle" fill="#16a34a" font-family="sans-serif" font-size="8" letter-spacing="1">↑ +26% AFTER OPTIMIZATION</text>
+          </svg>
+        </div>
+        <div class="ai-card-body"><div class="ai-card-tag">Pro Feature</div><div class="ai-card-title">Interview Probability</div><div class="ai-card-sub">See your realistic chance of getting called before and after optimization.</div></div>
+      </div>
+      <div class="ai-card">
+        <div class="ai-card-img">
+          <svg viewBox="0 0 280 200" xmlns="http://www.w3.org/2000/svg">
+            <rect width="280" height="200" fill="#1c1917"/>
+            <polygon points="140,30 210,80 185,160 95,160 70,80" fill="rgba(22,163,74,0.08)" stroke="rgba(22,163,74,0.2)" stroke-width="1"/>
+            <polygon points="140,55 185,92 166,144 114,144 95,92" fill="rgba(22,163,74,0.2)" stroke="#16a34a" stroke-width="1.5"/>
+            <text x="140" y="112" text-anchor="middle" fill="#f5f2ee" font-family="Georgia,serif" font-size="22" font-weight="bold">91%</text>
+            <text x="140" y="128" text-anchor="middle" fill="#16a34a" font-family="sans-serif" font-size="8">JOB FIT SCORE</text>
+          </svg>
+        </div>
+        <div class="ai-card-body"><div class="ai-card-tag">Pro Feature</div><div class="ai-card-title">Job Fit Score</div><div class="ai-card-sub">Multi-dimensional analysis of how well your background fits the exact role.</div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Row 2: Blurred Resume previews (reverse direction) -->
+  <div class="slider-track-wrap" style="margin-top:0">
+    <div class="slider-track-2" id="slider-resume">
+
+      <!-- Classic Resume 1 -->
+      <div class="resume-card">
+        <div class="resume-card-badge">Classic</div>
+        <div class="resume-card-inner classic">
+          <div class="rc-name">Arjun Sharma</div>
+          <div class="rc-contact">arjun@email.com · +91 98765 43210 · Bangalore</div>
+          <div class="rc-section">Professional Summary</div>
+          <div class="rc-line w100"></div><div class="rc-line w85"></div><div class="rc-line w70"></div>
+          <div class="rc-section">Experience</div>
+          <div class="rc-line w60 accent"></div>
+          <div class="rc-line w100"></div><div class="rc-line w85"></div><div class="rc-line w90"></div><div class="rc-line w75"></div>
+          <div class="rc-section">Skills</div>
+          <div class="rc-line w45"></div><div class="rc-line w60"></div>
+          <div class="rc-section">Education</div>
+          <div class="rc-line w70"></div><div class="rc-line w50"></div>
+        </div>
+        <div class="resume-card-overlay"><span>✨ See Full Output</span></div>
+      </div>
+
+      <!-- Modern Resume 1 -->
+      <div class="resume-card">
+        <div class="resume-card-badge modern-badge">Modern</div>
+        <div class="resume-card-inner modern">
+          <div class="rc-name">Priya Venkatesh</div>
+          <div class="rc-contact" style="padding-left:0">priya@email.com · Mumbai · LinkedIn</div>
+          <div class="rc-section">Summary</div>
+          <div class="rc-line w100"></div><div class="rc-line w90"></div><div class="rc-line w75"></div>
+          <div class="rc-section">Core Competencies</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:4px">
+            <div class="rc-line w100 accent"></div><div class="rc-line w100 accent"></div>
+            <div class="rc-line w100 accent"></div><div class="rc-line w100 accent"></div>
+          </div>
+          <div class="rc-section">Work Experience</div>
+          <div class="rc-line w65 accent"></div>
+          <div class="rc-line w100"></div><div class="rc-line w85"></div><div class="rc-line w90"></div>
+          <div class="rc-section">Education</div>
+          <div class="rc-line w80"></div>
+        </div>
+        <div class="resume-card-overlay"><span>✨ See Full Output</span></div>
+      </div>
+
+      <!-- Classic Resume 2 -->
+      <div class="resume-card">
+        <div class="resume-card-badge">Classic</div>
+        <div class="resume-card-inner classic">
+          <div class="rc-name">Rahul Mehta</div>
+          <div class="rc-contact">rahul@dev.io · +91 87654 32109 · Hyderabad</div>
+          <div class="rc-section">Objective</div>
+          <div class="rc-line w100"></div><div class="rc-line w80"></div>
+          <div class="rc-section">Technical Skills</div>
+          <div class="rc-line w100"></div><div class="rc-line w75"></div><div class="rc-line w85"></div>
+          <div class="rc-section">Projects</div>
+          <div class="rc-line w60 accent"></div>
+          <div class="rc-line w100"></div><div class="rc-line w85"></div>
+          <div class="rc-line w55 accent"></div>
+          <div class="rc-line w100"></div><div class="rc-line w70"></div>
+          <div class="rc-section">Education</div>
+          <div class="rc-line w75"></div>
+        </div>
+        <div class="resume-card-overlay"><span>✨ See Full Output</span></div>
+      </div>
+
+      <!-- Modern Resume 2 -->
+      <div class="resume-card">
+        <div class="resume-card-badge modern-badge">Modern</div>
+        <div class="resume-card-inner modern">
+          <div class="rc-name">Sneha Kapoor</div>
+          <div class="rc-contact" style="padding-left:0">sneha@work.com · Delhi NCR</div>
+          <div class="rc-section">Profile</div>
+          <div class="rc-line w100"></div><div class="rc-line w88"></div>
+          <div class="rc-section">Key Achievements</div>
+          <div class="rc-line w100 accent"></div><div class="rc-line w90"></div>
+          <div class="rc-line w95 accent"></div><div class="rc-line w85"></div>
+          <div class="rc-line w90 accent"></div><div class="rc-line w80"></div>
+          <div class="rc-section">Experience</div>
+          <div class="rc-line w70 accent"></div>
+          <div class="rc-line w100"></div><div class="rc-line w82"></div>
+          <div class="rc-section">Education</div>
+          <div class="rc-line w65"></div>
+        </div>
+        <div class="resume-card-overlay"><span>✨ See Full Output</span></div>
+      </div>
+
+      <!-- Classic Resume 3 -->
+      <div class="resume-card">
+        <div class="resume-card-badge">Classic</div>
+        <div class="resume-card-inner classic">
+          <div class="rc-name">Karan Patel</div>
+          <div class="rc-contact">karan@analyst.in · Pune · MBA Finance</div>
+          <div class="rc-section">Summary</div>
+          <div class="rc-line w100"></div><div class="rc-line w75"></div>
+          <div class="rc-section">Experience</div>
+          <div class="rc-line w55 accent"></div>
+          <div class="rc-line w100"></div><div class="rc-line w90"></div><div class="rc-line w80"></div>
+          <div class="rc-line w50 accent"></div>
+          <div class="rc-line w100"></div><div class="rc-line w85"></div>
+          <div class="rc-section">Certifications</div>
+          <div class="rc-line w70"></div><div class="rc-line w60"></div>
+        </div>
+        <div class="resume-card-overlay"><span>✨ See Full Output</span></div>
+      </div>
+
+      <!-- Duplicate for loop -->
+      <div class="resume-card">
+        <div class="resume-card-badge">Classic</div>
+        <div class="resume-card-inner classic">
+          <div class="rc-name">Arjun Sharma</div>
+          <div class="rc-contact">arjun@email.com · +91 98765 43210 · Bangalore</div>
+          <div class="rc-section">Professional Summary</div>
+          <div class="rc-line w100"></div><div class="rc-line w85"></div><div class="rc-line w70"></div>
+          <div class="rc-section">Experience</div>
+          <div class="rc-line w60 accent"></div>
+          <div class="rc-line w100"></div><div class="rc-line w85"></div><div class="rc-line w90"></div>
+          <div class="rc-section">Skills</div>
+          <div class="rc-line w45"></div><div class="rc-line w60"></div>
+        </div>
+        <div class="resume-card-overlay"><span>✨ See Full Output</span></div>
+      </div>
+      <div class="resume-card">
+        <div class="resume-card-badge modern-badge">Modern</div>
+        <div class="resume-card-inner modern">
+          <div class="rc-name">Priya Venkatesh</div>
+          <div class="rc-contact" style="padding-left:0">priya@email.com · Mumbai</div>
+          <div class="rc-section">Summary</div>
+          <div class="rc-line w100"></div><div class="rc-line w90"></div>
+          <div class="rc-section">Core Competencies</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:3px;margin-bottom:4px">
+            <div class="rc-line w100 accent"></div><div class="rc-line w100 accent"></div>
+          </div>
+          <div class="rc-section">Work Experience</div>
+          <div class="rc-line w65 accent"></div>
+          <div class="rc-line w100"></div><div class="rc-line w85"></div>
+        </div>
+        <div class="resume-card-overlay"><span>✨ See Full Output</span></div>
+      </div>
+      <div class="resume-card">
+        <div class="resume-card-badge">Classic</div>
+        <div class="resume-card-inner classic">
+          <div class="rc-name">Rahul Mehta</div>
+          <div class="rc-contact">rahul@dev.io · Hyderabad</div>
+          <div class="rc-section">Technical Skills</div>
+          <div class="rc-line w100"></div><div class="rc-line w75"></div><div class="rc-line w85"></div>
+          <div class="rc-section">Projects</div>
+          <div class="rc-line w60 accent"></div>
+          <div class="rc-line w100"></div><div class="rc-line w85"></div>
+          <div class="rc-section">Education</div>
+          <div class="rc-line w75"></div>
+        </div>
+        <div class="resume-card-overlay"><span>✨ See Full Output</span></div>
+      </div>
+      <div class="resume-card">
+        <div class="resume-card-badge modern-badge">Modern</div>
+        <div class="resume-card-inner modern">
+          <div class="rc-name">Sneha Kapoor</div>
+          <div class="rc-contact" style="padding-left:0">sneha@work.com · Delhi NCR</div>
+          <div class="rc-section">Key Achievements</div>
+          <div class="rc-line w100 accent"></div><div class="rc-line w90"></div>
+          <div class="rc-line w95 accent"></div><div class="rc-line w85"></div>
+          <div class="rc-section">Experience</div>
+          <div class="rc-line w70 accent"></div>
+          <div class="rc-line w100"></div><div class="rc-line w82"></div>
+        </div>
+        <div class="resume-card-overlay"><span>✨ See Full Output</span></div>
+      </div>
+      <div class="resume-card">
+        <div class="resume-card-badge">Classic</div>
+        <div class="resume-card-inner classic">
+          <div class="rc-name">Karan Patel</div>
+          <div class="rc-contact">karan@analyst.in · Pune</div>
+          <div class="rc-section">Experience</div>
+          <div class="rc-line w55 accent"></div>
+          <div class="rc-line w100"></div><div class="rc-line w90"></div>
+          <div class="rc-section">Certifications</div>
+          <div class="rc-line w70"></div><div class="rc-line w60"></div>
+        </div>
+        <div class="resume-card-overlay"><span>✨ See Full Output</span></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- slider CTA -->
+  <div style="text-align:center;margin-top:2.5rem">
+    <a href="/index.html" style="display:inline-flex;align-items:center;gap:0.5rem;background:var(--green);color:white;font-family:var(--sans);font-size:0.9rem;font-weight:700;padding:0.8rem 2rem;border-radius:8px;text-decoration:none;box-shadow:0 4px 20px rgba(22,163,74,0.35);transition:all 0.2s" onmouseover="this.style.background='#14532d'" onmouseout="this.style.background='#16a34a'">
+      Generate My Optimized Resume →
+    </a>
+  </div>
+</div>
+
+<!-- ════════════════ HOW IT WORKS ════════════════ -->
+<section class="how" id="how">
+  <div class="how-inner">
+    <div class="how-header reveal">
+      <div class="section-tag">The Process</div>
+      <h2 class="section-title">From rejection to interview<br/>in three steps.</h2>
+    </div>
+    <div class="steps reveal">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-icon">📤</div>
+        <h3>Upload & Score</h3>
+        <p>Paste your resume and job description. Get an instant ATS compatibility score with full breakdown — completely free, no signup.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-icon">🤖</div>
+        <h3>AI Optimization</h3>
+        <p>Gemini AI rewrites your resume with role-specific keywords, power verbs, and salary-impact language that ATS systems prioritize.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-icon">📥</div>
+        <h3>Download & Apply</h3>
+        <p>Download your optimized resume as a professional PDF — Classic or Modern style. Cover letter and full ATS report included.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ FEATURES ════════════════ -->
+<section class="features" id="features">
+  <div class="reveal">
+    <div class="section-tag">Everything Included</div>
+    <h2 class="section-title">Every tool you need<br/>to get hired.</h2>
+    <p class="section-sub">One payment unlocks the full suite. No subscriptions, no hidden fees, no upsells ever.</p>
+  </div>
+  <div class="features-grid">
+    <div class="feat-card reveal">
+      <div class="feat-icon">🎯</div>
+      <h3>ATS Score</h3>
+      <p>Instant ATS compatibility score showing exactly how well your resume matches any job description. Know before you apply.</p>
+      <span class="feat-free">Free Always</span>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon">✨</div>
+      <h3>AI-Optimized Resume</h3>
+      <p>Full rewrite using Gemini 2.5 Flash — enhanced keywords, stronger impact statements, and ATS-friendly structure.</p>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon">📝</div>
+      <h3>Cover Letter Generator</h3>
+      <p>Personalized, role-specific cover letter that mirrors the job description and showcases your most relevant experience.</p>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon">📊</div>
+      <h3>Interview Probability</h3>
+      <p>See your realistic chances of landing an interview before and after optimization — backed by AI analysis of your fit.</p>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon">💼</div>
+      <h3>Job Fit Score</h3>
+      <p>Multi-dimensional analysis of how well your background aligns with the role. Understand your strengths and gaps instantly.</p>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon">💰</div>
+      <h3>Salary-Impact Keywords</h3>
+      <p>Discover the high-value power words that top earners use — woven into your resume to help negotiate higher offers.</p>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon">🎨</div>
+      <h3>Classic + Modern PDF</h3>
+      <p>Download your optimized resume in two professionally designed PDF formats — a clean classic or a bold modern layout.</p>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon">🔑</div>
+      <h3>Lifetime License Key</h3>
+      <p>Pay once, use forever. Your license key is emailed instantly and unlocks unlimited optimizations for your entire career.</p>
+    </div>
+    <div class="feat-card reveal">
+      <div class="feat-icon">⚡</div>
+      <h3>Results in 30 Seconds</h3>
+      <p>No queue, no waiting. Full AI analysis, resume rewrite, cover letter, and report generated in under a minute.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ PRICING ════════════════ -->
+<section class="pricing" id="pricing">
+  <div class="pricing-inner">
+    <div class="pricing-header reveal">
+      <div class="section-tag">Simple Pricing</div>
+      <h2 class="section-title">One price.<br/>Lifetime access.</h2>
+      <p class="section-sub" style="margin:0 auto">Pay once and use ATSCheckPro for every job application — now and forever. No renewals, no surprises.</p>
+    </div>
+
+    <!-- INDIA CARD -->
+    <div class="price-card reveal" id="price-india">
+      <div class="price-flag"><span>🇮🇳</span> India</div>
+      <div class="price-original">₹1,499</div>
+      <div class="price-amount-row">
+        <div class="price-amount"><sup>₹</sup>399</div>
+        <span class="price-save">73% OFF</span>
+      </div>
+      <div class="price-once">One-time payment · Lifetime access · Key emailed instantly</div>
+      <ul class="price-features">
+        <li>ATS Score — always free</li>
+        <li>AI-optimized resume (Gemini 2.5)</li>
+        <li>Personalized cover letter</li>
+        <li>Interview probability score</li>
+        <li>Job fit score</li>
+        <li>Salary-impact keywords</li>
+        <li>Classic + Modern PDF download</li>
+        <li>Lifetime license key via email</li>
+      </ul>
+      <a href="/index.html" class="btn-buy">Get Full Access — ₹399 →</a>
+    </div>
+
+    <!-- GLOBAL CARD -->
+    <div class="price-card reveal" id="price-global">
+      <div class="price-flag"><span>🌍</span> International</div>
+      <div class="price-original">$12.99</div>
+      <div class="price-amount-row">
+        <div class="price-amount"><sup>$</sup>7.99</div>
+        <span class="price-save">38% OFF</span>
+      </div>
+      <div class="price-once">One-time payment · Lifetime access · Key emailed instantly</div>
+      <ul class="price-features">
+        <li>ATS Score — always free</li>
+        <li>AI-optimized resume (Gemini 2.5)</li>
+        <li>Personalized cover letter</li>
+        <li>Interview probability score</li>
+        <li>Job fit score</li>
+        <li>Salary-impact keywords</li>
+        <li>Classic + Modern PDF download</li>
+        <li>Lifetime license key via email</li>
+      </ul>
+      <a href="/index.html" class="btn-buy">Get Full Access — $7.99 →</a>
+    </div>
+
+    <p class="pricing-note">🔒 Secure payment via Razorpay · No subscription · No refund needed when it works</p>
+  </div>
+</section>
+
+<!-- ════════════════ TESTIMONIALS ════════════════ -->
+<section class="testimonials" id="testimonials">
+  <div class="testimonials-header reveal">
+    <div class="section-tag">Success Stories</div>
+    <h2 class="section-title">Real results from real job seekers.</h2>
+  </div>
+  <div class="testi-grid">
+    <div class="testi-card reveal">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"My ATS score jumped from 42 to 89 after optimization. Got 3 interview calls in the first week. Absolutely worth every rupee."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">AR</div>
+        <div><div class="testi-name">Arjun R.</div><div class="testi-role">Software Engineer, Bangalore</div></div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"I had no idea my resume was getting filtered before a human saw it. The score, rewrite, and cover letter were spot on."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">PS</div>
+        <div><div class="testi-name">Priya S.</div><div class="testi-role">Product Manager, Mumbai</div></div>
+      </div>
+    </div>
+    <div class="testi-card reveal">
+      <div class="testi-stars">★★★★★</div>
+      <p class="testi-text">"Landed interviews at 4 out of 5 companies I applied to. The salary keyword suggestions helped me negotiate 20% higher."</p>
+      <div class="testi-author">
+        <div class="testi-avatar">KM</div>
+        <div><div class="testi-name">Karan M.</div><div class="testi-role">Data Analyst, Hyderabad</div></div>
+      </div>
+    </div>
+  </div>
+  <p class="testi-placeholder">⭐ Early user? <a href="mailto:hello@atscheckpro.com">Share your story →</a></p>
+</section>
+
+<!-- ════════════════ FAQ ════════════════ -->
+<section class="faq" id="faq">
+  <div class="faq-inner">
+    <div class="faq-header reveal">
+      <div class="section-tag">FAQ</div>
+      <h2 class="section-title">Questions answered.</h2>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-q" onclick="toggleFaq(this)">Is the ATS score really free?<i class="faq-icon">+</i></button>
+      <div class="faq-a">Yes, completely. Upload your resume and job description and get a full ATS compatibility score with no signup and no payment. The AI optimization, cover letter, and PDF downloads are part of the paid plan.</div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-q" onclick="toggleFaq(this)">What does "lifetime access" mean?<i class="faq-icon">+</i></button>
+      <div class="faq-a">Pay once and you're done. Your license key unlocks all premium features permanently — no monthly fees, no annual renewals. Use it for every job application, forever.</div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-q" onclick="toggleFaq(this)">How is this different from resume templates?<i class="faq-icon">+</i></button>
+      <div class="faq-a">Templates only change how your resume looks. ATSCheckPro changes what your resume says — adding the exact keywords, phrases, and structure that ATS systems and hiring managers are looking for in that specific role.</div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-q" onclick="toggleFaq(this)">Which AI model powers ATSCheckPro?<i class="faq-icon">+</i></button>
+      <div class="faq-a">We use Google's Gemini 2.5 Flash Lite — a state-of-the-art large language model optimized for fast, high-quality text generation. The same AI technology used in cutting-edge enterprise applications.</div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-q" onclick="toggleFaq(this)">Is my resume data private?<i class="faq-icon">+</i></button>
+      <div class="faq-a">Yes. Your resume content is only used to generate your analysis and optimized output. We do not store, sell, or share your personal data with third parties.</div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-q" onclick="toggleFaq(this)">What payment methods are accepted?<i class="faq-icon">+</i></button>
+      <div class="faq-a">All major methods via Razorpay — UPI, credit/debit cards, net banking, and wallets for India. International cards accepted for global pricing. Your license key is emailed instantly after payment.</div>
+    </div>
+    <div class="faq-item reveal">
+      <button class="faq-q" onclick="toggleFaq(this)">Do you offer refunds?<i class="faq-icon">+</i></button>
+      <div class="faq-a">Because you can try the ATS score for free before paying and the tool delivers results instantly, we don't offer refunds. If something goes wrong technically, reach out and we'll make it right.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ CTA BANNER ════════════════ -->
+<div class="cta-banner">
+  <div class="reveal">
+    <h2>Stop losing to an algorithm.<br/>Start landing interviews.</h2>
+    <p>Your ATS score is free. Takes 30 seconds. No signup.</p>
+    <a href="/index.html" class="btn-cta-white">
+      Check My Resume Free →
+    </a>
+  </div>
+</div>
+
+<!-- ════════════════ FOOTER ════════════════ -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-logo"><div class="footer-logo-dot"></div>ATS<span>Check</span>Pro</div>
+      <div class="footer-tagline">Beat the ATS. Land the Interview.</div>
+    </div>
+    <div class="footer-links">
+      <div class="footer-col">
+        <h4>Product</h4>
+        <ul>
+          <li><a href="/index.html">Resume Optimizer</a></li>
+          <li><a href="#features">Features</a></li>
+          <li><a href="#pricing">Pricing</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#how">How it Works</a></li>
+          <li><a href="#faq">FAQ</a></li>
+          <li><a href="mailto:hello@atscheckpro.com">Contact</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Legal</h4>
+        <ul>
+          <li><a href="/privacy">Privacy Policy</a></li>
+          <li><a href="/terms">Terms of Service</a></li>
+          <li><a href="/refund">Refund Policy</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2025 ATSCheckPro. All rights reserved.</span>
+    <div class="footer-legal">
+      <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* ════ GEO PRICING ════ */
+let userCountry = "global";
+
+function showPricing(isIndia) {
+  const india  = document.getElementById("price-india");
+  const global = document.getElementById("price-global");
+  if (india)  india.style.display  = isIndia ? "block" : "none";
+  if (global) global.style.display = isIndia ? "none"  : "block";
+}
+
+(async function detectRegion() {
+  // Layer 1: instant timezone check — no network needed
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+    if (tz === "Asia/Kolkata" || tz === "Asia/Calcutta") {
+      userCountry = "IN";
+      showPricing(true);
+      return; // done — no need for IP call
+    } else if (tz) {
+      // Non-Indian timezone detected instantly
+      userCountry = "global";
+      showPricing(false);
+      // still confirm via IP in background silently
+    }
+  } catch(e) {}
+
+  // Layer 2: IP-based confirmation
+  try {
+    const res  = await fetch("https://ipapi.co/json/", { signal: AbortSignal.timeout(4000) });
+    const data = await res.json();
+    const isIN = data.country_code === "IN";
+    userCountry = isIN ? "IN" : "global";
+    showPricing(isIN);
+  } catch(e) {
+    // Fallback: keep whatever timezone told us, or default global
+    if (!userCountry) showPricing(false);
+  }
+})();
+
+/* ════ MOBILE NAV ════ */
+let mobileNavOpen = false;
+function toggleMobileNav() {
+  mobileNavOpen = !mobileNavOpen;
+  const nav = document.getElementById("mobile-nav");
+  nav.style.display = mobileNavOpen ? "flex" : "none";
+}
+function closeMobileNav() {
+  mobileNavOpen = false;
+  document.getElementById("mobile-nav").style.display = "none";
+}
+
+/* ════ FAQ ACCORDION ════ */
+function toggleFaq(btn) {
+  const item   = btn.closest(".faq-item");
+  const isOpen = item.classList.contains("open");
+  document.querySelectorAll(".faq-item.open").forEach(i => i.classList.remove("open"));
+  if (!isOpen) item.classList.add("open");
+}
+
+/* ════ NAV SCROLL SHRINK ════ */
+window.addEventListener("scroll", () => {
+  document.getElementById("main-nav").style.height = window.scrollY > 50 ? "54px" : "64px";
+});
+
+/* ════ SCROLL REVEAL ════ */
+const revealEls = document.querySelectorAll(".reveal");
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      setTimeout(() => e.target.classList.add("visible"), i * 70);
+      revealObs.unobserve(e.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: "0px 0px -40px 0px" });
+revealEls.forEach(el => revealObs.observe(el));
+
+/* ════ RESUME CARD → redirect to app on click ════ */
+document.querySelectorAll(".resume-card").forEach(card => {
+  card.addEventListener("click", () => { window.location.href = "/index.html"; });
+});
+</script>
+</body>
+</html>
