@@ -247,6 +247,21 @@ input[type=file]{display:none}
 </style>
 </head>
 <body>
+<!-- EMAIL CAPTURE MODAL -->
+<div id="email-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)">
+  <div style="background:#fff;border-radius:16px;padding:28px;width:90%;max-width:380px;box-shadow:0 24px 60px rgba(0,0,0,0.3)">
+    <h3 style="font-size:1rem;font-weight:800;color:#1c1917;margin-bottom:6px">📧 Where should we send your license key?</h3>
+    <p style="font-size:0.78rem;color:#78716c;margin-bottom:18px;line-height:1.6">Enter your email to receive your license key instantly after payment. Save it for lifetime access.</p>
+    <input type="email" id="modal-email" placeholder="your@email.com" autocomplete="email"
+      style="width:100%;background:#f5f2ee;border:1.5px solid #d4cbbf;border-radius:8px;padding:11px 14px;font-size:0.88rem;font-family:'Sora',sans-serif;color:#1c1917;outline:none;margin-bottom:10px;transition:border-color 0.2s;box-sizing:border-box"/>
+    <div id="modal-err" style="font-size:0.72rem;color:#dc2626;font-weight:600;margin-bottom:10px;display:none"></div>
+    <div style="display:flex;gap:8px">
+      <button onclick="closeEmailModal()" style="flex:1;background:#f5f2ee;border:1px solid #d4cbbf;border-radius:8px;padding:10px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;color:#78716c">Cancel</button>
+      <button onclick="proceedWithPayment()" style="flex:2;background:#16a34a;color:white;border:none;border-radius:8px;padding:10px;font-size:0.82rem;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif">Continue to Payment →</button>
+    </div>
+  </div>
+</div>
+
 <div class="app">
 
 <header>
@@ -616,9 +631,19 @@ let resumeFileText="";
 // ── COUNTRY + PRICING ─────────────────────────────────
 let userCountry = "global";
 let appliedDiscount = 0;
-let activePrice = { amount: 8.90, currency: "USD", display: "$8.90", original: "$14.99" };
+let activePrice = { amount: 7.99, currency: "USD", display: "$7.99", original: "$12.99" };
 
 async function detectCountry() {
+  // Layer 1: instant timezone check
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+    if (tz === "Asia/Kolkata" || tz === "Asia/Calcutta") {
+      userCountry = "IN";
+      updatePriceUI();
+      return;
+    }
+  } catch(e) {}
+  // Layer 2: IP-based
   try {
     const r = await fetch("https://ipapi.co/json/");
     const d = await r.json();
@@ -631,15 +656,15 @@ async function detectCountry() {
 
 function updatePriceUI() {
   const isIndia = userCountry === "IN";
-  let baseAmount  = isIndia ? 399    : 8.90;
-  let origDisplay = isIndia ? "₹1499" : "$14.99";
+  let baseAmount  = isIndia ? 399    : 7.99;
+  let origDisplay = isIndia ? "₹1,499" : "$12.99";
   let currency    = isIndia ? "INR"  : "USD";
 
   // Apply coupon discount
   if (appliedDiscount > 0) {
     baseAmount = isIndia
       ? Math.round(399 - (399 * appliedDiscount / 100))
-      : Math.round((8.90 - (8.90 * appliedDiscount / 100)) * 100) / 100;
+      : Math.round((7.99 - (7.99 * appliedDiscount / 100)) * 100) / 100;
   }
 
   const displayPrice = isIndia ? "₹" + baseAmount : "$" + baseAmount.toFixed(2);
@@ -699,8 +724,39 @@ async function applyCoupon() {
   btn.textContent = "Apply"; btn.disabled = false;
 }
 
-// ── RAZORPAY ──────────────────────────────────────────
-async function startRazorpay() {
+// ── RAZORPAY + EMAIL CAPTURE ──────────────────────────
+let capturedEmail = "";
+
+function startRazorpay() {
+  document.getElementById("email-modal").style.display = "flex";
+  document.getElementById("modal-email").value = capturedEmail || "";
+  document.getElementById("modal-err").style.display = "none";
+  setTimeout(() => document.getElementById("modal-email").focus(), 100);
+}
+
+function closeEmailModal() {
+  document.getElementById("email-modal").style.display = "none";
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const modalInput = document.getElementById("modal-email");
+  if (modalInput) {
+    modalInput.addEventListener("keydown", e => {
+      if (e.key === "Enter") proceedWithPayment();
+    });
+  }
+});
+
+async function proceedWithPayment() {
+  const email = document.getElementById("modal-email").value.trim();
+  const errEl = document.getElementById("modal-err");
+  if (!email || !email.includes("@") || !email.includes(".")) {
+    errEl.textContent = "⚠ Please enter a valid email address.";
+    errEl.style.display = "block";
+    return;
+  }
+  capturedEmail = email;
+  closeEmailModal();
   try {
     const orderRes = await fetch("/api/razorpay-order", {
       method: "POST",
@@ -723,9 +779,10 @@ async function startRazorpay() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
-              razorpay_order_id:  response.razorpay_order_id,
+              razorpay_order_id:   response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature:  response.razorpay_signature
+              razorpay_signature:  response.razorpay_signature,
+              email: capturedEmail
             })
           });
           const data = await verifyRes.json();
@@ -740,19 +797,27 @@ async function startRazorpay() {
             document.getElementById("analyzeBtn").textContent = "↗ Analyze & Optimize Resume";
             showLeft("unlock");
             if (lastData) { lastData.isPro = true; renderProContent(lastData); }
-            alert("🎉 Payment successful!\n\nYour license key:\n" + licenseKey + "\n\nSave this key — it's also been emailed to you.");
+            alert(
+              "🎉 Payment successful!\n\n" +
+              "Your license key:\n" + data.licenseKey + "\n\n" +
+              "📧 Key emailed to: " + capturedEmail + "\n\n" +
+              "💡 Save this key — use it anytime to unlock full access."
+            );
           } else {
-            alert("Payment verification failed. Please contact support with your payment ID:\n" + response.razorpay_payment_id);
+            alert("Payment verification failed. Please contact support@atscheckpro.com with your payment ID:\n" + response.razorpay_payment_id);
           }
         } catch(e) {
-          alert("Verification error. Please contact support with payment ID:\n" + response.razorpay_payment_id);
+          alert("Verification error. Please contact support@atscheckpro.com with payment ID:\n" + response.razorpay_payment_id);
         }
       },
-      prefill: { name: "", email: "", contact: "" },
+      prefill: { name: "", email: capturedEmail, contact: "" },
       theme: { color: "#16a34a" }
     };
 
     const rzp = new Razorpay(options);
+    rzp.on("payment.failed", function() {
+      alert("Payment failed. Please try again or contact support@atscheckpro.com");
+    });
     rzp.open();
   } catch(err) {
     console.error("Razorpay error:", err);
