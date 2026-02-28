@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Contact Us — ATSCheckPro</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--green:#16a34a;--green-dark:#14532d;--green-faint:#dcfce7;--dark:#1c1917;--mid:#78716c;--light:#f5f2ee;--white:#fff;--serif:'Playfair Display',Georgia,serif;--sans:'DM Sans',sans-serif}
+body{font-family:var(--sans);background:var(--light);color:var(--dark);line-height:1.7}
+nav{position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 5vw;height:60px;background:rgba(245,242,238,0.95);backdrop-filter:blur(12px);border-bottom:1px solid rgba(28,25,23,0.08)}
+.nav-logo{font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--dark);text-decoration:none}
+.nav-logo span{color:var(--green)}
+.nav-back{font-size:0.82rem;font-weight:600;color:var(--mid);text-decoration:none;transition:color 0.2s}
+.nav-back:hover{color:var(--green)}
+.hero-strip{background:var(--dark);padding:52px 5vw 44px;text-align:center}
+.hero-strip .tag{font-size:0.7rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--green);margin-bottom:0.6rem}
+.hero-strip h1{font-family:var(--serif);font-size:clamp(1.8rem,3vw,2.6rem);font-weight:900;color:#f5f2ee;letter-spacing:-0.03em;margin-bottom:0.5rem}
+.hero-strip p{font-size:0.85rem;color:rgba(255,255,255,0.35)}
+.content{max-width:860px;margin:0 auto;padding:56px 5vw 80px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:2rem;align-items:start}
+.contact-channels{display:flex;flex-direction:column;gap:1rem}
+.channel-card{background:var(--white);border:1px solid rgba(28,25,23,0.08);border-radius:14px;padding:1.5rem;transition:box-shadow 0.2s}
+.channel-card:hover{box-shadow:0 4px 20px rgba(0,0,0,0.07)}
+.channel-icon{font-size:1.6rem;margin-bottom:0.75rem}
+.channel-card h3{font-size:0.9rem;font-weight:700;color:var(--dark);margin-bottom:0.3rem}
+.channel-card p{font-size:0.82rem;color:var(--mid);margin-bottom:0.6rem;font-weight:300}
+.channel-card a{color:var(--green);font-weight:600;font-size:0.88rem;text-decoration:none}
+.channel-badge{display:inline-block;background:var(--green-faint);color:var(--green-dark);font-size:0.68rem;font-weight:700;padding:2px 8px;border-radius:4px;margin-top:0.4rem}
+.form-card{background:var(--white);border:1px solid rgba(28,25,23,0.08);border-radius:16px;padding:2rem;box-shadow:0 2px 12px rgba(0,0,0,0.04)}
+.form-card h2{font-family:var(--serif);font-size:1.3rem;font-weight:700;color:var(--dark);margin-bottom:0.4rem;letter-spacing:-0.02em}
+.form-card p{font-size:0.82rem;color:var(--mid);margin-bottom:1.5rem;font-weight:300}
+.field{margin-bottom:1rem}
+.field label{display:block;font-size:0.72rem;font-weight:700;color:var(--mid);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:0.4rem}
+.field input,.field select,.field textarea{width:100%;background:var(--light);border:1.5px solid rgba(28,25,23,0.12);border-radius:8px;padding:10px 14px;font-size:0.88rem;font-family:var(--sans);color:var(--dark);outline:none;transition:border-color 0.2s}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--green);background:var(--white)}
+.field textarea{resize:vertical;min-height:120px}
+.btn-submit{width:100%;background:var(--dark);color:#f5f2ee;border:none;border-radius:8px;padding:13px;font-size:0.9rem;font-weight:700;cursor:pointer;font-family:var(--sans);transition:all 0.2s;margin-top:0.5rem}
+.btn-submit:hover{background:#2c2927;transform:translateY(-1px)}
+.btn-submit:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+.form-success{display:none;background:var(--green-faint);border:1px solid var(--green);border-radius:10px;padding:1.25rem;text-align:center;margin-top:1rem}
+.form-success p{color:var(--green-dark);font-weight:600;font-size:0.9rem;margin:0}
+.faq-section{margin-top:3rem}
+.faq-section h2{font-family:var(--serif);font-size:1.4rem;font-weight:700;color:var(--dark);letter-spacing:-0.02em;margin-bottom:1.5rem;text-align:center}
+.faq-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.faq-item{background:var(--white);border:1px solid rgba(28,25,23,0.08);border-radius:12px;padding:1.25rem}
+.faq-item h4{font-size:0.85rem;font-weight:700;color:var(--dark);margin-bottom:0.4rem}
+.faq-item p{font-size:0.82rem;color:var(--mid);margin:0;font-weight:300;line-height:1.6}
+.faq-item a{color:var(--green);font-weight:600;text-decoration:none}
+.data-security-strip{background:var(--dark);border-radius:16px;padding:1.75rem 2rem;margin:2.5rem 0;display:flex;align-items:center;gap:1.5rem}
+.data-security-strip .icon{font-size:2rem;flex-shrink:0}
+.data-security-strip h3{font-family:var(--serif);font-size:1rem;font-weight:700;color:#f5f2ee;margin-bottom:0.3rem}
+.data-security-strip p{font-size:0.8rem;color:rgba(255,255,255,0.4);margin:0;line-height:1.6}
+.data-security-strip strong{color:var(--green)}
+footer{background:var(--dark);padding:28px 5vw;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem}
+footer span{font-size:0.78rem;color:rgba(255,255,255,0.2)}
+.footer-links{display:flex;gap:1.5rem;flex-wrap:wrap}
+.footer-links a{font-size:0.78rem;color:rgba(255,255,255,0.3);text-decoration:none;transition:color 0.2s}
+.footer-links a:hover{color:rgba(255,255,255,0.7)}
+@media(max-width:768px){.two-col{grid-template-columns:1fr}.faq-grid{grid-template-columns:1fr}.data-security-strip{flex-direction:column;text-align:center}}
+</style>
+</head>
+<body>
+<nav>
+  <a href="/" class="nav-logo">ATS<span>Check</span>Pro</a>
+  <a href="/" class="nav-back">← Back to Home</a>
+</nav>
+<div class="hero-strip">
+  <div class="tag">Support</div>
+  <h1>Contact Us</h1>
+  <p>We typically respond within 24 hours · support@atscheckpro.com</p>
+</div>
+<div class="content">
+
+  <div class="two-col">
+    <!-- LEFT: Contact channels -->
+    <div class="contact-channels">
+      <div class="channel-card">
+        <div class="channel-icon">📧</div>
+        <h3>Email Support</h3>
+        <p>For all general inquiries, technical issues, license key problems, or refund requests.</p>
+        <a href="mailto:support@atscheckpro.com">support@atscheckpro.com</a>
+        <div><div class="channel-badge">⚡ Replies within 24h</div></div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-icon">💼</div>
+        <h3>Business & Partnerships</h3>
+        <p>For bulk licensing, college partnerships, B2B deals, or influencer collaboration.</p>
+        <a href="mailto:hello@atscheckpro.com">hello@atscheckpro.com</a>
+        <div><div class="channel-badge">Replies within 48h</div></div>
+      </div>
+      <div class="channel-card">
+        <div class="channel-icon">🔑</div>
+        <h3>Lost License Key?</h3>
+        <p>Check your email inbox and spam folder first. If you still can't find it, email us with your payment ID from Razorpay and we'll resend it instantly.</p>
+        <a href="mailto:support@atscheckpro.com?subject=Lost License Key">Email us to resend →</a>
+      </div>
+      <div class="channel-card">
+        <div class="channel-icon">💰</div>
+        <h3>Refund Requests</h3>
+        <p>We offer a 7-day money-back guarantee, no questions asked.</p>
+        <a href="/refund">View Refund Policy →</a>
+      </div>
+    </div>
+
+    <!-- RIGHT: Contact form -->
+    <div class="form-card">
+      <h2>Send us a message</h2>
+      <p>Fill out the form and we'll get back to you within 24 hours.</p>
+      <div class="field">
+        <label>Your Name</label>
+        <input type="text" id="f-name" placeholder="Rahul Sharma"/>
+      </div>
+      <div class="field">
+        <label>Email Address</label>
+        <input type="email" id="f-email" placeholder="you@example.com"/>
+      </div>
+      <div class="field">
+        <label>Topic</label>
+        <select id="f-topic">
+          <option value="">Select a topic...</option>
+          <option>License Key Issue</option>
+          <option>Refund Request</option>
+          <option>Technical Problem</option>
+          <option>Payment Issue</option>
+          <option>Feature Request</option>
+          <option>Partnership / B2B</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Message</label>
+        <textarea id="f-message" placeholder="Describe your issue or question in detail. If it's a payment issue, include your Razorpay payment ID."></textarea>
+      </div>
+      <button class="btn-submit" id="submit-btn" onclick="submitForm()">Send Message →</button>
+      <div class="form-success" id="form-success">
+        <p>✅ Message sent! We'll reply to your email within 24 hours.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- DATA SECURITY STRIP -->
+  <div class="data-security-strip">
+    <div class="icon">🔒</div>
+    <div>
+      <h3>Your Data is Safe with Us</h3>
+      <p>Your resume content is <strong>never stored on our servers</strong>. It is processed in real-time by AI and <strong>automatically deleted within 48 hours</strong>. We never sell or share your personal data. Ever.</p>
+    </div>
+  </div>
+
+  <!-- FAQ -->
+  <div class="faq-section">
+    <h2>Frequently Asked Questions</h2>
+    <div class="faq-grid">
+      <div class="faq-item">
+        <h4>How long is my license key valid?</h4>
+        <p>Forever. ATSCheckPro uses a one-time payment model with lifetime access. No subscriptions, no renewals.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Is my resume data stored on your servers?</h4>
+        <p>No. Your resume is processed in real-time and automatically deleted within 48 hours. We never store resume content permanently.</p>
+      </div>
+      <div class="faq-item">
+        <h4>I lost my license key. Can you resend it?</h4>
+        <p>Yes! Email <a href="mailto:support@atscheckpro.com">support@atscheckpro.com</a> with your Razorpay payment ID and we'll resend it within a few hours.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Can I use the tool for multiple job applications?</h4>
+        <p>Yes. Your license key gives you unlimited analyses. Paste a new job description each time and get a fresh optimized resume.</p>
+      </div>
+      <div class="faq-item">
+        <h4>What if the AI output isn't good?</h4>
+        <p>We offer a 7-day money-back guarantee. If you're not satisfied for any reason, email us for a full refund. <a href="/refund">See refund policy →</a></p>
+      </div>
+      <div class="faq-item">
+        <h4>Do you offer bulk or college licenses?</h4>
+        <p>Yes! Email <a href="mailto:hello@atscheckpro.com">hello@atscheckpro.com</a> for bulk pricing, college partnerships, or B2B deals. We offer significant discounts for institutions.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Which payment methods do you accept?</h4>
+        <p>All major UPI apps, credit/debit cards, net banking, and wallets via Razorpay. International cards (Visa, Mastercard) accepted for global pricing.</p>
+      </div>
+      <div class="faq-item">
+        <h4>Can I upload my resume as a PDF or Word file?</h4>
+        <p>Yes. You can paste resume text, upload a .docx Word file, or upload a PDF. All formats are supported.</p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <span>© 2026 ATSCheckPro · All rights reserved</span>
+  <div class="footer-links">
+    <a href="/privacy">Privacy</a>
+    <a href="/terms">Terms</a>
+    <a href="/refund">Refund</a>
+    <a href="/contact">Contact</a>
+  </div>
+</footer>
+
+<script>
+function submitForm() {
+  const name = document.getElementById("f-name").value.trim();
+  const email = document.getElementById("f-email").value.trim();
+  const topic = document.getElementById("f-topic").value;
+  const message = document.getElementById("f-message").value.trim();
+  const btn = document.getElementById("submit-btn");
+
+  if (!name || !email || !topic || !message) {
+    alert("Please fill in all fields before sending.");
+    return;
+  }
+  if (!email.includes("@")) {
+    alert("Please enter a valid email address.");
+    return;
+  }
+
+  btn.textContent = "Sending...";
+  btn.disabled = true;
+
+  // Open mailto as fallback (no backend form needed)
+  const subject = encodeURIComponent("[ATSCheckPro] " + topic);
+  const body = encodeURIComponent(
+    "Name: " + name + "\n" +
+    "Email: " + email + "\n" +
+    "Topic: " + topic + "\n\n" +
+    "Message:\n" + message
+  );
+  window.location.href = "mailto:support@atscheckpro.com?subject=" + subject + "&body=" + body;
+
+  setTimeout(() => {
+    document.getElementById("form-success").style.display = "block";
+    btn.textContent = "Message Sent ✓";
+  }, 1000);
+}
+</script>
+</body>
+</html>
