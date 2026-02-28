@@ -400,7 +400,7 @@ function buildCoverPDF(doc, coverLetter, candidateName) {
   const today = new Date().toLocaleDateString("en-US", { year:"numeric", month:"long", day:"numeric" });
   doc.fontSize(9).font("Helvetica").fillColor(MUTED)
      .text(today, M, 58, { width: W, align: "right" });
-  doc.y = 82;
+  doc.y = 110;
 
   const nameU = nameN.toUpperCase();
   const raw = cleanForPdf(coverLetter || "");
@@ -465,7 +465,7 @@ function buildReportPDF(doc, report, candidateName) {
   doc.fontSize(8).font("Helvetica").fillColor(MUTED).text(today, M, name ? 56 : 42);
   const divY = name ? 70 : 58;
   doc.moveTo(M, divY).lineTo(pageW - M, divY).lineWidth(1.5).strokeColor(ACCENT).stroke();
-  doc.y = divY + 14;
+  doc.y = divY + 28;
 
   // Score boxes
   const bW = (W - 16) / 3;
